@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <title>FART2 Upgrade NFT</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent
+    }
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:#080b0e;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif
+    }
+
+    body{
+      padding-bottom:env(safe-area-inset-bottom)
+    }
+
+    button{
+      font-family:inherit;
+      touch-action:manipulation
+    }
+
+    .page{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 50% 35%,rgba(27,216,145,.08),transparent 30%),
+        #080b0e;
+      padding:
+        calc(14px + env(safe-area-inset-top))
+        15px
+        calc(105px + env(safe-area-inset-bottom))
+    }
+
+    .wrap{
+      max-width:720px;
+      margin:0 auto
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns:95px 1fr 95px;
+      align-items:center;
+      gap:8px;
+      margin-bottom:14px
+    }
+
+    .back,
+    .refresh{
+      height:42px;
+      border:0;
+      border-radius:22px;
+      background:#24272b;
+      color:#fff;
+      font-size:16px;
+      font-weight:800;
+      cursor:pointer
+    }
+
+    .brand{
+      text-align:center;
+      font-size:20px;
+      font-weight:900
+    }
+
+    .balance-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:7px 3px 18px;
+      border-bottom:1px solid #272b30
+    }
+
+    .balance small{
+      display:block;
+      color:#92979e;
+      font-size:14px;
+      margin-bottom:4px
+    }
+
+    .balance strong{
+      font-size:29px
+    }
+
+    .deposit{
+      border:0;
+      border-radius:18px;
+      padding:13px 17px;
+      color:#fff;
+      background:linear-gradient(135deg,#7652ff,#9257ed);
+      font-size:16px;
+      font-weight:850;
+      cursor:pointer
+    }
+
+    .panel{
+      margin-top:25px;
+      padding:20px 16px 18px;
+      border-radius:25px;
+      border:1px solid #2c3134;
+      background:
+        radial-gradient(circle at 86% 15%,rgba(34,216,147,.08),transparent 22%),
+        linear-gradient(180deg,#181c1d,#111416)
+    }
+
+    .panel-head{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:20px
+    }
+
+    .panel-icon{
+      width:48px;
+      height:48px;
+      min-width:48px;
+      border-radius:15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#13ba75,#25df91);
+      font-size:25px;
+      font-weight:900
+    }
+
+    .panel-head h2{
+      font-size:22px;
+      margin-bottom:4px
+    }
+
+    .panel-head p{
+      color:#18c785;
+      font-size:16px
+    }
+
+    .steps{
+      display:grid;
+      grid-template-columns:1fr 70px 1fr;
+      align-items:start
+    }
+
+    .label{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      color:#25db95;
+      border:1px solid rgba(37,219,149,.4);
+      border-radius:12px;
+      padding:7px 10px;
+      margin-bottom:10px;
+      font-size:13px;
+      font-weight:850
+    }
+
+    .num{
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#25db95;
+      color:#06120d;
+      font-size:12px
+    }
+
+    .slot{
+      width:100%;
+      min-height:180px;
+      border:1px dashed rgba(37,219,149,.43);
+      border-radius:20px;
+      background:rgba(14,17,18,.85);
+      color:#fff;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      cursor:pointer
+    }
+
+    .slot.disabled{
+      opacity:.43;
+      cursor:not-allowed;
+      border-color:#34383c
+    }
+
+    .plus{
+      width:50px;
+      height:50px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(37,219,149,.4);
+      background:rgba(24,92,67,.23);
+      color:#25db95;
+      font-size:35px;
+      margin-bottom:10px
+    }
+
+    .slot strong{
+      color:#28db96;
+      font-size:17px
+    }
+
+    .slot small{
+      display:block;
+      color:#767c82;
+      font-size:12px;
+      line-height:1.35;
+      margin-top:8px
+    }
+
+    .link{
+      position:relative;
+      padding-top:73px;
+      display:flex;
+      justify-content:center
+    }
+
+    .bolt{
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#16b875,#32e99f);
+      border:2px solid #2dde9c;
+      font-size:26px
+    }
+
+    .roulette{
+      padding:40px 8px 0;
+      display:flex;
+      flex-direction:column;
+      align-items:center
+    }
+
+    .wheel-wrap{
+      position:relative;
+      width:min(88vw,455px);
+      aspect-ratio:1
+    }
+
+    .pointer{
+      position:absolute;
+      left:50%;
+      top:-3px;
+      transform:translateX(-50%);
+      width:0;
+      height:0;
+      border-left:11px solid transparent;
+      border-right:11px solid transparent;
+      border-bottom:31px solid #ffc82d;
+      z-index:5;
+      filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))
+    }
+
+    .pointer:after{
+      content:"";
+      position:absolute;
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#fff0a2;
+      left:-4.5px;
+      top:12px
+    }
+
+    .outer{
+      position:absolute;
+      inset:0;
+      border-radius:50%;
+      padding:15px;
+      background:
+        repeating-conic-gradient(
+          from 0deg,
+          #596471 0deg 1.1deg,
+          #2e3741 1.1deg 7.5deg
+        );
+      box-shadow:
+        inset 0 0 0 5px #313b45,
+        0 17px 42px rgba(0,0,0,.32)
+    }
+
+    .face{
+      --chance:0;
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      border:10px solid #111a20;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 0 45%,
+          rgba(0,0,0,.13) 45.5% 46%,
+          transparent 46.5%
+        ),
+        repeating-conic-gradient(
+          from 0deg,
+          rgba(255,255,255,.12) 0deg .8deg,
+          rgba(0,0,0,.10) .8deg 3.5deg
+        ),
+        conic-gradient(
+          #16c988 0deg calc(var(--chance) * 3.6deg),
+          #28313a calc(var(--chance) * 3.6deg) 360deg
+        );
+
+      transition:
+        transform 4.2s cubic-bezier(.12,.66,.12,1)
+    }
+
+    .center{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:43%;
+      aspect-ratio:1;
+      border-radius:50%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:#2a343c;
+      border:5px solid #34414a;
+      box-shadow:0 0 0 4px rgba(0,0,0,.25)
+    }
+
+    .chance{
+      font-size:36px;
+      line-height:1;
+      font-weight:950;
+      color:#2dde9c
+    }
+
+    .level{
+      margin-top:7px;
+      color:#b9c0c5;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:1.7px;
+      text-transform:uppercase
+    }
+
+    .play{
+      width:min(88vw,455px);
+      margin-top:24px;
+      border:0;
+      border-radius:20px;
+      padding:17px 20px;
+      background:linear-gradient(135deg,#17bf7c,#25dc91);
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer
+    }
+
+    .play:disabled{
+      opacity:.35;
+      cursor:default
+    }
+
+    .note{
+      width:min(88vw,455px);
+      text-align:center;
+      margin-top:12px;
+      color:#777d83;
+      font-size:12px;
+      line-height:1.45
+    }
+
+    .nav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      background:rgba(20,22,24,.96);
+      border-top:1px solid #2c3034;
+      padding:
+        8px 8px
+        calc(8px + env(safe-area-inset-bottom));
+      backdrop-filter:blur(15px)
+    }
+
+    .nav-inner{
+      max-width:720px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:5px
+    }
+
+    .nav button{
+      min-height:58px;
+      border:0;
+      border-radius:14px;
+      background:transparent;
+      color:#8f9499;
+      font-size:12px;
+      font-weight:750
+    }
+
+    .nav span{
+      display:block;
+      font-size:25px;
+      margin-bottom:3px
+    }
+
+    .nav .active{
+      color:#fff;
+      background:#272a2d
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(0,0,0,.72);
+      z-index:1000
+    }
+
+    .modal.active{
+      display:flex
+    }
+
+    .sheet{
+      width:100%;
+      max-width:720px;
+      max-height:82vh;
+      overflow:auto;
+      border-radius:28px 28px 0 0;
+      background:#12161e;
+      border:1px solid #282e38;
+      padding:
+        22px 16px
+        calc(25px + env(safe-area-inset-bottom))
+    }
+
+    .sheet-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:18px
+    }
+
+    .sheet-head h3{
+      font-size:24px
+    }
+
+    .close{
+      width:42px;
+      height:42px;
+      border:0;
+      border-radius:50%;
+      background:#262c36;
+      color:#fff;
+      font-size:20px
+    }
+
+    .list{
+      display:grid;
+      gap:10px
+    }
+
+    .item{
+      width:100%;
+      display:grid;
+      grid-template-columns:58px 1fr auto;
+      align-items:center;
+      gap:12px;
+      border:1px solid #30363d;
+      border-radius:18px;
+      padding:10px;
+      background:#191e23;
+      color:#fff;
+      text-align:left
+    }
+
+    .emoji{
+      width:58px;
+      height:58px;
+      border-radius:14px;
+      background:#252b30;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px
+    }
+
+    .item-name{
+      font-size:16px;
+      font-weight:850
+    }
+
+    .item-meta{
+      color:#92989e;
+      font-size:13px;
+      margin-top:4px
+    }
+
+    .item-price{
+      color:#2dde9c;
+      font-size:14px;
+      font-weight:850
+    }
+
+    .empty{
+      text-align:center;
+      color:#8d9399;
+      padding:26px 10px;
+      line-height:1.45
+    }
+
+    @media(max-width:520px){
+
+      .steps{
+        grid-template-columns:1fr 62px 1fr
+      }
+
+      .link{
+        padding-top:68px
+      }
+
+      .slot{
+        min-height:170px;
+        padding:9px
+      }
+
+      .label{
+        font-size:12px;
+        padding:6px 8px
+      }
+
+      .chance{
+        font-size:31px
+      }
+
+      .panel-head h2{
+        font-size:20px
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="wrap">
+
+    <div class="topbar">
+
+      <button
+        id="back"
+        class="back"
+        type="button"
+      >
+        ‹ Назад
+      </button>
+
+      <div class="brand">
+        🎁 FART2 Upgrade
+      </div>
+
+      <button
+        id="refresh"
+        class="refresh"
+        type="button"
+      >
+        ↻
+      </button>
+
+    </div>
+
+
+    <div class="balance-row">
+
+      <div class="balance">
+
+        <small>
+          Ваш баланс
+        </small>
+
+        <strong>
+          💎
+          <span id="balance">0</span>
+        </strong>
+
+      </div>
+
+      <button
+        id="deposit"
+        class="deposit"
+        type="button"
+      >
+        💳 Пополнить
+      </button>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panel-head">
+
+        <div class="panel-icon">
+          ↗
+        </div>
+
+        <div>
+
+          <h2>
+            Улучшение подарка
+          </h2>
+
+          <p>
+            Превратите ваш подарок в нечто лучшее
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="steps">
+
+        <div>
+
+          <div class="label">
+
+            <span class="num">
+              1
+            </span>
+
+            Ваш подарок
+
+          </div>
+
+          <button
+            id="sourceSlot"
+            class="slot"
+            type="button"
+          >
+
+            <div class="plus">
+              +
+            </div>
+
+            <strong>
+              Выбрать подарок
+            </strong>
+
+            <small>
+              Выберите NFT из инвентаря
+            </small>
+
+          </button>
+
+        </div>
+
+
+        <div class="link">
+
+          <div class="bolt">
+            ⚡
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <div class="label">
+
+            <span class="num">
+              2
+            </span>
+
+            Цель
+
+          </div>
+
+          <button
+            id="targetSlot"
+            class="slot disabled"
+            type="button"
+            disabled
+          >
+
+            <div class="plus">
+              +
+            </div>
+
+            <strong>
+              Сначала подарок
+            </strong>
+
+            <small>
+              Затем выберите цель
+            </small>
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="roulette">
+
+      <div class="wheel-wrap">
+
+        <div class="pointer">
+        </div>
+
+        <div class="outer">
+
+          <div
+            id="wheel"
+            class="face"
+          >
+          </div>
+
+        </div>
+
+        <div class="center">
+
+          <div
+            id="chance"
+            class="chance"
+          >
+            0.0%
+          </div>
+
+          <div
+            id="level"
+            class="level"
+          >
+            выберите NFT
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="play"
+        class="play"
+        type="button"
+        disabled
+      >
+        ⚡ Запустить Upgrade
+      </button>
+
+
+      <div class="note">
+        Процент и результат должны приходить с сервера.
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<nav class="nav">
+
+  <div class="nav-inner">
+
+    <button
+      id="inventoryNav"
+      type="button"
+    >
+      <span>⬡</span>
+      Инвентарь
+    </button>
+
+    <button
+      id="giftNav"
+      type="button"
+    >
+      <span>🎁</span>
+      Внести
+    </button>
+
+    <button
+      id="homeNav"
+      class="active"
+      type="button"
+    >
+      <span>⌂</span>
+      Главная
+    </button>
+
+    <button
+      id="walletNav"
+      type="button"
+    >
+      <span>💎</span>
+      Баланс
+    </button>
+
+  </div>
+
+</nav>
+
+
+<div
+  id="sourceModal"
+  class="modal"
+>
+
+  <div class="sheet">
+
+    <div class="sheet-head">
+
+      <h3>
+        Ваш подарок
+      </h3>
+
+      <button
+        class="close"
+        data-close="sourceModal"
+        type="button"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div
+      id="sourceList"
+      class="list"
+    >
+    </div>
+
+  </div>
+
+</div>
+
+
+<div
+  id="targetModal"
+  class="modal"
+>
+
+  <div class="sheet">
+
+    <div class="sheet-head">
+
+      <h3>
+        Выберите цель
+      </h3>
+
+      <button
+        class="close"
+        data-close="targetModal"
+        type="button"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div
+      id="targetList"
+      class="list"
+    >
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+(() => {
+
+  const tg =
+    window.Telegram?.WebApp ||
+    null;
+
+
+  const state = {
+
+    inventory: [],
+
+    catalog: [],
+
+    source: null,
+
+    target: null,
+
+    quote: null,
+
+    spinning: false
+
+  };
+
+
+  try {
+
+    tg?.ready();
+
+    tg?.expand();
+
+    tg?.setHeaderColor(
+      "#080b0e"
+    );
+
+    tg?.setBackgroundColor(
+      "#080b0e"
+    );
+
+  } catch (_) {}
+
+
+  function initData() {
+
+    if (!tg?.initData) {
+
+      throw new Error(
+        "Откройте приложение внутри Telegram"
+      );
+
+    }
+
+    return tg.initData;
+
+  }
+
+
+  async function api(
+    url,
+    body
+  ) {
+
+    const response =
+      await fetch(
+        url,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              body
+            )
+
+        }
+      );
+
+
+    let data = {};
+
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch (_) {}
+
+
+    if (!response.ok) {
+
+      throw new Error(
+
+        data?.detail ||
+
+        data?.error ||
+
+        data?.message ||
+
+        `Ошибка ${response.status}`
+
+      );
+
+    }
+
+
+    return data;
+
+  }
+
+
+  function openModal(id) {
+
+    document
+      .getElementById(id)
+      ?.classList
+      .add(
+        "active"
+      );
+
+  }
+
+
+  function closeModal(id) {
+
+    document
+      .getElementById(id)
+      ?.classList
+      .remove(
+        "active"
+      );
+
+  }
+
+
+  function normalize(item) {
+
+    return {
+
+      id:
+        String(
+          item?.id ??
+          item?.gift_id ??
+          item?.nft_id ??
+          ""
+        ),
+
+      name:
+        String(
+          item?.name ??
+          item?.title ??
+          "NFT"
+        ),
+
+      price:
+        Number(
+          item?.price_ton ??
+          item?.value_ton ??
+          item?.floor_ton ??
+          0
+        )
+
+    };
+
+  }
+
+
+  async function loadBalance() {
+
+    try {
+
+      const data =
+        await api(
+          "/api/balances",
+          {
+            initData:
+              initData()
+          }
+        );
+
+
+      document
+        .getElementById(
+          "balance"
+        )
+        .textContent =
+
+          data?.balances?.TON ??
+          "0";
+
+    } catch (_) {}
+
+  }
+
+
+  async function loadData() {
+
+    document.getElementById(
+      "sourceList"
+    ).innerHTML =
+      '<div class="empty">Загрузка…</div>';
+
+
+    document.getElementById(
+      "targetList"
+    ).innerHTML =
+      '<div class="empty">Загрузка…</div>';
+
+
+    try {
+
+      const [
+        inv,
+        cat
+      ] =
+        await Promise.all([
+
+          api(
+            "/api/upgrade/inventory",
+            {
+              initData:
+                initData()
+            }
+          ),
+
+          api(
+            "/api/upgrade/catalog",
+            {
+              initData:
+                initData()
+            }
+          )
+
+        ]);
+
+
+      state.inventory =
+        (
+          inv?.items ??
+          inv?.inventory ??
+          []
+        )
+        .map(
+          normalize
+        )
+        .filter(
+          x => x.id
+        );
+
+
+      state.catalog =
+        (
+          cat?.items ??
+          cat?.catalog ??
+          []
+        )
+        .map(
+          normalize
+        )
+        .filter(
+          x => x.id
+        );
+
+
+      renderList(
+        "source",
+        state.inventory
+      );
+
+
+      renderList(
+        "target",
+        state.catalog
+      );
+
+    } catch (e) {
+
+      document.getElementById(
+        "sourceList"
+      ).innerHTML =
+
+        '<div class="empty">Не удалось загрузить инвентарь.<br>Нужен /api/upgrade/inventory</div>';
+
+
+      document.getElementById(
+        "targetList"
+      ).innerHTML =
+
+        '<div class="empty">Не удалось загрузить каталог.<br>Нужен /api/upgrade/catalog</div>';
+
+    }
+
+  }
+
+
+  function renderList(
+    type,
+    items
+  ) {
+
+    const el =
+      document.getElementById(
+
+        type ===
+        "source"
+
+          ? "sourceList"
+
+          : "targetList"
+
+      );
+
+
+    if (!items.length) {
+
+      el.innerHTML =
+        '<div class="empty">Список пока пуст.</div>';
+
+      return;
+
+    }
+
+
+    el.innerHTML =
+      items
+        .map(
+          item => `
+
+            <button
+              class="item"
+              type="button"
+              data-type="${type}"
+              data-id="${item.id}"
+            >
+
+              <div class="emoji">
+                🎁
+              </div>
+
+              <div>
+
+                <div class="item-name">
+                  ${escapeHtml(item.name)}
+                </div>
+
+                <div class="item-meta">
+
+                  ${
+                    type ===
+                    "source"
+
+                      ? "Ваш NFT"
+
+                      : "Цель Upgrade"
+                  }
+
+                </div>
+
+              </div>
+
+              <div class="item-price">
+
+                ${
+                  item.price > 0
+
+                    ? formatTon(
+                        item.price
+                      ) +
+                      " TON"
+
+                    : ""
+                }
+
+              </div>
+
+            </button>
+
+          `
+        )
+        .join("");
+
+
+    el
+      .querySelectorAll(
+        "[data-id]"
+      )
+      .forEach(
+        btn => {
+
+          btn.addEventListener(
+            "click",
+            async () => {
+
+              if (
+                type ===
+                "source"
+              ) {
+
+                state.source =
+                  state.inventory
+                    .find(
+                      x =>
+                        x.id ===
+                        btn.dataset.id
+                    ) ||
+                  null;
+
+
+                state.target =
+                  null;
+
+
+                state.quote =
+                  null;
+
+
+                closeModal(
+                  "sourceModal"
+                );
+
+
+                document
+                  .getElementById(
+                    "targetSlot"
+                  )
+                  .disabled =
+                    false;
+
+
+                document
+                  .getElementById(
+                    "targetSlot"
+                  )
+                  .classList
+                  .remove(
+                    "disabled"
+                  );
+
+
+                renderSlots();
+
+                updateWheel(
+                  0
+                );
+
+              }
+
+              else {
+
+                state.target =
+                  state.catalog
+                    .find(
+                      x =>
+                        x.id ===
+                        btn.dataset.id
+                    ) ||
+                  null;
+
+
+                closeModal(
+                  "targetModal"
+                );
+
+
+                renderSlots();
+
+
+                await quote();
+
+              }
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  function renderSlots() {
+
+    const source =
+      document.getElementById(
+        "sourceSlot"
+      );
+
+
+    const target =
+      document.getElementById(
+        "targetSlot"
+      );
+
+
+    source.innerHTML =
+      state.source
+
+        ? `
+
+          <div
+            style="
+              font-size:58px;
+              margin-bottom:8px
+            "
+          >
+            🎁
+          </div>
+
+          <strong>
+            ${escapeHtml(
+              state.source.name
+            )}
+          </strong>
+
+          <small>
+
+            ${
+              state.source.price > 0
+
+                ? formatTon(
+                    state.source.price
+                  ) +
+                  " TON"
+
+                : ""
+            }
+
+          </small>
+
+        `
+
+        : `
+
+          <div class="plus">
+            +
+          </div>
+
+          <strong>
+            Выбрать подарок
+          </strong>
+
+          <small>
+            Выберите NFT из инвентаря
+          </small>
+
+        `;
+
+
+    target.innerHTML =
+      state.target
+
+        ? `
+
+          <div
+            style="
+              font-size:58px;
+              margin-bottom:8px
+            "
+          >
+            🎁
+          </div>
+
+          <strong>
+            ${escapeHtml(
+              state.target.name
+            )}
+          </strong>
+
+          <small>
+
+            ${
+              state.target.price > 0
+
+                ? formatTon(
+                    state.target.price
+                  ) +
+                  " TON"
+
+                : ""
+            }
+
+          </small>
+
+        `
+
+        : `
+
+          <div class="plus">
+            +
+          </div>
+
+          <strong>
+
+            ${
+              state.source
+
+                ? "Выбрать цель"
+
+                : "Сначала подарок"
+            }
+
+          </strong>
+
+          <small>
+
+            ${
+              state.source
+
+                ? "Каталог целей"
+
+                : "Затем выберите цель"
+            }
+
+          </small>
+
+        `;
+
+  }
+
+
+  async function quote() {
+
+    if (
+      !state.source ||
+      !state.target
+    ) {
+
+      return;
+
+    }
+
+
+    const play =
+      document.getElementById(
+        "play"
+      );
+
+
+    play.disabled =
+      true;
+
+
+    play.textContent =
+      "Считаем шанс…";
+
+
+    try {
+
+      const data =
+        await api(
+          "/api/upgrade/quote",
+          {
+
+            initData:
+              initData(),
+
+            source_id:
+              state.source.id,
+
+            target_id:
+              state.target.id
+
+          }
+        );
+
+
+      const chance =
+        Number(
+
+          data?.chance_percent ??
+
+          data?.chance ??
+
+          0
+
+        );
+
+
+      if (
+        !Number.isFinite(
+          chance
+        ) ||
+
+        chance <= 0 ||
+
+        chance > 100
+      ) {
+
+        throw new Error(
+          "Некорректный шанс"
+        );
+
+      }
+
+
+      state.quote = {
+
+        id:
+          String(
+            data?.quote_id ??
+            ""
+          ),
+
+        chance
+
+      };
+
+
+      updateWheel(
+        chance
+      );
+
+
+      play.disabled =
+        false;
+
+    }
+
+    catch (_) {
+
+      state.quote =
+        null;
+
+
+      updateWheel(
+        0
+      );
+
+
+      play.disabled =
+        true;
+
+    }
+
+    finally {
+
+      play.textContent =
+        "⚡ Запустить Upgrade";
+
+    }
+
+  }
+
+
+  function updateWheel(
+    value
+  ) {
+
+    const chance =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Number(value) ||
+          0
+        )
+      );
+
+
+    document
+      .getElementById(
+        "wheel"
+      )
+      .style
+      .setProperty(
+        "--chance",
+        String(chance)
+      );
+
+
+    document
+      .getElementById(
+        "chance"
+      )
+      .textContent =
+        chance.toFixed(1) +
+        "%";
+
+
+    let level =
+      "выберите NFT";
+
+
+    if (
+      chance > 0 &&
+      chance < 20
+    ) {
+
+      level =
+        "очень низкий";
+
+    }
+
+    else if (
+      chance < 40 &&
+      chance > 0
+    ) {
+
+      level =
+        "низкий";
+
+    }
+
+    else if (
+      chance < 65 &&
+      chance > 0
+    ) {
+
+      level =
+        "средний";
+
+    }
+
+    else if (
+      chance < 85 &&
+      chance > 0
+    ) {
+
+      level =
+        "высокий";
+
+    }
+
+    else if (
+      chance >= 85
+    ) {
+
+      level =
+        "очень высокий";
+
+    }
+
+
+    document
+      .getElementById(
+        "level"
+      )
+      .textContent =
+        level;
+
+  }
+
+
+  async function play() {
+
+    if (
+      state.spinning ||
+      !state.source ||
+      !state.target ||
+      !state.quote
+    ) {
+
+      return;
+
+    }
+
+
+    const btn =
+      document.getElementById(
+        "play"
+      );
+
+
+    state.spinning =
+      true;
+
+
+    btn.disabled =
+      true;
+
+
+    btn.textContent =
+      "Upgrade запущен…";
+
+
+    try {
+
+      const result =
+        await api(
+          "/api/upgrade/play",
+          {
+
+            initData:
+              initData(),
+
+            source_id:
+              state.source.id,
+
+            target_id:
+              state.target.id,
+
+            quote_id:
+              state.quote.id ||
+              undefined
+
+          }
+        );
+
+
+      const roll =
+        Number(
+
+          result?.roll_percent ??
+
+          result?.roll
+
+        );
+
+
+      if (
+        !Number.isFinite(
+          roll
+        ) ||
+
+        roll < 0 ||
+
+        roll >= 100
+      ) {
+
+        throw new Error(
+          "Сервер не вернул roll_percent"
+        );
+
+      }
+
+
+      const wheel =
+        document.getElementById(
+          "wheel"
+        );
+
+
+      wheel.style.transition =
+        "none";
+
+
+      wheel.style.transform =
+        "rotate(0deg)";
+
+
+      void wheel.offsetWidth;
+
+
+      wheel.style.transition =
+        "transform 4.2s cubic-bezier(.12,.66,.12,1)";
+
+
+      wheel.style.transform =
+        `rotate(${
+          1440 +
+          (
+            360 -
+            roll * 3.6
+          )
+        }deg)`;
+
+
+      await new Promise(
+        r =>
+          setTimeout(
+            r,
+            4300
+          )
+      );
+
+
+      const won =
+        Boolean(
+
+          result?.won ??
+
+          result?.success
+
+        );
+
+
+      alert(
+
+        won
+
+          ? "🎉 Upgrade успешен"
+
+          : "💥 Не повезло"
+
+      );
+
+
+      state.source =
+        null;
+
+
+      state.target =
+        null;
+
+
+      state.quote =
+        null;
+
+
+      document
+        .getElementById(
+          "targetSlot"
+        )
+        .disabled =
+          true;
+
+
+      document
+        .getElementById(
+          "targetSlot"
+        )
+        .classList
+        .add(
+          "disabled"
+        );
+
+
+      renderSlots();
+
+      updateWheel(
+        0
+      );
+
+
+      await loadData();
+
+      await loadBalance();
+
+    }
+
+    catch (e) {
+
+      alert(
+        "Ошибка: " +
+        e.message
+      );
+
+    }
+
+    finally {
+
+      state.spinning =
+        false;
+
+
+      btn.disabled =
+        !state.quote;
+
+
+      btn.textContent =
+        "⚡ Запустить Upgrade";
+
+    }
+
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value)
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+  function formatTon(value) {
+
+    return Number(value)
+
+      .toFixed(4)
+
+      .replace(
+        /0+$/,
+        ""
+      )
+
+      .replace(
+        /\.$/,
+        ""
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      "sourceSlot"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        openModal(
+          "sourceModal"
+        );
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "targetSlot"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        if (
+          state.source
+        ) {
+
+          openModal(
+            "targetModal"
+          );
+
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "play"
+    )
+    .addEventListener(
+      "click",
+      play
+    );
+
+
+  document
+    .querySelectorAll(
+      "[data-close]"
+    )
+    .forEach(
+      btn => {
+
+        btn.addEventListener(
+          "click",
+          () => {
+
+            closeModal(
+              btn.dataset.close
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  document
+    .querySelectorAll(
+      ".modal"
+    )
+    .forEach(
+      modal => {
+
+        modal.addEventListener(
+          "click",
+          e => {
+
+            if (
+              e.target ===
+              modal
+            ) {
+
+              closeModal(
+                modal.id
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "back"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "refresh"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        await loadBalance();
+
+        await loadData();
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "deposit"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "inventoryNav"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/inventory";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "giftNav"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/deposit";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "homeNav"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "walletNav"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  renderSlots();
+
+  updateWheel(
+    0
+  );
+
+  loadBalance();
+
+  loadData();
+
+})();
+
+</script>
+
+</body>
+</html>
