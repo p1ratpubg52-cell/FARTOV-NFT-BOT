@@ -2,7 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
 <title>FARTOV NFT</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,8 +18,6 @@
   --line:#292d37;
   --muted:#969dab;
   --accent:#7657ff;
-  --green:#20d58a;
-  --red:#ff5e6c;
 }
 
 *{
@@ -36,7 +38,7 @@ body{
 }
 
 .brand{
-  font-size:26px;
+  font-size:28px;
   font-weight:900;
   margin:4px 0 18px;
 }
@@ -50,7 +52,7 @@ body{
 }
 
 .title{
-  font-size:19px;
+  font-size:20px;
   font-weight:800;
   margin-bottom:8px;
 }
@@ -146,14 +148,6 @@ a.btn{
   color:#38d69f;
 }
 
-.pending{
-  color:#ffd166;
-}
-
-.rejected{
-  color:#ff6b6b;
-}
-
 .wheelWrap{
   display:flex;
   justify-content:center;
@@ -179,14 +173,13 @@ a.btn{
   height:310px;
   border-radius:50%;
   border:12px solid #2b3442;
-  box-shadow:0 0 0 6px #151b22 inset;
   transition:transform 3.6s cubic-bezier(.12,.72,.17,1);
 }
 
 .odds{
   text-align:center;
   font-weight:900;
-  font-size:26px;
+  font-size:28px;
   margin-top:10px;
 }
 
@@ -194,17 +187,7 @@ a.btn{
   text-align:center;
   font-size:18px;
   font-weight:800;
-  margin-top:12px;
-}
-
-.notice{
-  background:#121820;
-  border:1px solid #25344b;
-  border-radius:16px;
-  padding:13px;
-  color:#aeb8c7;
-  font-size:13px;
-  line-height:1.4;
+  margin-top:14px;
 }
 </style>
 </head>
@@ -213,222 +196,229 @@ a.btn{
 
 <div class="wrap">
 
-<div class="brand">
-FARTOV NFT
+  <div class="brand">
+    FARTOV NFT
+  </div>
+
+  <section id="home" class="screen active">
+
+    <div class="card">
+
+      <div
+      class="title"
+      id="userName">
+        Загрузка…
+      </div>
+
+      <div
+      class="big"
+      id="count">
+        0
+      </div>
+
+      <div class="muted">
+        подарков в профиле
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section id="upgrade" class="screen">
+
+    <div class="card">
+
+      <div class="title">
+        Upgrade
+      </div>
+
+      <div class="muted">
+        Выбери подарок из своего профиля:
+      </div>
+
+      <select id="sourceGift">
+
+        <option value="">
+          Нет доступных подарков
+        </option>
+
+      </select>
+
+
+      <div
+      class="muted"
+      style="margin-top:14px">
+        Выбери цель:
+      </div>
+
+
+      <select id="targetGift">
+
+        <option value="1.5">
+          Target ×1.5 — шанс 62%
+        </option>
+
+        <option value="2">
+          Target ×2 — шанс 46%
+        </option>
+
+        <option value="3">
+          Target ×3 — шанс 29%
+        </option>
+
+        <option value="5">
+          Target ×5 — шанс 16%
+        </option>
+
+      </select>
+
+
+      <div class="wheelWrap">
+
+        <div class="pointer"></div>
+
+        <canvas
+        id="wheel"
+        width="620"
+        height="620">
+        </canvas>
+
+      </div>
+
+
+      <div
+      class="odds"
+      id="odds">
+        62%
+      </div>
+
+
+      <button
+      id="spinBtn"
+      onclick="spin()">
+        Крутить
+      </button>
+
+
+      <div
+      id="result"
+      class="result">
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section id="deposit" class="screen">
+
+    <div class="card">
+
+      <div class="title">
+        Внести подарок
+      </div>
+
+
+      <div class="muted">
+        1. Отправь collectible gift на:
+      </div>
+
+
+      <div
+      class="deposit"
+      id="depUser">
+        @fart2_backpack
+      </div>
+
+
+      <a
+      class="btn secondary"
+      id="depLink"
+      href="https://t.me/fart2_backpack">
+        Открыть аккаунт
+      </a>
+
+
+      <div
+      class="muted"
+      style="margin-top:16px">
+        2. Вставь публичную ссылку подарка:
+      </div>
+
+
+      <input
+      id="giftUrl"
+      placeholder="https://t.me/nft/...">
+
+
+      <button onclick="sendDep()">
+        Отправить на проверку
+      </button>
+
+
+      <div
+      id="msg"
+      class="muted"
+      style="margin-top:10px">
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section
+  id="inventory"
+  class="screen">
+
+    <div class="card">
+
+      <div class="title">
+        Мои подарки
+      </div>
+
+      <div
+      id="items"
+      class="muted">
+        Пока нет подарков.
+      </div>
+
+    </div>
+
+  </section>
+
 </div>
 
-<section id="home" class="screen active">
-
-<div class="card">
-
-<div class="title" id="userName">
-Загрузка…
-</div>
-
-<div class="big" id="count">
-0
-</div>
-
-<div class="muted">
-подтвержденных подарков
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="title">
-Demo Upgrade
-</div>
-
-<div class="muted">
-Выбери подтвержденный подарок и попробуй тестовый апгрейд.
-Реальный подарок при этом не списывается.
-</div>
-
-<button onclick="showTab('upgrade',document.querySelectorAll('.tab')[1])">
-Открыть колесо
-</button>
-
-</div>
-
-</section>
-
-<section id="upgrade" class="screen">
-
-<div class="card">
-
-<div class="title">
-Demo Upgrade
-</div>
-
-<div class="muted">
-Выбери подтвержденный подарок:
-</div>
-
-<select id="sourceGift">
-<option value="">
-Нет подтвержденных подарков
-</option>
-</select>
-
-<div class="muted" style="margin-top:14px">
-Выбери цель:
-</div>
-
-<select id="targetGift">
-
-<option value="1.5">
-Demo Target ×1.5 — шанс 62%
-</option>
-
-<option value="2">
-Demo Target ×2 — шанс 46%
-</option>
-
-<option value="3">
-Demo Target ×3 — шанс 29%
-</option>
-
-<option value="5">
-Demo Target ×5 — шанс 16%
-</option>
-
-</select>
-
-<div class="wheelWrap">
-
-<div class="pointer"></div>
-
-<canvas
-id="wheel"
-width="620"
-height="620">
-</canvas>
-
-</div>
-
-<div
-class="odds"
-id="odds">
-62%
-</div>
-
-<button
-id="spinBtn"
-onclick="spin()">
-Крутить Demo Upgrade
-</button>
-
-<div
-id="result"
-class="result">
-</div>
-
-</div>
-
-<div class="notice">
-Это тестовая механика. Реальные Telegram-подарки не списываются и не передаются по результату колеса.
-</div>
-
-</section>
-
-<section id="deposit" class="screen">
-
-<div class="card">
-
-<div class="title">
-Внести подарок
-</div>
-
-<div class="muted">
-1. Отправь collectible gift на:
-</div>
-
-<div
-class="deposit"
-id="depUser">
-@fart2_backpack
-</div>
-
-<a
-class="btn secondary"
-id="depLink"
-href="https://t.me/fart2_backpack">
-Открыть аккаунт
-</a>
-
-<div
-class="muted"
-style="margin-top:16px">
-2. Вставь публичную ссылку подарка:
-</div>
-
-<input
-id="giftUrl"
-placeholder="https://t.me/nft/...">
-
-<button onclick="sendDep()">
-Отправить на проверку
-</button>
-
-<div
-id="msg"
-class="muted"
-style="margin-top:10px">
-</div>
-
-</div>
-
-</section>
-
-<section id="inventory" class="screen">
-
-<div class="card">
-
-<div class="title">
-Мои подарки
-</div>
-
-<div
-id="items"
-class="muted">
-Пока нет депозитов.
-</div>
-
-</div>
-
-</section>
-
-</div>
 
 <div class="tabs">
 
-<div
-class="tab active"
-onclick="showTab('home',this)">
-Главная
+  <div
+  class="tab active"
+  onclick="showTab('home',this)">
+    Главная
+  </div>
+
+  <div
+  class="tab"
+  onclick="showTab('upgrade',this)">
+    Upgrade
+  </div>
+
+  <div
+  class="tab"
+  onclick="showTab('deposit',this)">
+    Депозит
+  </div>
+
+  <div
+  class="tab"
+  onclick="showTab('inventory',this)">
+    Подарки
+  </div>
+
 </div>
 
-<div
-class="tab"
-onclick="showTab('upgrade',this)">
-Upgrade
-</div>
-
-<div
-class="tab"
-onclick="showTab('deposit',this)">
-Депозит
-</div>
-
-<div
-class="tab"
-onclick="showTab('inventory',this)">
-Подарки
-</div>
-
-</div>
 
 <script>
 
@@ -447,54 +437,62 @@ const oddsMap = {
   "5":16
 };
 
-function showTab(id,el){
+
+function showTab(id,element){
 
   document
-    .querySelectorAll('.screen')
-    .forEach(x => x.classList.remove('active'));
+  .querySelectorAll('.screen')
+  .forEach(
+    x => x.classList.remove('active')
+  );
 
   document
-    .querySelectorAll('.tab')
-    .forEach(x => x.classList.remove('active'));
+  .querySelectorAll('.tab')
+  .forEach(
+    x => x.classList.remove('active')
+  );
 
   document
-    .getElementById(id)
-    .classList.add('active');
+  .getElementById(id)
+  .classList.add('active');
 
-  if(el){
-    el.classList.add('active');
+  if(element){
+    element.classList.add('active');
   }
+
 }
 
-function drawWheel(pct){
 
-  const c =
-    document.getElementById('wheel');
+function drawWheel(percent){
+
+  const canvas =
+  document.getElementById('wheel');
 
   const ctx =
-    c.getContext('2d');
+  canvas.getContext('2d');
 
   const cx =
-    c.width / 2;
+  canvas.width / 2;
 
   const cy =
-    c.height / 2;
+  canvas.height / 2;
 
-  const r =
-    265;
+  const radius =
+  265;
 
   ctx.clearRect(
     0,
     0,
-    c.width,
-    c.height
+    canvas.width,
+    canvas.height
   );
 
   const start =
-    -Math.PI / 2;
+  -Math.PI / 2;
 
-  const green =
-    2 * Math.PI * (pct / 100);
+  const greenAngle =
+  2 * Math.PI * (percent / 100);
+
 
   ctx.beginPath();
 
@@ -506,17 +504,18 @@ function drawWheel(pct){
   ctx.arc(
     cx,
     cy,
-    r,
+    radius,
     start,
-    start + green
+    start + greenAngle
   );
 
   ctx.closePath();
 
   ctx.fillStyle =
-    '#19c986';
+  '#19c986';
 
   ctx.fill();
+
 
   ctx.beginPath();
 
@@ -528,17 +527,18 @@ function drawWheel(pct){
   ctx.arc(
     cx,
     cy,
-    r,
-    start + green,
+    radius,
+    start + greenAngle,
     start + Math.PI * 2
   );
 
   ctx.closePath();
 
   ctx.fillStyle =
-    '#202733';
+  '#202733';
 
   ctx.fill();
+
 
   for(
     let i = 0;
@@ -546,31 +546,32 @@ function drawWheel(pct){
     i++
   ){
 
-    const a =
-      start +
-      i * (Math.PI * 2 / 72);
+    const angle =
+    start +
+    i * (Math.PI * 2 / 72);
 
     ctx.beginPath();
 
     ctx.moveTo(
-      cx + Math.cos(a) * 80,
-      cy + Math.sin(a) * 80
+      cx + Math.cos(angle) * 80,
+      cy + Math.sin(angle) * 80
     );
 
     ctx.lineTo(
-      cx + Math.cos(a) * r,
-      cy + Math.sin(a) * r
+      cx + Math.cos(angle) * radius,
+      cy + Math.sin(angle) * radius
     );
 
     ctx.strokeStyle =
-      'rgba(255,255,255,.10)';
+    'rgba(255,255,255,.10)';
 
     ctx.lineWidth =
-      2;
+    2;
 
     ctx.stroke();
 
   }
+
 
   ctx.beginPath();
 
@@ -583,339 +584,523 @@ function drawWheel(pct){
   );
 
   ctx.fillStyle =
-    '#24303a';
+  '#24303a';
 
   ctx.fill();
 
+
   ctx.fillStyle =
-    '#fff';
+  '#fff';
 
   ctx.font =
-    'bold 42px -apple-system';
+  'bold 42px -apple-system';
 
   ctx.textAlign =
-    'center';
+  'center';
 
   ctx.fillText(
-    pct + '%',
+    percent + '%',
     cx,
     cy + 8
   );
 
 }
 
+
 document
 .getElementById('targetGift')
 .addEventListener(
 'change',
-e => {
+event => {
 
-  const p =
-    oddsMap[e.target.value];
+  const percent =
+  oddsMap[event.target.value];
 
   document
-    .getElementById('odds')
-    .innerText =
-    p + '%';
+  .getElementById('odds')
+  .innerText =
+  percent + '%';
 
-  drawWheel(p);
+  drawWheel(
+    percent
+  );
 
 }
 );
 
-function spin(){
 
-  const src =
+async function hideGift(giftId){
+
+  const response =
+  await fetch(
+    '/api/hide-gift',
+    {
+
+      method:'POST',
+
+      headers:{
+        'Content-Type':
+        'application/json'
+      },
+
+      body:
+      JSON.stringify({
+
+        initData:
+        tg.initData,
+
+        deposit_id:
+        Number(giftId)
+
+      })
+
+    }
+  );
+
+  const data =
+  await response.json();
+
+  if(!response.ok){
+
+    throw new Error(
+      data.detail ||
+      'Не удалось скрыть подарок'
+    );
+
+  }
+
+}
+
+
+async function spin(){
+
+  const source =
+  document
+  .getElementById('sourceGift')
+  .value;
+
+  if(!source){
+
     document
-      .getElementById('sourceGift')
-      .value;
-
-  if(!src){
-
-    document
-      .getElementById('result')
-      .innerText =
-      'Сначала нужен подтвержденный подарок.';
+    .getElementById('result')
+    .innerText =
+    'Сначала выбери подарок.';
 
     return;
 
   }
 
-  const mult =
-    document
-      .getElementById('targetGift')
-      .value;
 
-  const p =
-    oddsMap[mult];
+  const multiplier =
+  document
+  .getElementById('targetGift')
+  .value;
+
+
+  const percent =
+  oddsMap[multiplier];
+
 
   document
-    .getElementById('spinBtn')
-    .disabled =
-    true;
+  .getElementById('spinBtn')
+  .disabled =
+  true;
+
 
   document
-    .getElementById('result')
-    .innerText =
-    '';
+  .getElementById('result')
+  .innerText =
+  '';
+
 
   const win =
-    Math.random() * 100 < p;
+  Math.random() * 100 <
+  percent;
+
 
   let landing;
+
 
   if(win){
 
     landing =
-      Math.random() * (p - 2) + 1;
-
-  }else{
-
-    landing =
-      p +
-      Math.random() * (98 - p) +
-      1;
+    Math.random() *
+    (percent - 2) +
+    1;
 
   }
 
+  else{
+
+    landing =
+    percent +
+    Math.random() *
+    (98 - percent) +
+    1;
+
+  }
+
+
   const angle =
-    360 -
-    (landing / 100 * 360);
+  360 -
+  (
+    landing /
+    100 *
+    360
+  );
+
 
   rotation +=
-    1440 + angle;
+  1440 +
+  angle;
+
 
   document
-    .getElementById('wheel')
-    .style
-    .transform =
-    `rotate(${rotation}deg)`;
+  .getElementById('wheel')
+  .style
+  .transform =
+  `rotate(${rotation}deg)`;
+
 
   setTimeout(
-    () => {
+  async () => {
 
-      document
+    try{
+
+      if(win){
+
+        document
         .getElementById('result')
         .innerText =
-        win
-        ?
-        '✅ Demo: успех'
-        :
-        '❌ Demo: неудача';
+        '✅ Успех';
+
+      }
+
+      else{
+
+        await hideGift(
+          source
+        );
+
+        document
+        .getElementById('result')
+        .innerText =
+        '❌ Неудача';
+
+        await load();
+
+      }
+
+    }
+
+    catch(error){
 
       document
-        .getElementById('spinBtn')
-        .disabled =
-        false;
+      .getElementById('result')
+      .innerText =
+      'Ошибка: ' +
+      error.message;
 
-    },
-    3650
+    }
+
+    finally{
+
+      document
+      .getElementById('spinBtn')
+      .disabled =
+      false;
+
+    }
+
+  },
+  3650
   );
 
 }
 
+
 async function load(){
 
   const userName =
-    document
-      .getElementById('userName');
+  document
+  .getElementById('userName');
+
 
   if(!tg.initData){
 
     userName.innerText =
-      'Открой Mini App из Telegram';
+    'Открой Mini App из Telegram';
 
     return;
 
   }
 
+
   try{
 
-    const r =
-      await fetch(
-        '/api/me',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':
-            'application/json'
-          },
-          body:
-          JSON.stringify({
-            initData:
-            tg.initData
-          })
-        }
-      );
+    const response =
+    await fetch(
+      '/api/me',
+      {
 
-    const d =
-      await r.json();
+        method:'POST',
 
-    if(!r.ok){
+        headers:{
+          'Content-Type':
+          'application/json'
+        },
+
+        body:
+        JSON.stringify({
+
+          initData:
+          tg.initData
+
+        })
+
+      }
+    );
+
+
+    const data =
+    await response.json();
+
+
+    if(!response.ok){
 
       throw new Error(
-        d.detail ||
+        data.detail ||
         'Ошибка загрузки'
       );
 
     }
 
+
     deposits =
-      d.deposits;
+    data.deposits;
+
 
     userName.innerText =
-      d.user.first_name ||
-      ('@' + d.user.username) ||
-      String(d.user.id);
+
+    data.user.first_name
+
+    ||
+
+    (
+      '@' +
+      data.user.username
+    )
+
+    ||
+
+    String(
+      data.user.id
+    );
+
 
     document
-      .getElementById('depUser')
-      .innerText =
-      d.deposit_username;
+    .getElementById('depUser')
+    .innerText =
+    data.deposit_username;
+
 
     document
-      .getElementById('depLink')
-      .href =
-      'https://t.me/' +
-      d.deposit_username
-       .replace('@','');
+    .getElementById('depLink')
+    .href =
 
-    const approved =
-      deposits.filter(
-        x =>
-        x.status ===
-        'approved'
-      );
+    'https://t.me/' +
 
-    document
-      .getElementById('count')
-      .innerText =
-      approved.length;
+    data
+    .deposit_username
+    .replace(
+      '@',
+      ''
+    );
 
-    document
-      .getElementById('sourceGift')
-      .innerHTML =
-      approved.length
-      ?
-      approved
-        .map(
-          x =>
-          `<option value="${x.id}">
-          Gift #${x.id}
-          </option>`
-        )
-        .join('')
-      :
-      '<option value="">Нет подтвержденных подарков</option>';
+
+    const gifts =
+    deposits.filter(
+      gift =>
+
+      gift.status ===
+      'approved'
+
+      &&
+
+      !Number(
+        gift.hidden
+      )
+    );
+
 
     document
-      .getElementById('items')
-      .innerHTML =
-      deposits.length
-      ?
-      deposits
-        .map(
-          x =>
-          `
-          <div class="row">
+    .getElementById('count')
+    .innerText =
+    gifts.length;
 
-          <div>
+
+    document
+    .getElementById('sourceGift')
+    .innerHTML =
+
+    gifts.length
+
+    ?
+
+    gifts
+    .map(
+      gift =>
+      `
+      <option value="${gift.id}">
+        Gift #${gift.id}
+      </option>
+      `
+    )
+    .join('')
+
+    :
+
+    `
+    <option value="">
+      Нет доступных подарков
+    </option>
+    `;
+
+
+    document
+    .getElementById('items')
+    .innerHTML =
+
+    gifts.length
+
+    ?
+
+    gifts
+    .map(
+      gift =>
+      `
+      <div class="row">
+
+        <div>
 
           <b>
-          Gift #${x.id}
+            Gift #${gift.id}
           </b>
 
           <div class="muted">
-          ${x.gift_url}
+            ${gift.gift_url}
           </div>
 
-          </div>
+        </div>
 
-          <b class="${x.status}">
-          ${x.status}
-          </b>
+        <b class="approved">
+          ✓
+        </b>
 
-          </div>
-          `
-        )
-        .join('')
-      :
-      'Пока нет депозитов.';
+      </div>
+      `
+    )
+    .join('')
 
-  }catch(e){
+    :
+
+    'Пока нет подарков.';
+
+  }
+
+  catch(error){
 
     userName.innerText =
-      'Ошибка: ' +
-      e.message;
+    'Ошибка: ' +
+    error.message;
 
   }
 
 }
 
+
 async function sendDep(){
 
-  const msg =
-    document
-      .getElementById('msg');
+  const message =
+  document.getElementById('msg');
 
-  const giftUrl =
-    document
-      .getElementById('giftUrl');
+  const input =
+  document.getElementById('giftUrl');
 
-  msg.innerText =
-    'Отправляем…';
+
+  message.innerText =
+  'Отправляем…';
+
 
   try{
 
-    const r =
-      await fetch(
-        '/api/deposit',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':
-            'application/json'
-          },
-          body:
-          JSON.stringify({
-            initData:
-            tg.initData,
-            gift_url:
-            giftUrl.value.trim()
-          })
-        }
-      );
+    const response =
+    await fetch(
+      '/api/deposit',
+      {
 
-    const d =
-      await r.json();
+        method:'POST',
 
-    if(!r.ok){
+        headers:{
+          'Content-Type':
+          'application/json'
+        },
+
+        body:
+        JSON.stringify({
+
+          initData:
+          tg.initData,
+
+          gift_url:
+          input.value.trim()
+
+        })
+
+      }
+    );
+
+
+    const data =
+    await response.json();
+
+
+    if(!response.ok){
 
       throw new Error(
-        d.detail ||
+        data.detail ||
         'Ошибка'
       );
 
     }
 
-    msg.innerText =
-      'Готово. Депозит ожидает проверки.';
 
-    giftUrl.value =
-      '';
+    message.innerText =
+    'Готово. Ожидает проверки.';
+
+
+    input.value =
+    '';
+
 
     await load();
 
-  }catch(e){
+  }
 
-    msg.innerText =
-      e.message;
+  catch(error){
+
+    message.innerText =
+    error.message;
 
   }
 
 }
 
-drawWheel(62);
+
+drawWheel(
+  62
+);
+
 load();
 
 </script>
