@@ -14,6 +14,8 @@
   --line:#292d37;
   --muted:#969dab;
   --accent:#7657ff;
+  --green:#20d58a;
+  --red:#ff5e6c;
 }
 
 *{
@@ -30,7 +32,7 @@ body{
 .wrap{
   max-width:560px;
   margin:auto;
-  padding:18px 16px 92px;
+  padding:18px 16px 98px;
 }
 
 .brand{
@@ -59,18 +61,18 @@ body{
   line-height:1.45;
 }
 
+.big{
+  font-size:34px;
+  font-weight:900;
+}
+
 .deposit{
   font-size:22px;
   font-weight:900;
   margin:12px 0;
 }
 
-.big{
-  font-size:34px;
-  font-weight:900;
-  margin-top:8px;
-}
-
+select,
 input{
   width:100%;
   padding:14px;
@@ -79,6 +81,7 @@ input{
   background:#0e1014;
   color:#fff;
   font-size:16px;
+  margin-top:10px;
 }
 
 button,
@@ -150,6 +153,59 @@ a.btn{
 .rejected{
   color:#ff6b6b;
 }
+
+.wheelWrap{
+  display:flex;
+  justify-content:center;
+  margin:18px 0 10px;
+  position:relative;
+}
+
+.pointer{
+  position:absolute;
+  top:-2px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:13px solid transparent;
+  border-right:13px solid transparent;
+  border-top:28px solid #ffd54a;
+  z-index:3;
+}
+
+#wheel{
+  width:310px;
+  height:310px;
+  border-radius:50%;
+  border:12px solid #2b3442;
+  box-shadow:0 0 0 6px #151b22 inset;
+  transition:transform 3.6s cubic-bezier(.12,.72,.17,1);
+}
+
+.odds{
+  text-align:center;
+  font-weight:900;
+  font-size:26px;
+  margin-top:10px;
+}
+
+.result{
+  text-align:center;
+  font-size:18px;
+  font-weight:800;
+  margin-top:12px;
+}
+
+.notice{
+  background:#121820;
+  border:1px solid #25344b;
+  border-radius:16px;
+  padding:13px;
+  color:#aeb8c7;
+  font-size:13px;
+  line-height:1.4;
+}
 </style>
 </head>
 
@@ -157,117 +213,239 @@ a.btn{
 
 <div class="wrap">
 
-  <div class="brand">FARTOV NFT</div>
+<div class="brand">
+FARTOV NFT
+</div>
 
-  <section id="home" class="screen active">
+<section id="home" class="screen active">
 
-    <div class="card">
-      <div class="title" id="userName">Загрузка…</div>
-      <div class="big" id="count">0</div>
-      <div class="muted">подтвержденных подарков</div>
-    </div>
+<div class="card">
 
-    <div class="card">
-      <div class="title">Upgrade</div>
-      <div class="muted">
-        Реальные подарки пока только учитываются в инвентаре.
-        Игровая механика для них отключена.
-      </div>
-    </div>
+<div class="title" id="userName">
+Загрузка…
+</div>
 
-  </section>
+<div class="big" id="count">
+0
+</div>
 
-  <section id="deposit" class="screen">
+<div class="muted">
+подтвержденных подарков
+</div>
 
-    <div class="card">
+</div>
 
-      <div class="title">Внести подарок</div>
+<div class="card">
 
-      <div class="muted">
-        1. Отправь collectible gift на:
-      </div>
+<div class="title">
+Demo Upgrade
+</div>
 
-      <div class="deposit" id="depUser">
-        @fart2_backpack
-      </div>
+<div class="muted">
+Выбери подтвержденный подарок и попробуй тестовый апгрейд.
+Реальный подарок при этом не списывается.
+</div>
 
-      <a
-        class="btn secondary"
-        id="depLink"
-        href="https://t.me/fart2_backpack">
-        Открыть аккаунт
-      </a>
+<button onclick="showTab('upgrade',document.querySelectorAll('.tab')[1])">
+Открыть колесо
+</button>
 
-      <div class="muted" style="margin-top:16px">
-        2. Вставь публичную ссылку подарка:
-      </div>
+</div>
 
-      <input
-        id="giftUrl"
-        placeholder="https://t.me/nft/...">
+</section>
 
-      <button onclick="sendDep()">
-        Отправить на проверку
-      </button>
+<section id="upgrade" class="screen">
 
-      <div
-        id="msg"
-        class="muted"
-        style="margin-top:10px">
-      </div>
+<div class="card">
 
-    </div>
+<div class="title">
+Demo Upgrade
+</div>
 
-  </section>
+<div class="muted">
+Выбери подтвержденный подарок:
+</div>
 
-  <section id="inventory" class="screen">
+<select id="sourceGift">
+<option value="">
+Нет подтвержденных подарков
+</option>
+</select>
 
-    <div class="card">
+<div class="muted" style="margin-top:14px">
+Выбери цель:
+</div>
 
-      <div class="title">
-        Мои подарки
-      </div>
+<select id="targetGift">
 
-      <div
-        id="items"
-        class="muted">
-        Пока нет депозитов.
-      </div>
+<option value="1.5">
+Demo Target ×1.5 — шанс 62%
+</option>
 
-    </div>
+<option value="2">
+Demo Target ×2 — шанс 46%
+</option>
 
-  </section>
+<option value="3">
+Demo Target ×3 — шанс 29%
+</option>
+
+<option value="5">
+Demo Target ×5 — шанс 16%
+</option>
+
+</select>
+
+<div class="wheelWrap">
+
+<div class="pointer"></div>
+
+<canvas
+id="wheel"
+width="620"
+height="620">
+</canvas>
+
+</div>
+
+<div
+class="odds"
+id="odds">
+62%
+</div>
+
+<button
+id="spinBtn"
+onclick="spin()">
+Крутить Demo Upgrade
+</button>
+
+<div
+id="result"
+class="result">
+</div>
+
+</div>
+
+<div class="notice">
+Это тестовая механика. Реальные Telegram-подарки не списываются и не передаются по результату колеса.
+</div>
+
+</section>
+
+<section id="deposit" class="screen">
+
+<div class="card">
+
+<div class="title">
+Внести подарок
+</div>
+
+<div class="muted">
+1. Отправь collectible gift на:
+</div>
+
+<div
+class="deposit"
+id="depUser">
+@fart2_backpack
+</div>
+
+<a
+class="btn secondary"
+id="depLink"
+href="https://t.me/fart2_backpack">
+Открыть аккаунт
+</a>
+
+<div
+class="muted"
+style="margin-top:16px">
+2. Вставь публичную ссылку подарка:
+</div>
+
+<input
+id="giftUrl"
+placeholder="https://t.me/nft/...">
+
+<button onclick="sendDep()">
+Отправить на проверку
+</button>
+
+<div
+id="msg"
+class="muted"
+style="margin-top:10px">
+</div>
+
+</div>
+
+</section>
+
+<section id="inventory" class="screen">
+
+<div class="card">
+
+<div class="title">
+Мои подарки
+</div>
+
+<div
+id="items"
+class="muted">
+Пока нет депозитов.
+</div>
+
+</div>
+
+</section>
 
 </div>
 
 <div class="tabs">
 
-  <div
-    class="tab active"
-    onclick="showTab('home',this)">
-    Главная
-  </div>
+<div
+class="tab active"
+onclick="showTab('home',this)">
+Главная
+</div>
 
-  <div
-    class="tab"
-    onclick="showTab('deposit',this)">
-    Депозит
-  </div>
+<div
+class="tab"
+onclick="showTab('upgrade',this)">
+Upgrade
+</div>
 
-  <div
-    class="tab"
-    onclick="showTab('inventory',this)">
-    Подарки
-  </div>
+<div
+class="tab"
+onclick="showTab('deposit',this)">
+Депозит
+</div>
+
+<div
+class="tab"
+onclick="showTab('inventory',this)">
+Подарки
+</div>
 
 </div>
 
 <script>
 
-const tg = window.Telegram.WebApp;
+const tg = Telegram.WebApp;
 
 tg.ready();
 tg.expand();
+
+let deposits = [];
+let rotation = 0;
+
+const oddsMap = {
+  "1.5":62,
+  "2":46,
+  "3":29,
+  "5":16
+};
 
 function showTab(id,el){
 
@@ -283,13 +461,264 @@ function showTab(id,el){
     .getElementById(id)
     .classList.add('active');
 
-  el.classList.add('active');
+  if(el){
+    el.classList.add('active');
+  }
+}
+
+function drawWheel(pct){
+
+  const c =
+    document.getElementById('wheel');
+
+  const ctx =
+    c.getContext('2d');
+
+  const cx =
+    c.width / 2;
+
+  const cy =
+    c.height / 2;
+
+  const r =
+    265;
+
+  ctx.clearRect(
+    0,
+    0,
+    c.width,
+    c.height
+  );
+
+  const start =
+    -Math.PI / 2;
+
+  const green =
+    2 * Math.PI * (pct / 100);
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx,
+    cy
+  );
+
+  ctx.arc(
+    cx,
+    cy,
+    r,
+    start,
+    start + green
+  );
+
+  ctx.closePath();
+
+  ctx.fillStyle =
+    '#19c986';
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx,
+    cy
+  );
+
+  ctx.arc(
+    cx,
+    cy,
+    r,
+    start + green,
+    start + Math.PI * 2
+  );
+
+  ctx.closePath();
+
+  ctx.fillStyle =
+    '#202733';
+
+  ctx.fill();
+
+  for(
+    let i = 0;
+    i < 72;
+    i++
+  ){
+
+    const a =
+      start +
+      i * (Math.PI * 2 / 72);
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      cx + Math.cos(a) * 80,
+      cy + Math.sin(a) * 80
+    );
+
+    ctx.lineTo(
+      cx + Math.cos(a) * r,
+      cy + Math.sin(a) * r
+    );
+
+    ctx.strokeStyle =
+      'rgba(255,255,255,.10)';
+
+    ctx.lineWidth =
+      2;
+
+    ctx.stroke();
+
+  }
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    88,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fillStyle =
+    '#24303a';
+
+  ctx.fill();
+
+  ctx.fillStyle =
+    '#fff';
+
+  ctx.font =
+    'bold 42px -apple-system';
+
+  ctx.textAlign =
+    'center';
+
+  ctx.fillText(
+    pct + '%',
+    cx,
+    cy + 8
+  );
+
+}
+
+document
+.getElementById('targetGift')
+.addEventListener(
+'change',
+e => {
+
+  const p =
+    oddsMap[e.target.value];
+
+  document
+    .getElementById('odds')
+    .innerText =
+    p + '%';
+
+  drawWheel(p);
+
+}
+);
+
+function spin(){
+
+  const src =
+    document
+      .getElementById('sourceGift')
+      .value;
+
+  if(!src){
+
+    document
+      .getElementById('result')
+      .innerText =
+      'Сначала нужен подтвержденный подарок.';
+
+    return;
+
+  }
+
+  const mult =
+    document
+      .getElementById('targetGift')
+      .value;
+
+  const p =
+    oddsMap[mult];
+
+  document
+    .getElementById('spinBtn')
+    .disabled =
+    true;
+
+  document
+    .getElementById('result')
+    .innerText =
+    '';
+
+  const win =
+    Math.random() * 100 < p;
+
+  let landing;
+
+  if(win){
+
+    landing =
+      Math.random() * (p - 2) + 1;
+
+  }else{
+
+    landing =
+      p +
+      Math.random() * (98 - p) +
+      1;
+
+  }
+
+  const angle =
+    360 -
+    (landing / 100 * 360);
+
+  rotation +=
+    1440 + angle;
+
+  document
+    .getElementById('wheel')
+    .style
+    .transform =
+    `rotate(${rotation}deg)`;
+
+  setTimeout(
+    () => {
+
+      document
+        .getElementById('result')
+        .innerText =
+        win
+        ?
+        '✅ Demo: успех'
+        :
+        '❌ Demo: неудача';
+
+      document
+        .getElementById('spinBtn')
+        .disabled =
+        false;
+
+    },
+    3650
+  );
+
 }
 
 async function load(){
 
   const userName =
-    document.getElementById('userName');
+    document
+      .getElementById('userName');
 
   if(!tg.initData){
 
@@ -297,6 +726,7 @@ async function load(){
       'Открой Mini App из Telegram';
 
     return;
+
   }
 
   try{
@@ -307,10 +737,13 @@ async function load(){
         {
           method:'POST',
           headers:{
-            'Content-Type':'application/json'
+            'Content-Type':
+            'application/json'
           },
-          body:JSON.stringify({
-            initData:tg.initData
+          body:
+          JSON.stringify({
+            initData:
+            tg.initData
           })
         }
       );
@@ -319,10 +752,16 @@ async function load(){
       await r.json();
 
     if(!r.ok){
+
       throw new Error(
-        d.detail || 'Ошибка загрузки'
+        d.detail ||
+        'Ошибка загрузки'
       );
+
     }
+
+    deposits =
+      d.deposits;
 
     userName.innerText =
       d.user.first_name ||
@@ -338,61 +777,90 @@ async function load(){
       .getElementById('depLink')
       .href =
       'https://t.me/' +
-      d.deposit_username.replace('@','');
+      d.deposit_username
+       .replace('@','');
+
+    const approved =
+      deposits.filter(
+        x =>
+        x.status ===
+        'approved'
+      );
 
     document
       .getElementById('count')
       .innerText =
-      d.deposits
-        .filter(x => x.status === 'approved')
-        .length;
+      approved.length;
+
+    document
+      .getElementById('sourceGift')
+      .innerHTML =
+      approved.length
+      ?
+      approved
+        .map(
+          x =>
+          `<option value="${x.id}">
+          Gift #${x.id}
+          </option>`
+        )
+        .join('')
+      :
+      '<option value="">Нет подтвержденных подарков</option>';
 
     document
       .getElementById('items')
       .innerHTML =
-      d.deposits.length
+      deposits.length
       ?
-      d.deposits.map(
-        x => `
+      deposits
+        .map(
+          x =>
+          `
           <div class="row">
 
-            <div>
+          <div>
 
-              <b>
-                Gift #${x.id}
-              </b>
+          <b>
+          Gift #${x.id}
+          </b>
 
-              <div class="muted">
-                ${x.gift_url}
-              </div>
-
-            </div>
-
-            <b class="${x.status}">
-              ${x.status}
-            </b>
+          <div class="muted">
+          ${x.gift_url}
+          </div>
 
           </div>
-        `
-      ).join('')
+
+          <b class="${x.status}">
+          ${x.status}
+          </b>
+
+          </div>
+          `
+        )
+        .join('')
       :
       'Пока нет депозитов.';
 
   }catch(e){
 
     userName.innerText =
-      'Ошибка: ' + e.message;
+      'Ошибка: ' +
+      e.message;
 
   }
+
 }
 
 async function sendDep(){
 
   const msg =
-    document.getElementById('msg');
+    document
+      .getElementById('msg');
 
   const giftUrl =
-    document.getElementById('giftUrl');
+    document
+      .getElementById('giftUrl');
 
   msg.innerText =
     'Отправляем…';
@@ -405,11 +873,15 @@ async function sendDep(){
         {
           method:'POST',
           headers:{
-            'Content-Type':'application/json'
+            'Content-Type':
+            'application/json'
           },
-          body:JSON.stringify({
-            initData:tg.initData,
-            gift_url:giftUrl.value.trim()
+          body:
+          JSON.stringify({
+            initData:
+            tg.initData,
+            gift_url:
+            giftUrl.value.trim()
           })
         }
       );
@@ -420,7 +892,8 @@ async function sendDep(){
     if(!r.ok){
 
       throw new Error(
-        d.detail || 'Ошибка'
+        d.detail ||
+        'Ошибка'
       );
 
     }
@@ -428,7 +901,8 @@ async function sendDep(){
     msg.innerText =
       'Готово. Депозит ожидает проверки.';
 
-    giftUrl.value = '';
+    giftUrl.value =
+      '';
 
     await load();
 
@@ -438,8 +912,10 @@ async function sendDep(){
       e.message;
 
   }
+
 }
 
+drawWheel(62);
 load();
 
 </script>
