@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
 <title>FARTOV2 NFT</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,7 +15,7 @@
   --line:#292d37;
   --muted:#969dab;
   --accent:#7657ff;
-  --green:#18cc8c;
+  --green:#19ce8c;
 }
 
 *{
@@ -30,12 +31,34 @@ html,body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
-button,input,select{
+body{
+  padding:0;
+}
+
+button,
+input,
+select{
   font:inherit;
 }
 
 button{
   cursor:pointer;
+  touch-action:manipulation;
+}
+
+#debugBar{
+  display:none;
+  position:fixed;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:99999;
+  background:#19ce8c;
+  color:#06140e;
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:900;
 }
 
 .wrap{
@@ -72,19 +95,21 @@ button{
   line-height:1.45;
 }
 
-input,select{
+input,
+select{
   width:100%;
   margin-top:10px;
   padding:15px;
-  border-radius:15px;
   border:1px solid var(--line);
+  border-radius:15px;
   background:#0d0f14;
   color:#fff;
   font-size:16px;
   outline:none;
 }
 
-button,.btn{
+button,
+.btn{
   display:block;
   width:100%;
   margin-top:11px;
@@ -93,8 +118,8 @@ button,.btn{
   border-radius:15px;
   background:var(--accent);
   color:#fff;
-  text-align:center;
   text-decoration:none;
+  text-align:center;
   font-size:16px;
   font-weight:850;
 }
@@ -118,13 +143,13 @@ button,.btn{
   flex:0 0 60px;
   border-radius:50%;
   display:flex;
-  justify-content:center;
   align-items:center;
-  font-size:27px;
+  justify-content:center;
+  font-size:28px;
   font-weight:900;
-  background:linear-gradient(145deg,#23e4d3,#7958ff);
+  background:linear-gradient(145deg,#25e3d4,#7858ff);
   border:3px solid #7657ff;
-  box-shadow:0 0 24px rgba(118,87,255,.35);
+  box-shadow:0 0 25px rgba(118,87,255,.35);
 }
 
 .balanceHead{
@@ -148,7 +173,7 @@ button,.btn{
   margin:0;
   padding:13px 16px;
   white-space:nowrap;
-  background:linear-gradient(135deg,#7257ff,#9b75ff);
+  background:linear-gradient(135deg,#7257ff,#9a74ff);
 }
 
 /* LIVE */
@@ -163,22 +188,22 @@ button,.btn{
 .liveSide{
   width:30px;
   flex:0 0 30px;
-  text-align:center;
 }
 
-.dot{
+.liveDot{
   width:9px;
   height:9px;
+  margin:auto;
   border-radius:50%;
   background:#1bd98e;
-  margin:auto;
   box-shadow:0 0 10px #1bd98e;
 }
 
 .liveWord{
   writing-mode:vertical-rl;
   transform:rotate(180deg);
-  margin:5px auto 0;
+  margin:6px auto 0;
+  text-align:center;
   font-weight:900;
 }
 
@@ -213,7 +238,7 @@ button,.btn{
   object-fit:cover;
 }
 
-/* HOME BANNERS */
+/* BANNERS */
 
 .banner{
   min-height:150px;
@@ -223,6 +248,7 @@ button,.btn{
   position:relative;
   overflow:hidden;
   cursor:pointer;
+  touch-action:manipulation;
   border:1px solid rgba(255,255,255,.1);
 }
 
@@ -232,13 +258,13 @@ button,.btn{
 
 .blue{
   background:
-    radial-gradient(circle at 88% 15%,rgba(255,255,255,.3),transparent 28%),
+    radial-gradient(circle at 88% 15%,rgba(255,255,255,.30),transparent 28%),
     linear-gradient(135deg,#5cc3ff,#568aff 55%,#4851c8);
 }
 
 .orange{
   background:
-    radial-gradient(circle at 88% 10%,rgba(255,255,255,.2),transparent 30%),
+    radial-gradient(circle at 88% 10%,rgba(255,255,255,.20),transparent 30%),
     linear-gradient(135deg,#ffbc22,#ff8300);
 }
 
@@ -250,10 +276,10 @@ button,.btn{
 
 .badge{
   display:inline-block;
-  background:#fff;
-  color:#5576d9;
   padding:7px 11px;
   border-radius:10px;
+  background:#fff;
+  color:#5576d9;
   font-size:12px;
   font-weight:900;
 }
@@ -261,8 +287,8 @@ button,.btn{
 .bannerTitle{
   margin-top:18px;
   font-size:28px;
-  font-weight:1000;
   line-height:1;
+  font-weight:1000;
 }
 
 .bannerText{
@@ -276,7 +302,7 @@ button,.btn{
 
 .bannerEmoji{
   position:absolute;
-  right:20px;
+  right:18px;
   bottom:15px;
   font-size:73px;
   filter:drop-shadow(0 12px 10px rgba(0,0,0,.25));
@@ -291,10 +317,10 @@ button,.btn{
 }
 
 .balanceBox{
+  padding:15px;
+  border-radius:17px;
   background:#0e1014;
   border:1px solid var(--line);
-  border-radius:17px;
-  padding:15px;
 }
 
 .currency{
@@ -310,8 +336,8 @@ button,.btn{
 
 .section{
   margin-top:20px;
-  border-top:1px solid var(--line);
   padding-top:18px;
+  border-top:1px solid var(--line);
 }
 
 .address{
@@ -324,12 +350,12 @@ button,.btn{
   word-break:break-all;
 }
 
-/* GIFTS */
+/* NFT */
 
 .gift{
   display:flex;
-  align-items:center;
   gap:12px;
+  align-items:center;
   padding:13px 0;
   border-bottom:1px solid var(--line);
 }
@@ -338,8 +364,8 @@ button,.btn{
   width:70px;
   height:70px;
   flex:0 0 70px;
-  object-fit:contain;
   border-radius:14px;
+  object-fit:contain;
   background:#0c0e12;
 }
 
@@ -347,11 +373,11 @@ button,.btn{
   width:70px;
   height:70px;
   flex:0 0 70px;
-  border-radius:14px;
-  background:#0c0e12;
   display:flex;
   align-items:center;
   justify-content:center;
+  border-radius:14px;
+  background:#0c0e12;
   font-size:30px;
 }
 
@@ -368,23 +394,23 @@ button,.btn{
 }
 
 .giftLink{
+  margin-top:5px;
   color:#84a7ff;
   font-size:11px;
-  margin-top:5px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* UPGRADE DISPLAY */
+/* UPGRADE VISUAL */
 
 .preview{
   display:none;
   margin-top:14px;
   padding:15px;
   border-radius:18px;
-  border:1px solid var(--line);
   background:#0e1014;
+  border:1px solid var(--line);
   text-align:center;
 }
 
@@ -395,8 +421,8 @@ button,.btn{
 .preview img{
   width:150px;
   height:150px;
-  object-fit:contain;
   border-radius:18px;
+  object-fit:contain;
 }
 
 .previewName{
@@ -409,43 +435,36 @@ button,.btn{
   width:290px;
   height:290px;
   margin:25px auto 15px;
-  border-radius:50%;
+  position:relative;
   border:12px solid #293343;
+  border-radius:50%;
   background:conic-gradient(
     var(--green) 0deg 223deg,
     #202733 223deg 360deg
   );
-  position:relative;
-  transition:transform 2s cubic-bezier(.12,.72,.17,1);
+  transition:transform 2.5s cubic-bezier(.1,.7,.2,1);
 }
 
 .wheel:before{
   content:"";
-  position:absolute;
   width:100px;
   height:100px;
-  top:50%;
+  position:absolute;
   left:50%;
+  top:50%;
   transform:translate(-50%,-50%);
-  background:#24303a;
   border-radius:50%;
+  background:#24303a;
 }
 
 .wheel:after{
   content:"62%";
   position:absolute;
-  top:50%;
   left:50%;
+  top:50%;
   transform:translate(-50%,-50%);
   font-size:32px;
   font-weight:900;
-}
-
-.demoNote{
-  margin-top:12px;
-  color:var(--muted);
-  text-align:center;
-  font-size:13px;
 }
 
 /* HISTORY */
@@ -476,111 +495,180 @@ button,.btn{
   bottom:0;
   height:72px;
   display:flex;
-  background:rgba(14,15,19,.98);
+  z-index:1000;
+  background:#0e0f13;
   border-top:1px solid #292d37;
-  z-index:100;
 }
 
 .tab{
   flex:1;
   display:flex;
   flex-direction:column;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   color:#8e95a3;
   font-size:11px;
   cursor:pointer;
+  touch-action:manipulation;
+  user-select:none;
 }
 
 .tabIcon{
-  font-size:20px;
   margin-bottom:3px;
+  font-size:20px;
 }
 
 .tab.active{
   color:#fff;
-  font-weight:850;
+  font-weight:900;
 }
 </style>
 </head>
 
 <body>
 
+<div id="debugBar">
+  JavaScript запущен
+</div>
+
 <div class="wrap">
+
+<!-- HOME -->
 
 <section id="home" class="screen active">
 
   <div class="homeTop">
 
-    <div id="avatar" class="avatar">F</div>
-
-    <div class="balanceHead">
-      <div class="balanceCaption">Ваш баланс</div>
-      <div class="balanceMain">
-        💎 <span id="homeTON">0</span>
-        <small style="font-size:12px;color:#969dab">TON</small>
-      </div>
+    <div id="avatar" class="avatar">
+      F
     </div>
 
-    <button id="homeTopup" class="topup">
+    <div class="balanceHead">
+
+      <div class="balanceCaption">
+        Ваш баланс
+      </div>
+
+      <div class="balanceMain">
+        💎
+        <span id="homeTON">0</span>
+        <small style="font-size:12px;color:#969dab">
+          TON
+        </small>
+      </div>
+
+    </div>
+
+    <button id="homeTopup" class="topup" type="button">
       💳 Пополнить
     </button>
 
   </div>
 
+
   <div class="liveWrap">
 
     <div class="liveSide">
-      <div class="dot"></div>
+      <div class="liveDot"></div>
       <div class="liveWord">Live</div>
     </div>
 
     <div id="liveRow" class="liveRow">
+
       <div class="liveGift">🎁</div>
       <div class="liveGift">💎</div>
       <div class="liveGift">⭐</div>
       <div class="liveGift">🔥</div>
       <div class="liveGift">🚀</div>
+
     </div>
 
   </div>
 
+
   <div id="bannerUpgrade" class="banner blue">
-    <div class="badge">⚡ ХИТ</div>
-    <div class="bannerTitle">🚀 UPGRADE NFT</div>
-    <div class="bannerText">Выбери NFT и открой Upgrade</div>
-    <div class="bannerEmoji">🚀</div>
+
+    <div class="badge">
+      ⚡ ХИТ
+    </div>
+
+    <div class="bannerTitle">
+      🚀 UPGRADE NFT
+    </div>
+
+    <div class="bannerText">
+      Выбери NFT и открой Upgrade
+    </div>
+
+    <div class="bannerEmoji">
+      🚀
+    </div>
+
   </div>
+
 
   <div id="bannerDeposit" class="banner orange">
-    <div class="badge">🎁 NFT</div>
-    <div class="bannerTitle">ВНЕСТИ ПОДАРОК</div>
-    <div class="bannerText">Добавь Telegram Collectible Gift</div>
-    <div class="bannerEmoji">🎁</div>
+
+    <div class="badge">
+      🎁 NFT
+    </div>
+
+    <div class="bannerTitle">
+      ВНЕСТИ ПОДАРОК
+    </div>
+
+    <div class="bannerText">
+      Добавь Telegram Collectible Gift
+    </div>
+
+    <div class="bannerEmoji">
+      🎁
+    </div>
+
   </div>
 
+
   <div id="bannerBalance" class="banner purple">
-    <div class="badge">💰 WALLET</div>
-    <div class="bannerTitle">БАЛАНС</div>
-    <div class="bannerText">Stars · TON · USDT · GRAM</div>
-    <div class="bannerEmoji">💎</div>
+
+    <div class="badge">
+      💰 WALLET
+    </div>
+
+    <div class="bannerTitle">
+      БАЛАНС
+    </div>
+
+    <div class="bannerText">
+      Stars · TON · USDT · GRAM
+    </div>
+
+    <div class="bannerEmoji">
+      💎
+    </div>
+
   </div>
 
 </section>
 
 
+<!-- UPGRADE -->
+
 <section id="upgrade" class="screen">
 
   <div class="card">
 
-    <div class="title">Upgrade</div>
+    <div class="title">
+      Upgrade
+    </div>
 
     <div class="muted">
-      Выбери NFT:
+      Выбери NFT из инвентаря:
     </div>
 
     <select id="upgradeGift">
-      <option value="">Нет доступных NFT</option>
+      <option value="">
+        Нет доступных NFT
+      </option>
     </select>
 
     <div id="preview" class="preview">
@@ -597,11 +685,7 @@ button,.btn{
 
     <div id="wheel" class="wheel"></div>
 
-    <div class="demoNote">
-      Выбор и отображение NFT работают. Колесо здесь визуальное и не списывает реальные NFT или баланс.
-    </div>
-
-    <button id="spinDemo">
+    <button id="spinDemo" type="button">
       Крутить
     </button>
 
@@ -610,16 +694,26 @@ button,.btn{
       style="text-align:center;font-weight:900;margin-top:13px">
     </div>
 
+    <div
+      class="muted"
+      style="text-align:center;margin-top:12px">
+      Колесо здесь визуальное и не списывает реальные NFT или денежный баланс.
+    </div>
+
   </div>
 
 </section>
 
 
+<!-- BALANCE -->
+
 <section id="balance" class="screen">
 
   <div class="card">
 
-    <div class="title">Баланс</div>
+    <div class="title">
+      Баланс
+    </div>
 
     <div class="balanceGrid">
 
@@ -645,6 +739,7 @@ button,.btn{
 
     </div>
 
+
     <div class="section">
 
       <div class="title">
@@ -658,233 +753,11 @@ button,.btn{
         min="1"
         placeholder="Количество Stars">
 
-      <button id="buyStars">
+      <button id="buyStars" type="button">
         Пополнить Stars
       </button>
 
       <div
         id="starsStatus"
         class="muted"
-        style="margin-top:10px">
-      </div>
-
-    </div>
-
-    <div class="section">
-
-      <div class="title">
-        TON / USDT / GRAM
-      </div>
-
-      <select id="cryptoCurrency">
-        <option value="TON">TON</option>
-        <option value="USDT">USDT</option>
-        <option value="GRAM">GRAM</option>
-      </select>
-
-      <div id="cryptoAddress" class="address">
-        Адрес ещё не настроен в Railway
-      </div>
-
-      <input
-        id="cryptoAmount"
-        placeholder="Сумма">
-
-      <input
-        id="cryptoTx"
-        placeholder="Hash или ссылка транзакции">
-
-      <button id="sendCrypto">
-        Отправить на проверку
-      </button>
-
-      <div
-        id="cryptoStatus"
-        class="muted"
-        style="margin-top:10px">
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="card">
-    <div class="title">Заявки</div>
-    <div id="requests">
-      <div class="muted">Пока нет заявок.</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title">История</div>
-    <div id="history">
-      <div class="muted">История пуста.</div>
-    </div>
-  </div>
-
-</section>
-
-
-<section id="deposit" class="screen">
-
-  <div class="card">
-
-    <div class="title">
-      Внести NFT
-    </div>
-
-    <div class="muted">
-      Отправь collectible gift на:
-    </div>
-
-    <div
-      id="depositUsername"
-      style="font-size:22px;font-weight:900;margin:12px 0">
-
-      @fart2_backpack
-
-    </div>
-
-    <a
-      id="depositLink"
-      class="btn secondary"
-      href="https://t.me/fart2_backpack">
-
-      Открыть аккаунт
-
-    </a>
-
-    <div class="muted" style="margin-top:18px">
-      Вставь публичную ссылку подарка:
-    </div>
-
-    <input
-      id="giftUrl"
-      placeholder="https://t.me/nft/...">
-
-    <button id="sendGift">
-      Отправить на проверку
-    </button>
-
-    <div
-      id="giftStatus"
-      class="muted"
-      style="margin-top:10px">
-    </div>
-
-  </div>
-
-</section>
-
-
-<section id="gifts" class="screen">
-
-  <div class="card">
-
-    <div class="title">
-      Мои подарки
-    </div>
-
-    <div id="giftList">
-      <div class="muted">
-        Пока нет подарков.
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-</div>
-
-
-<div class="tabs">
-
-  <div class="tab active" data-id="home">
-    <div class="tabIcon">🏠</div>
-    Главная
-  </div>
-
-  <div class="tab" data-id="upgrade">
-    <div class="tabIcon">🚀</div>
-    Upgrade
-  </div>
-
-  <div class="tab" data-id="balance">
-    <div class="tabIcon">💎</div>
-    Баланс
-  </div>
-
-  <div class="tab" data-id="deposit">
-    <div class="tabIcon">🎁</div>
-    NFT
-  </div>
-
-  <div class="tab" data-id="gifts">
-    <div class="tabIcon">📦</div>
-    Подарки
-  </div>
-
-</div>
-
-
-<script>
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  const tg =
-    window.Telegram?.WebApp;
-
-  if(!tg){
-    console.error('Telegram WebApp SDK not loaded');
-    return;
-  }
-
-  tg.ready();
-  tg.expand();
-
-  let deposits = [];
-  let balanceData = null;
-  let wheelRotation = 0;
-
-
-  async function api(url, body){
-
-    const response =
-      await fetch(
-        url,
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json'
-          },
-          body:JSON.stringify(body)
-        }
-      );
-
-    let data = {};
-
-    try{
-      data = await response.json();
-    }catch(e){}
-
-    if(!response.ok){
-      throw new Error(
-        data.detail || 'Ошибка сервера'
-      );
-    }
-
-    return data;
-  }
-
-
-  function openTab(id){
-
-    document
-      .querySelectorAll('.screen')
-      .forEach(el =>
-        el.classList.remove('active')
-      );
-
-    document
-      .
+        style="
