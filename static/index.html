@@ -406,6 +406,10 @@
       margin-top:2px
     }
 
+    .primary-btn:active{
+      transform:scale(.985)
+    }
+
     .secondary-btn{
       width:100%;
       border:1px solid #343a46;
@@ -417,6 +421,12 @@
       font-weight:750;
       cursor:pointer;
       margin-top:10px
+    }
+
+    .primary-btn:disabled,
+    .secondary-btn:disabled{
+      opacity:.55;
+      cursor:default
     }
 
     .hint{
@@ -515,22 +525,35 @@
 <div class="app">
 
   <header class="header">
-    <div class="title">FART2 NFT BOT</div>
-    <div class="subtitle">мини-приложение</div>
+
+    <div class="title">
+      FART2 NFT BOT
+    </div>
+
+    <div class="subtitle">
+      мини-приложение
+    </div>
+
   </header>
 
   <section class="wallet-top">
 
-    <div class="logo">F</div>
+    <div class="logo">
+      F
+    </div>
 
     <div class="wallet-info">
-      <div class="balance-label">Ваш баланс</div>
+
+      <div class="balance-label">
+        Ваш баланс
+      </div>
 
       <div class="main-balance">
         💎
         <span id="topTonBalance">0</span>
         <span class="unit">TON</span>
       </div>
+
     </div>
 
     <button
@@ -576,13 +599,15 @@
 
   </div>
 
-
   <button
     class="card blue"
     type="button"
     data-section="upgrade"
   >
-    <span class="badge">⚡ ХИТ</span>
+
+    <span class="badge">
+      ⚡ ХИТ
+    </span>
 
     <div class="card-title">
       🚀 UPGRADE NFT
@@ -595,15 +620,18 @@
     <div class="card-icon">
       🚀
     </div>
-  </button>
 
+  </button>
 
   <button
     class="card orange"
     type="button"
     data-section="gift"
   >
-    <span class="badge">🎁 NFT</span>
+
+    <span class="badge">
+      🎁 NFT
+    </span>
 
     <div class="card-title">
       ВНЕСТИ ПОДАРОК
@@ -616,15 +644,18 @@
     <div class="card-icon">
       🎁
     </div>
-  </button>
 
+  </button>
 
   <button
     class="card green"
     type="button"
     data-section="inventory"
   >
-    <span class="badge">🎒 МОЁ</span>
+
+    <span class="badge">
+      🎒 МОЁ
+    </span>
 
     <div class="card-title">
       ИНВЕНТАРЬ
@@ -637,15 +668,18 @@
     <div class="card-icon">
       🎒
     </div>
-  </button>
 
+  </button>
 
   <button
     class="card purple"
     type="button"
     data-section="wallet"
   >
-    <span class="badge">💰 WALLET</span>
+
+    <span class="badge">
+      💰 WALLET
+    </span>
 
     <div class="card-title">
       БАЛАНС
@@ -658,16 +692,21 @@
     <div class="card-icon">
       💎
     </div>
+
   </button>
 
 </div>
 
 
-<div id="depositModal" class="modal">
+<div
+  id="depositModal"
+  class="modal"
+>
 
   <div class="sheet">
 
     <div class="sheet-header">
+
       <div class="sheet-title">
         Пополнить баланс
       </div>
@@ -679,8 +718,8 @@
       >
         ✕
       </button>
-    </div>
 
+    </div>
 
     <button
       class="payment-btn"
@@ -689,21 +728,28 @@
     >
 
       <div class="payment-left">
-        <div class="payment-icon">⭐</div>
+
+        <div class="payment-icon">
+          ⭐
+        </div>
 
         <div class="payment-name">
+
           Telegram Stars
 
           <span class="payment-description">
             Оплата через Telegram Stars
           </span>
+
         </div>
+
       </div>
 
-      <div class="arrow">›</div>
+      <div class="arrow">
+        ›
+      </div>
 
     </button>
-
 
     <button
       class="payment-btn"
@@ -712,30 +758,43 @@
     >
 
       <div class="payment-left">
-        <div class="payment-icon">💎</div>
+
+        <div class="payment-icon">
+          💎
+        </div>
 
         <div class="payment-name">
+
           TON
 
           <span class="payment-description">
             Перевод TON на кошелёк проекта
           </span>
+
         </div>
+
       </div>
 
-      <div class="arrow">›</div>
+      <div class="arrow">
+        ›
+      </div>
 
     </button>
 
   </div>
+
 </div>
 
 
-<div id="starsModal" class="modal">
+<div
+  id="starsModal"
+  class="modal"
+>
 
   <div class="sheet">
 
     <div class="sheet-header">
+
       <div class="sheet-title">
         Telegram Stars
       </div>
@@ -747,6 +806,7 @@
       >
         ✕
       </button>
+
     </div>
 
     <div class="field-label">
@@ -777,14 +837,19 @@
     </div>
 
   </div>
+
 </div>
 
 
-<div id="tonModal" class="modal">
+<div
+  id="tonModal"
+  class="modal"
+>
 
   <div class="sheet">
 
     <div class="sheet-header">
+
       <div class="sheet-title">
         Пополнение TON
       </div>
@@ -796,6 +861,7 @@
       >
         ✕
       </button>
+
     </div>
 
     <div class="field-label">
@@ -865,14 +931,19 @@
     </div>
 
   </div>
+
 </div>
 
 
-<div id="walletModal" class="modal">
+<div
+  id="walletModal"
+  class="modal"
+>
 
   <div class="sheet">
 
     <div class="sheet-header">
+
       <div class="sheet-title">
         Ваш баланс
       </div>
@@ -884,11 +955,13 @@
       >
         ✕
       </button>
+
     </div>
 
     <div class="balances">
 
       <div class="balance-row">
+
         <div class="balance-left">
           ⭐ Stars
         </div>
@@ -899,10 +972,11 @@
         >
           0
         </div>
+
       </div>
 
-
       <div class="balance-row">
+
         <div class="balance-left">
           💎 TON
         </div>
@@ -913,11 +987,13 @@
         >
           0
         </div>
+
       </div>
 
     </div>
 
   </div>
+
 </div>
 
 
@@ -934,6 +1010,7 @@
   const tg =
     window.Telegram?.WebApp ||
     null;
+
 
   let tonDepositAddress =
     "";
@@ -973,16 +1050,20 @@
         "toast"
       );
 
+
     toast.textContent =
       message;
+
 
     toast.classList.add(
       "show"
     );
 
+
     clearTimeout(
       window.toastTimer
     );
+
 
     window.toastTimer =
       setTimeout(() => {
@@ -1018,6 +1099,7 @@
       ?.classList
       .add("active");
 
+
     haptic();
 
   }
@@ -1043,6 +1125,7 @@
 
     }
 
+
     return tg.initData;
 
   }
@@ -1057,37 +1140,51 @@
       await fetch(
         url,
         {
-          method:"POST",
 
-          headers:{
+          method:
+            "POST",
+
+          headers: {
             "Content-Type":
               "application/json"
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify(
+              body
+            )
+
         }
       );
 
+
     let data = {};
 
+
     try {
+
       data =
         await response.json();
+
     } catch (_) {}
+
 
     if (!response.ok) {
 
       throw new Error(
 
         data?.detail ||
+
         data?.error ||
+
         data?.message ||
+
         `Ошибка сервера ${response.status}`
 
       );
 
     }
+
 
     return data;
 
@@ -1101,6 +1198,7 @@
       const initData =
         requireTelegram();
 
+
       const data =
         await api(
           "/api/balances",
@@ -1109,38 +1207,46 @@
           }
         );
 
+
       const balances =
         data?.balances ||
         {};
+
 
       const stars =
         balances.XTR ??
         "0";
 
+
       const ton =
         balances.TON ??
         "0";
+
 
       document.getElementById(
         "starsBalance"
       ).textContent =
         stars;
 
+
       document.getElementById(
         "tonBalance"
       ).textContent =
         ton;
+
 
       document.getElementById(
         "topTonBalance"
       ).textContent =
         ton;
 
+
       tonDepositAddress =
         String(
           data?.addresses?.TON ||
           ""
         ).trim();
+
 
       document.getElementById(
         "tonAddress"
@@ -1150,6 +1256,7 @@
 
         "TON-адрес пока не указан на сервере";
 
+
       return data;
 
     } catch (error) {
@@ -1158,6 +1265,7 @@
         "Balance error:",
         error
       );
+
 
       return null;
 
@@ -1173,6 +1281,7 @@
         .trim()
         .replace(",", ".");
 
+
     if (
       !/^\d+(\.\d{1,9})?$/.test(
         normalized
@@ -1185,20 +1294,25 @@
 
     }
 
+
     const parts =
       normalized.split(".");
+
 
     const whole =
       parts[0];
 
+
     const fraction =
       parts[1] || "";
+
 
     const paddedFraction =
       fraction.padEnd(
         9,
         "0"
       );
+
 
     const nanoTon =
 
@@ -1209,6 +1323,7 @@
         paddedFraction
       );
 
+
     if (
       nanoTon <= 0n
     ) {
@@ -1218,6 +1333,7 @@
       );
 
     }
+
 
     return nanoTon;
 
@@ -1231,12 +1347,14 @@
         "payStars"
       );
 
+
     const amount =
       Number(
         document.getElementById(
           "starsAmount"
         ).value
       );
+
 
     if (
       !Number.isInteger(amount) ||
@@ -1252,31 +1370,41 @@
 
     }
 
+
     button.disabled =
       true;
+
 
     const oldText =
       button.textContent;
 
+
     button.textContent =
       "Создаём счёт…";
+
 
     try {
 
       const initData =
         requireTelegram();
 
+
       const data =
         await api(
           "/api/stars-invoice",
           {
+
             initData,
+
             amount
+
           }
         );
 
+
       const invoiceUrl =
         data?.invoice_url;
+
 
       if (!invoiceUrl) {
 
@@ -1285,6 +1413,7 @@
         );
 
       }
+
 
       if (
         !tg ||
@@ -1298,9 +1427,11 @@
 
       }
 
+
       closeModal(
         "starsModal"
       );
+
 
       tg.openInvoice(
         invoiceUrl,
@@ -1315,10 +1446,12 @@
               "✅ Оплата прошла. Обновляю баланс…"
             );
 
+
             setTimeout(
               loadBalance,
               1200
             );
+
 
             setTimeout(
               loadBalance,
@@ -1359,6 +1492,7 @@
         error
       );
 
+
       showToast(
         "Ошибка: " +
         error.message,
@@ -1369,6 +1503,7 @@
 
       button.disabled =
         false;
+
 
       button.textContent =
         oldText;
@@ -1385,12 +1520,14 @@
         "openTonWallet"
       );
 
+
     const amountText =
       document.getElementById(
         "tonAmount"
       )
       .value
       .trim();
+
 
     if (!amountText) {
 
@@ -1402,24 +1539,30 @@
 
     }
 
+
     button.disabled =
       true;
+
 
     const oldText =
       button.textContent;
 
+
     button.textContent =
       "Открываем кошелёк…";
+
 
     try {
 
       requireTelegram();
+
 
       if (!tonDepositAddress) {
 
         await loadBalance();
 
       }
+
 
       if (!tonDepositAddress) {
 
@@ -1429,13 +1572,16 @@
 
       }
 
+
       const nanoTon =
         tonToNano(
           amountText
         );
 
+
       const comment =
         "FARTOV2 deposit";
+
 
       const walletUrl =
 
@@ -1455,6 +1601,7 @@
           comment
         );
 
+
       document
         .getElementById(
           "tonConfirmBlock"
@@ -1463,6 +1610,7 @@
         .remove(
           "hidden"
         );
+
 
       if (
         tg &&
@@ -1478,11 +1626,13 @@
 
       }
 
+
       const newWindow =
         window.open(
           walletUrl,
           "_blank"
         );
+
 
       if (!newWindow) {
 
@@ -1498,6 +1648,7 @@
         error
       );
 
+
       showToast(
         "Ошибка: " +
         error.message,
@@ -1508,6 +1659,7 @@
 
       button.disabled =
         false;
+
 
       button.textContent =
         oldText;
@@ -1524,12 +1676,14 @@
         "submitTon"
       );
 
+
     const amountRaw =
       document.getElementById(
         "tonAmount"
       )
       .value
       .trim();
+
 
     const txRef =
       document.getElementById(
@@ -1538,14 +1692,17 @@
       .value
       .trim();
 
+
     let normalizedAmount =
       "";
+
 
     try {
 
       tonToNano(
         amountRaw
       );
+
 
       normalizedAmount =
         amountRaw.replace(
@@ -1563,6 +1720,7 @@
 
     }
 
+
     if (
       txRef.length < 6
     ) {
@@ -1575,42 +1733,59 @@
 
     }
 
+
     button.disabled =
       true;
+
 
     const oldText =
       button.textContent;
 
+
     button.textContent =
       "Отправляем…";
+
 
     try {
 
       const initData =
         requireTelegram();
 
+
       await api(
         "/api/manual-deposit",
         {
+
           initData,
-          currency:"TON",
-          amount:normalizedAmount,
-          tx_ref:txRef
+
+          currency:
+            "TON",
+
+          amount:
+            normalizedAmount,
+
+          tx_ref:
+            txRef
+
         }
       );
+
 
       showToast(
         "✅ Заявка отправлена на проверку"
       );
+
 
       document.getElementById(
         "tonTxRef"
       ).value =
         "";
 
+
       closeModal(
         "tonModal"
       );
+
 
       setTimeout(
         loadBalance,
@@ -1624,6 +1799,7 @@
         error
       );
 
+
       showToast(
         "Ошибка: " +
         error.message,
@@ -1634,6 +1810,7 @@
 
       button.disabled =
         false;
+
 
       button.textContent =
         oldText;
@@ -1652,6 +1829,7 @@
       event => {
 
         event.preventDefault();
+
 
         openModal(
           "depositModal"
@@ -1674,12 +1852,15 @@
 
             event.preventDefault();
 
+
             const currency =
               button.dataset.deposit;
+
 
             closeModal(
               "depositModal"
             );
+
 
             if (
               currency ===
@@ -1700,6 +1881,7 @@
               openModal(
                 "tonModal"
               );
+
 
               await loadBalance();
 
@@ -1755,6 +1937,7 @@
 
             event.preventDefault();
 
+
             closeModal(
               button.dataset.close
             );
@@ -1808,10 +1991,13 @@
 
             event.preventDefault();
 
+
             const section =
               button.dataset.section;
 
+
             haptic();
+
 
             if (
               section ===
@@ -1821,6 +2007,7 @@
               openModal(
                 "walletModal"
               );
+
 
               await loadBalance();
 
@@ -1863,7 +2050,7 @@
             ) {
 
               window.location.href =
-                "/upgrade.html";
+                "/upgrade";
 
             }
 
