@@ -17,6 +17,7 @@ import uvicorn
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (
+    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     LabeledPrice,
@@ -217,46 +218,27 @@ def parse_amount(currency, value):
     currency = currency.upper()
 
     if currency not in CURRENCY_DECIMALS:
-        raise HTTPException(
-            400,
-            "Неизвестная валюта"
-        )
+        raise HTTPException(400, "Неизвестная валюта")
 
     try:
-        amount = Decimal(
-            str(value).replace(",", ".")
-        )
-
+        amount = Decimal(str(value).replace(",", "."))
     except InvalidOperation:
-        raise HTTPException(
-            400,
-            "Неверная сумма"
-        )
+        raise HTTPException(400, "Неверная сумма")
 
     if amount <= 0:
-        raise HTTPException(
-            400,
-            "Сумма должна быть больше нуля"
-        )
+        raise HTTPException(400, "Сумма должна быть больше нуля")
 
-    factor = Decimal(
-        currency_factor(currency)
-    )
+    factor = Decimal(currency_factor(currency))
 
     units = int(
-        (
-            amount * factor
-        ).quantize(
+        (amount * factor).quantize(
             Decimal("1"),
             rounding=ROUND_DOWN
         )
     )
 
     if units <= 0:
-        raise HTTPException(
-            400,
-            "Слишком маленькая сумма"
-        )
+        raise HTTPException(400, "Слишком маленькая сумма")
 
     return units
 
@@ -266,31 +248,14 @@ def format_units(currency, units):
     decimals = CURRENCY_DECIMALS[currency]
 
     if decimals == 0:
-        return str(
-            int(units)
-        )
+        return str(int(units))
 
-    factor = Decimal(
-        currency_factor(currency)
-    )
-
-    value = (
-        Decimal(units)
-        /
-        factor
-    )
-
-    text = format(
-        value,
-        "f"
-    )
+    factor = Decimal(currency_factor(currency))
+    value = Decimal(units) / factor
+    text = format(value, "f")
 
     if "." in text:
-        text = text.rstrip(
-            "0"
-        ).rstrip(
-            "."
-        )
+        text = text.rstrip("0").rstrip(".")
 
     return text or "0"
 
@@ -298,16 +263,13 @@ def format_units(currency, units):
 def ensure_balances(user_id):
 
     with db() as conn:
-
         for currency in CURRENCY_DECIMALS:
-
             conn.execute("""
             INSERT OR IGNORE INTO balances(
                 user_id,
                 currency,
                 amount_units
             )
-
             VALUES(
                 ?,
                 ?,
@@ -335,7 +297,6 @@ def credit_balance(
             currency,
             amount_units
         )
-
         VALUES(
             ?,
             ?,
@@ -348,10 +309,7 @@ def credit_balance(
 
         conn.execute("""
         UPDATE balances
-
-        SET amount_units =
-            amount_units + ?
-
+        SET amount_units = amount_units + ?
         WHERE user_id=?
         AND currency=?
         """, (
@@ -368,7 +326,6 @@ def credit_balance(
             kind,
             reference
         )
-
         VALUES(
             ?,
             ?,
@@ -387,19 +344,14 @@ def credit_balance(
 
 def get_balances(user_id):
 
-    ensure_balances(
-        user_id
-    )
+    ensure_balances(user_id)
 
     with db() as conn:
-
         rows = conn.execute("""
         SELECT
             currency,
             amount_units
-
         FROM balances
-
         WHERE user_id=?
         """, (
             user_id,
@@ -411,10 +363,7 @@ def get_balances(user_id):
     }
 
     for row in rows:
-
-        result[
-            row["currency"]
-        ] = format_units(
+        result[row["currency"]] = format_units(
             row["currency"],
             row["amount_units"]
         )
@@ -461,11 +410,7 @@ def validate_init_data(init_data):
 
     if (
         not auth_date
-        or abs(
-            int(time.time())
-            -
-            auth_date
-        ) > 86400
+        or abs(int(time.time()) - auth_date) > 86400
     ):
         raise HTTPException(
             401,
@@ -475,9 +420,7 @@ def validate_init_data(init_data):
     check_string = "\n".join(
         f"{key}={value}"
         for key, value
-        in sorted(
-            pairs.items()
-        )
+        in sorted(pairs.items())
     )
 
     secret_key = hmac.new(
@@ -505,7 +448,6 @@ def validate_init_data(init_data):
         return json.loads(
             pairs["user"]
         )
-
     except Exception:
         raise HTTPException(
             401,
@@ -516,35 +458,25 @@ def validate_init_data(init_data):
 def save_user(user):
 
     with db() as conn:
-
         conn.execute("""
         INSERT INTO users(
             user_id,
             username,
             first_name
         )
-
         VALUES(
             ?,
             ?,
             ?
         )
-
         ON CONFLICT(user_id)
-
         DO UPDATE SET
             username=excluded.username,
             first_name=excluded.first_name
         """, (
             user["id"],
-            user.get(
-                "username",
-                ""
-            ),
-            user.get(
-                "first_name",
-                ""
-            )
+            user.get("username", ""),
+            user.get("first_name", "")
         ))
 
     ensure_balances(
@@ -560,14 +492,10 @@ def normalize_gift_url(url):
 
     url = url.strip()
 
-    if url.startswith(
-        "t.me/"
-    ):
+    if url.startswith("t.me/"):
         url = "https://" + url
 
-    parsed = urlparse(
-        url
-    )
+    parsed = urlparse(url)
 
     if (
         parsed.scheme != "https"
@@ -575,9 +503,7 @@ def normalize_gift_url(url):
             "t.me",
             "www.t.me"
         }
-        or not parsed.path.startswith(
-            "/nft/"
-        )
+        or not parsed.path.startswith("/nft/")
     ):
         raise HTTPException(
             400,
@@ -595,7 +521,6 @@ def get_meta_value(page, prop):
     ]
 
     for pattern in patterns:
-
         match = re.search(
             pattern,
             page,
@@ -615,8 +540,7 @@ def fetch_gift_meta(url):
     fallback = (
         url.rstrip("/")
         .split("/")[-1]
-        or
-        "Telegram Gift"
+        or "Telegram Gift"
     )
 
     try:
@@ -624,8 +548,7 @@ def fetch_gift_meta(url):
         request = urllib.request.Request(
             url,
             headers={
-                "User-Agent":
-                "Mozilla/5.0"
+                "User-Agent": "Mozilla/5.0"
             }
         )
 
@@ -633,7 +556,6 @@ def fetch_gift_meta(url):
             request,
             timeout=8
         ) as response:
-
             page = response.read(
                 700000
             ).decode(
@@ -659,21 +581,14 @@ def fetch_gift_meta(url):
         ).strip()
 
         return {
-            "name":
-            title or fallback,
-
-            "image":
-            image or ""
+            "name": title or fallback,
+            "image": image or ""
         }
 
     except Exception:
-
         return {
-            "name":
-            fallback,
-
-            "image":
-            ""
+            "name": fallback,
+            "image": ""
         }
 
 
@@ -713,7 +628,6 @@ class ManualPayPayload(BaseModel):
 
 @app.get("/")
 async def index():
-
     return FileResponse(
         "static/index.html"
     )
@@ -721,7 +635,6 @@ async def index():
 
 @app.get("/deposit")
 async def deposit_page():
-
     return FileResponse(
         "static/deposit.html"
     )
@@ -729,7 +642,6 @@ async def deposit_page():
 
 @app.get("/health")
 async def health():
-
     return {
         "ok": True
     }
@@ -742,12 +654,9 @@ async def me(payload: InitPayload):
         payload.initData
     )
 
-    save_user(
-        user
-    )
+    save_user(user)
 
     with db() as conn:
-
         rows = conn.execute("""
         SELECT
             id,
@@ -756,11 +665,8 @@ async def me(payload: InitPayload):
             hidden,
             gift_name,
             gift_image
-
         FROM deposits
-
         WHERE user_id=?
-
         ORDER BY id DESC
         """, (
             user["id"],
@@ -770,14 +676,11 @@ async def me(payload: InitPayload):
 
     for row in rows:
 
-        item = dict(
-            row
-        )
+        item = dict(row)
 
         if (
             item["status"] == "approved"
-            and
-            not item.get("gift_name")
+            and not item.get("gift_name")
         ):
 
             meta = await asyncio.to_thread(
@@ -786,14 +689,11 @@ async def me(payload: InitPayload):
             )
 
             with db() as conn:
-
                 conn.execute("""
                 UPDATE deposits
-
                 SET
                     gift_name=?,
                     gift_image=?
-
                 WHERE id=?
                 """, (
                     meta["name"],
@@ -804,26 +704,13 @@ async def me(payload: InitPayload):
             item["gift_name"] = meta["name"]
             item["gift_image"] = meta["image"]
 
-        gifts.append(
-            item
-        )
+        gifts.append(item)
 
     return {
         "user": {
-            "id":
-            user["id"],
-
-            "first_name":
-            user.get(
-                "first_name",
-                ""
-            ),
-
-            "username":
-            user.get(
-                "username",
-                ""
-            )
+            "id": user["id"],
+            "first_name": user.get("first_name", ""),
+            "username": user.get("username", "")
         },
 
         "deposit_username":
@@ -841,9 +728,7 @@ async def balances(payload: InitPayload):
         payload.initData
     )
 
-    save_user(
-        user
-    )
+    save_user(user)
 
     with db() as conn:
 
@@ -854,13 +739,9 @@ async def balances(payload: InitPayload):
             kind,
             reference,
             created_at
-
         FROM ledger
-
         WHERE user_id=?
-
         ORDER BY id DESC
-
         LIMIT 30
         """, (
             user["id"],
@@ -874,13 +755,9 @@ async def balances(payload: InitPayload):
             tx_ref,
             status,
             created_at
-
         FROM payment_requests
-
         WHERE user_id=?
-
         ORDER BY id DESC
-
         LIMIT 20
         """, (
             user["id"],
@@ -893,64 +770,37 @@ async def balances(payload: InitPayload):
         ),
 
         "addresses": {
-            "TON":
-            TON_DEPOSIT_ADDRESS,
-
-            "USDT":
-            USDT_DEPOSIT_ADDRESS,
-
-            "GRAM":
-            GRAM_DEPOSIT_ADDRESS
+            "TON": TON_DEPOSIT_ADDRESS,
+            "USDT": USDT_DEPOSIT_ADDRESS,
+            "GRAM": GRAM_DEPOSIT_ADDRESS
         },
 
         "history": [
             {
-                "currency":
-                row["currency"],
-
-                "amount":
-                format_units(
+                "currency": row["currency"],
+                "amount": format_units(
                     row["currency"],
                     row["delta_units"]
                 ),
-
-                "kind":
-                row["kind"],
-
-                "reference":
-                row["reference"],
-
-                "created_at":
-                row["created_at"]
+                "kind": row["kind"],
+                "reference": row["reference"],
+                "created_at": row["created_at"]
             }
-
             for row in history
         ],
 
         "requests": [
             {
-                "id":
-                row["id"],
-
-                "currency":
-                row["currency"],
-
-                "amount":
-                format_units(
+                "id": row["id"],
+                "currency": row["currency"],
+                "amount": format_units(
                     row["currency"],
                     row["amount_units"]
                 ),
-
-                "tx_ref":
-                row["tx_ref"],
-
-                "status":
-                row["status"],
-
-                "created_at":
-                row["created_at"]
+                "tx_ref": row["tx_ref"],
+                "status": row["status"],
+                "created_at": row["created_at"]
             }
-
             for row in requests
         ]
     }
@@ -965,13 +815,9 @@ async def stars_invoice(
         payload.initData
     )
 
-    save_user(
-        user
-    )
+    save_user(user)
 
-    amount = int(
-        payload.amount
-    )
+    amount = int(payload.amount)
 
     if amount < 1:
         raise HTTPException(
@@ -992,35 +838,22 @@ async def stars_invoice(
     )
 
     link = await bot.create_invoice_link(
-        title=
-        "Пополнение FARTOV2",
-
-        description=
-        f"Пополнение баланса на {amount} Stars",
-
-        payload=
-        invoice_payload,
-
-        currency=
-        "XTR",
-
+        title="Пополнение FARTOV2",
+        description=f"Пополнение баланса на {amount} Stars",
+        payload=invoice_payload,
+        currency="XTR",
         prices=[
             LabeledPrice(
-                label=
-                f"{amount} Stars",
-
-                amount=
-                amount
+                label=f"{amount} Stars",
+                amount=amount
             )
         ],
-
         provider_token=""
     )
 
     return {
         "ok": True,
-        "invoice_url":
-        link
+        "invoice_url": link
     }
 
 
@@ -1033,9 +866,7 @@ async def manual_deposit(
         payload.initData
     )
 
-    save_user(
-        user
-    )
+    save_user(user)
 
     currency = (
         payload.currency
@@ -1053,10 +884,7 @@ async def manual_deposit(
             "Можно внести TON, USDT или GRAM"
         )
 
-    tx_ref = (
-        payload.tx_ref
-        .strip()
-    )
+    tx_ref = payload.tx_ref.strip()
 
     if len(tx_ref) < 6:
         raise HTTPException(
@@ -1072,7 +900,6 @@ async def manual_deposit(
     try:
 
         with db() as conn:
-
             cursor = conn.execute("""
             INSERT INTO payment_requests(
                 user_id,
@@ -1080,7 +907,6 @@ async def manual_deposit(
                 amount_units,
                 tx_ref
             )
-
             VALUES(
                 ?,
                 ?,
@@ -1094,12 +920,9 @@ async def manual_deposit(
                 tx_ref
             ))
 
-            request_id = (
-                cursor.lastrowid
-            )
+            request_id = cursor.lastrowid
 
     except sqlite3.IntegrityError:
-
         raise HTTPException(
             409,
             "Эта транзакция уже зарегистрирована"
@@ -1108,10 +931,8 @@ async def manual_deposit(
     if ADMIN_ID:
 
         try:
-
             await bot.send_message(
                 ADMIN_ID,
-
                 f"""
 💰 Новое пополнение
 
@@ -1140,7 +961,6 @@ TX:
             )
 
         except Exception as error:
-
             print(
                 "ADMIN PAYMENT MESSAGE ERROR:",
                 repr(error)
@@ -1148,8 +968,7 @@ TX:
 
     return {
         "ok": True,
-        "request_id":
-        request_id
+        "request_id": request_id
     }
 
 
@@ -1166,9 +985,7 @@ async def create_deposit(
         payload.initData
     )
 
-    save_user(
-        user
-    )
+    save_user(user)
 
     gift_url = normalize_gift_url(
         payload.gift_url
@@ -1182,7 +999,6 @@ async def create_deposit(
     try:
 
         with db() as conn:
-
             cursor = conn.execute("""
             INSERT INTO deposits(
                 user_id,
@@ -1190,7 +1006,6 @@ async def create_deposit(
                 gift_name,
                 gift_image
             )
-
             VALUES(
                 ?,
                 ?,
@@ -1204,12 +1019,9 @@ async def create_deposit(
                 meta["image"]
             ))
 
-            deposit_id = (
-                cursor.lastrowid
-            )
+            deposit_id = cursor.lastrowid
 
     except sqlite3.IntegrityError:
-
         raise HTTPException(
             409,
             "Этот подарок уже зарегистрирован"
@@ -1219,9 +1031,23 @@ async def create_deposit(
 
         try:
 
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="✅ Подтвердить",
+                            callback_data=f"gift_approve:{deposit_id}"
+                        ),
+                        InlineKeyboardButton(
+                            text="❌ Отклонить",
+                            callback_data=f"gift_reject:{deposit_id}"
+                        )
+                    ]
+                ]
+            )
+
             await bot.send_message(
                 ADMIN_ID,
-
                 f"""
 🎁 Новый NFT депозит
 
@@ -1238,17 +1064,11 @@ Username:
 
 Gift:
 {gift_url}
-
-После проверки:
-
-/approve {deposit_id}
-
-/reject {deposit_id}
-"""
+""",
+                reply_markup=keyboard
             )
 
         except Exception as error:
-
             print(
                 "ADMIN GIFT MESSAGE ERROR:",
                 repr(error)
@@ -1256,11 +1076,8 @@ Gift:
 
     return {
         "ok": True,
-        "deposit_id":
-        deposit_id,
-
-        "gift":
-        meta
+        "deposit_id": deposit_id,
+        "gift": meta
     }
 
 
@@ -1280,9 +1097,7 @@ async def hide_gift(
             id,
             status,
             hidden
-
         FROM deposits
-
         WHERE id=?
         AND user_id=?
         """, (
@@ -1304,9 +1119,7 @@ async def hide_gift(
 
         conn.execute("""
         UPDATE deposits
-
         SET hidden=1
-
         WHERE id=?
         AND user_id=?
         """, (
@@ -1320,6 +1133,148 @@ async def hide_gift(
 
 
 # =========================================================
+# NFT ADMIN HELPERS
+# =========================================================
+
+def get_gift(gift_id):
+
+    with db() as conn:
+        return conn.execute("""
+        SELECT
+            id,
+            user_id,
+            gift_name,
+            gift_url,
+            status
+        FROM deposits
+        WHERE id=?
+        """, (
+            gift_id,
+        )).fetchone()
+
+
+async def approve_gift_record(gift_id):
+
+    with db() as conn:
+
+        gift = conn.execute("""
+        SELECT
+            id,
+            user_id,
+            gift_name,
+            gift_url,
+            status
+        FROM deposits
+        WHERE id=?
+        """, (
+            gift_id,
+        )).fetchone()
+
+        if not gift:
+            return False, "Подарок не найден", None
+
+        if gift["status"] != "pending":
+            return (
+                False,
+                f"Заявка уже обработана: {gift['status']}",
+                gift
+            )
+
+        conn.execute("""
+        UPDATE deposits
+        SET
+            status='approved',
+            hidden=0,
+            admin_note=NULL,
+            reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        """, (
+            gift_id,
+        ))
+
+    try:
+        await bot.send_message(
+            gift["user_id"],
+            f"""
+✅ Подарок подтверждён
+
+{gift["gift_name"] or "Telegram Gift"}
+
+Подарок добавлен в ваш инвентарь.
+"""
+        )
+    except Exception as error:
+        print(
+            "USER APPROVE MESSAGE ERROR:",
+            repr(error)
+        )
+
+    return True, f"✅ Gift #{gift_id} подтверждён", gift
+
+
+async def reject_gift_record(
+    gift_id,
+    reason="Отклонено администратором"
+):
+
+    with db() as conn:
+
+        gift = conn.execute("""
+        SELECT
+            id,
+            user_id,
+            gift_name,
+            gift_url,
+            status
+        FROM deposits
+        WHERE id=?
+        """, (
+            gift_id,
+        )).fetchone()
+
+        if not gift:
+            return False, "Подарок не найден", None
+
+        if gift["status"] != "pending":
+            return (
+                False,
+                f"Заявка уже обработана: {gift['status']}",
+                gift
+            )
+
+        conn.execute("""
+        UPDATE deposits
+        SET
+            status='rejected',
+            admin_note=?,
+            reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        """, (
+            reason,
+            gift_id
+        ))
+
+    try:
+        await bot.send_message(
+            gift["user_id"],
+            f"""
+❌ Подарок отклонён
+
+{gift["gift_name"] or "Telegram Gift"}
+
+Если это ошибка, отправьте заявку ещё раз после проверки ссылки.
+"""
+        )
+    except Exception as error:
+        print(
+            "USER REJECT MESSAGE ERROR:",
+            repr(error)
+        )
+
+    return True, f"❌ Gift #{gift_id} отклонён", gift
+
+
+# =========================================================
 # TELEGRAM STARS
 # =========================================================
 
@@ -1329,25 +1284,21 @@ async def pre_checkout(
 ):
 
     if query.currency != "XTR":
-
         await query.answer(
             ok=False,
             error_message=
             "Поддерживаются только Telegram Stars"
         )
-
         return
 
     if not query.invoice_payload.startswith(
         "balance:stars:"
     ):
-
         await query.answer(
             ok=False,
             error_message=
             "Неверный платеж"
         )
-
         return
 
     await query.answer(
@@ -1362,9 +1313,7 @@ async def successful_payment(
     message: Message
 ):
 
-    payment = (
-        message.successful_payment
-    )
+    payment = message.successful_payment
 
     if not payment:
         return
@@ -1389,9 +1338,7 @@ async def successful_payment(
 
         exists = conn.execute("""
         SELECT telegram_charge_id
-
         FROM star_payments
-
         WHERE telegram_charge_id=?
         """, (
             charge_id,
@@ -1406,7 +1353,6 @@ async def successful_payment(
             user_id,
             amount_stars
         )
-
         VALUES(
             ?,
             ?,
@@ -1447,14 +1393,10 @@ async def start(
     if WEBAPP_URL.startswith(
         "https://"
     ):
-
         buttons.append([
             InlineKeyboardButton(
-                text=
-                "🎮 OPEN MINI APP",
-
-                web_app=
-                WebAppInfo(
+                text="🎮 OPEN MINI APP",
+                web_app=WebAppInfo(
                     url=WEBAPP_URL
                 )
             )
@@ -1462,13 +1404,8 @@ async def start(
 
     buttons.append([
         InlineKeyboardButton(
-            text=
-            "🎁 @" +
-            DEPOSIT_USERNAME,
-
-            url=
-            "https://t.me/" +
-            DEPOSIT_USERNAME
+            text="🎁 @" + DEPOSIT_USERNAME,
+            url="https://t.me/" + DEPOSIT_USERNAME
         )
     ])
 
@@ -1478,28 +1415,136 @@ FARTOV2 NFT BOT
 
 Collectible gifts принимаются на @{DEPOSIT_USERNAME}.
 """,
-
-        reply_markup=
-        InlineKeyboardMarkup(
-            inline_keyboard=
-            buttons
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=buttons
         )
     )
 
 
 def is_admin(message):
-
     return (
         ADMIN_ID
-        and
-        message.from_user.id
-        ==
+        and message.from_user.id == ADMIN_ID
+    )
+
+
+def is_admin_callback(callback):
+    return (
         ADMIN_ID
+        and callback.from_user.id == ADMIN_ID
     )
 
 
 # =========================================================
-# NFT ADMIN
+# NFT ADMIN CALLBACK BUTTONS
+# =========================================================
+
+@router.callback_query(
+    F.data.startswith("gift_approve:")
+)
+async def gift_approve_callback(
+    callback: CallbackQuery
+):
+
+    if not is_admin_callback(callback):
+        await callback.answer(
+            "Нет доступа",
+            show_alert=True
+        )
+        return
+
+    try:
+        gift_id = int(
+            callback.data.split(":", 1)[1]
+        )
+    except Exception:
+        await callback.answer(
+            "Неверный ID",
+            show_alert=True
+        )
+        return
+
+    ok, text, gift = await approve_gift_record(
+        gift_id
+    )
+
+    await callback.answer(
+        text,
+        show_alert=not ok
+    )
+
+    if callback.message:
+
+        try:
+            await callback.message.edit_reply_markup(
+                reply_markup=None
+            )
+        except Exception:
+            pass
+
+        if ok:
+            try:
+                await callback.message.answer(
+                    f"✅ Заявка #{gift_id} подтверждена"
+                )
+            except Exception:
+                pass
+
+
+@router.callback_query(
+    F.data.startswith("gift_reject:")
+)
+async def gift_reject_callback(
+    callback: CallbackQuery
+):
+
+    if not is_admin_callback(callback):
+        await callback.answer(
+            "Нет доступа",
+            show_alert=True
+        )
+        return
+
+    try:
+        gift_id = int(
+            callback.data.split(":", 1)[1]
+        )
+    except Exception:
+        await callback.answer(
+            "Неверный ID",
+            show_alert=True
+        )
+        return
+
+    ok, text, gift = await reject_gift_record(
+        gift_id
+    )
+
+    await callback.answer(
+        text,
+        show_alert=not ok
+    )
+
+    if callback.message:
+
+        try:
+            await callback.message.edit_reply_markup(
+                reply_markup=None
+            )
+        except Exception:
+            pass
+
+        if ok:
+            try:
+                await callback.message.answer(
+                    f"❌ Заявка #{gift_id} отклонена"
+                )
+            except Exception:
+                pass
+
+
+# =========================================================
+# NFT ADMIN COMMANDS
 # =========================================================
 
 @router.message(
@@ -1512,83 +1557,24 @@ async def approve(
     if not is_admin(message):
         return
 
-    parts = (
-        message.text
-        .split()
-    )
+    parts = message.text.split()
 
     if (
         len(parts) != 2
-        or
-        not parts[1].isdigit()
+        or not parts[1].isdigit()
     ):
-
         await message.answer(
             "Формат: /approve ID"
         )
-
         return
 
-    gift_id = int(
-        parts[1]
+    gift_id = int(parts[1])
+
+    ok, text, gift = await approve_gift_record(
+        gift_id
     )
 
-    with db() as conn:
-
-        gift = conn.execute("""
-        SELECT
-            user_id,
-            gift_name,
-            gift_url
-
-        FROM deposits
-
-        WHERE id=?
-        """, (
-            gift_id,
-        )).fetchone()
-
-        if not gift:
-
-            await message.answer(
-                "Подарок не найден"
-            )
-
-            return
-
-        conn.execute("""
-        UPDATE deposits
-
-        SET
-            status='approved',
-            hidden=0,
-            reviewed_at=CURRENT_TIMESTAMP
-
-        WHERE id=?
-        """, (
-            gift_id,
-        ))
-
-    await message.answer(
-        f"✅ Gift #{gift_id} подтверждён"
-    )
-
-    try:
-
-        await bot.send_message(
-            gift["user_id"],
-
-            f"""
-✅ Подарок подтверждён
-
-{gift["gift_name"] or "Telegram Gift"}
-
-Подарок добавлен в ваш инвентарь.
-"""
-        )
-
-    except Exception:
-        pass
+    await message.answer(text)
 
 
 @router.message(
@@ -1601,55 +1587,33 @@ async def reject(
     if not is_admin(message):
         return
 
-    parts = (
-        message.text
-        .split(
-            maxsplit=2
-        )
+    parts = message.text.split(
+        maxsplit=2
     )
 
     if (
         len(parts) < 2
-        or
-        not parts[1].isdigit()
+        or not parts[1].isdigit()
     ):
-
         await message.answer(
-            "Формат: /reject ID"
+            "Формат: /reject ID [причина]"
         )
-
         return
 
-    gift_id = int(
-        parts[1]
-    )
+    gift_id = int(parts[1])
 
     reason = (
         parts[2]
         if len(parts) > 2
-        else
-        "Не подтверждено"
+        else "Отклонено администратором"
     )
 
-    with db() as conn:
-
-        conn.execute("""
-        UPDATE deposits
-
-        SET
-            status='rejected',
-            admin_note=?,
-            reviewed_at=CURRENT_TIMESTAMP
-
-        WHERE id=?
-        """, (
-            reason,
-            gift_id
-        ))
-
-    await message.answer(
-        f"❌ Gift #{gift_id} отклонён"
+    ok, text, gift = await reject_gift_record(
+        gift_id,
+        reason
     )
+
+    await message.answer(text)
 
 
 @router.message(
@@ -1662,34 +1626,23 @@ async def restore(
     if not is_admin(message):
         return
 
-    parts = (
-        message.text
-        .split()
-    )
+    parts = message.text.split()
 
     if (
         len(parts) != 2
-        or
-        not parts[1].isdigit()
+        or not parts[1].isdigit()
     ):
-
         await message.answer(
             "Формат: /restore ID"
         )
-
         return
 
-    gift_id = int(
-        parts[1]
-    )
+    gift_id = int(parts[1])
 
     with db() as conn:
-
         conn.execute("""
         UPDATE deposits
-
         SET hidden=0
-
         WHERE id=?
         """, (
             gift_id,
@@ -1714,26 +1667,18 @@ async def approve_pay(
     if not is_admin(message):
         return
 
-    parts = (
-        message.text
-        .split()
-    )
+    parts = message.text.split()
 
     if (
         len(parts) != 2
-        or
-        not parts[1].isdigit()
+        or not parts[1].isdigit()
     ):
-
         await message.answer(
             "Формат: /approvepay ID"
         )
-
         return
 
-    request_id = int(
-        parts[1]
-    )
+    request_id = int(parts[1])
 
     with db() as conn:
 
@@ -1744,37 +1689,29 @@ async def approve_pay(
             amount_units,
             tx_ref,
             status
-
         FROM payment_requests
-
         WHERE id=?
         """, (
             request_id,
         )).fetchone()
 
         if not payment:
-
             await message.answer(
                 "Заявка не найдена"
             )
-
             return
 
         if payment["status"] != "pending":
-
             await message.answer(
                 "Эта заявка уже обработана"
             )
-
             return
 
         conn.execute("""
         UPDATE payment_requests
-
         SET
             status='approved',
             reviewed_at=CURRENT_TIMESTAMP
-
         WHERE id=?
         """, (
             request_id,
@@ -1799,17 +1736,14 @@ async def approve_pay(
     )
 
     try:
-
         await bot.send_message(
             payment["user_id"],
-
             f"""
 ✅ Пополнение подтверждено
 
 {amount_text} {payment["currency"]}
 """
         )
-
     except Exception:
         pass
 
@@ -1824,34 +1758,25 @@ async def reject_pay(
     if not is_admin(message):
         return
 
-    parts = (
-        message.text
-        .split(
-            maxsplit=2
-        )
+    parts = message.text.split(
+        maxsplit=2
     )
 
     if (
         len(parts) < 2
-        or
-        not parts[1].isdigit()
+        or not parts[1].isdigit()
     ):
-
         await message.answer(
             "Формат: /rejectpay ID [причина]"
         )
-
         return
 
-    request_id = int(
-        parts[1]
-    )
+    request_id = int(parts[1])
 
     reason = (
         parts[2]
         if len(parts) > 2
-        else
-        "Не подтверждено"
+        else "Не подтверждено"
     )
 
     with db() as conn:
@@ -1860,38 +1785,30 @@ async def reject_pay(
         SELECT
             user_id,
             status
-
         FROM payment_requests
-
         WHERE id=?
         """, (
             request_id,
         )).fetchone()
 
         if not payment:
-
             await message.answer(
                 "Заявка не найдена"
             )
-
             return
 
         if payment["status"] != "pending":
-
             await message.answer(
                 "Заявка уже обработана"
             )
-
             return
 
         conn.execute("""
         UPDATE payment_requests
-
         SET
             status='rejected',
             admin_note=?,
             reviewed_at=CURRENT_TIMESTAMP
-
         WHERE id=?
         """, (
             reason,
@@ -1908,7 +1825,6 @@ async def reject_pay(
 # =========================================================
 
 async def run_bot():
-
     await dp.start_polling(
         bot
     )
@@ -1919,15 +1835,9 @@ async def run_web():
     server = uvicorn.Server(
         uvicorn.Config(
             app,
-
-            host=
-            "0.0.0.0",
-
-            port=
-            PORT,
-
-            log_level=
-            "info"
+            host="0.0.0.0",
+            port=PORT,
+            log_level="info"
         )
     )
 
