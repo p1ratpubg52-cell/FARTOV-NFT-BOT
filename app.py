@@ -1402,7 +1402,7 @@ async def start(
     ):
         buttons.append([
             InlineKeyboardButton(
-                text="ð® OPEN MINI APP",
+                text="\U0001F3AE OPEN MINI APP",
                 web_app=WebAppInfo(
                     url=WEBAPP_URL
                 )
@@ -1411,17 +1411,20 @@ async def start(
 
     buttons.append([
         InlineKeyboardButton(
-            text="ð @" + DEPOSIT_USERNAME,
+            text="\U0001F381 @" + DEPOSIT_USERNAME,
             url="https://t.me/" + DEPOSIT_USERNAME
         )
     ])
 
-    await message.answer(
-        f"""
-FARTOV2 NFT BOT
+    text = (
+        "<b>\u0412\u043d\u0435\u0441\u0442\u0438 NFT - @fart2_backpack</b>\n\n"
+        "<b>\u0423\u043b\u0443\u0447\u0448\u0438\u0442\u044c "
+        "\u043f\u043e\u0434\u0430\u0440\u043a\u0438 \U0001F447</b>"
+    )
 
-Collectible gifts Ð¿ÑÐ¸Ð½Ð¸Ð¼Ð°ÑÑÑÑ Ð½Ð° @{DEPOSIT_USERNAME}.
-""",
+    await message.answer(
+        text,
+        parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=buttons
         )
