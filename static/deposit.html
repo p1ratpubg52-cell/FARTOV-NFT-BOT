@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+  <title>Внести NFT — FART2</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background: #07090e;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      padding:
+        calc(16px + env(safe-area-inset-top))
+        16px
+        calc(24px + env(safe-area-inset-bottom));
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .back {
+      border: 1px solid #323846;
+      background: #171c25;
+      color: #fff;
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .hero {
+      border-radius: 30px;
+      padding: 26px 22px;
+      background: linear-gradient(135deg, #ffb21a, #ff8a00);
+      margin-bottom: 18px;
+      box-shadow: 0 16px 40px rgba(255, 145, 0, .18);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #fff;
+      color: #5c72cc;
+      border-radius: 16px;
+      padding: 8px 13px;
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      font-weight: 950;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .hero-text {
+      font-size: 17px;
+      line-height: 1.4;
+      font-weight: 700;
+      max-width: 92%;
+    }
+
+    .panel {
+      background: #12161e;
+      border: 1px solid #2d3440;
+      border-radius: 26px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 15px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: #d9dce3;
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    .num {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #2b323e;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .telegram-btn {
+      width: 100%;
+      margin-top: 18px;
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(135deg, #7652ff, #9e58ff);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .username {
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .label {
+      color: #aeb4bf;
+      font-size: 14px;
+      margin: 0 2px 8px;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid #343b48;
+      background: #191f28;
+      color: #fff;
+      border-radius: 18px;
+      padding: 16px 17px;
+      font-size: 17px;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #7652ff;
+    }
+
+    .submit {
+      width: 100%;
+      margin-top: 12px;
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+      color: #10131a;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .submit:disabled,
+    .telegram-btn:disabled {
+      opacity: .55;
+    }
+
+    .hint {
+      color: #9da3ad;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 11px;
+    }
+
+    .status {
+      display: none;
+      margin-top: 14px;
+      border-radius: 17px;
+      padding: 14px;
+      background: #171d25;
+      border: 1px solid #303744;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.ok {
+      border-color: rgba(42, 210, 145, .5);
+    }
+
+    .status.error {
+      border-color: rgba(255, 92, 92, .55);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <button id="backBtn" class="back" type="button">← Назад</button>
+    <div class="brand">FART2 NFT BOT</div>
+    <div style="width:76px"></div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-badge">🎁 NFT</div>
+    <div class="hero-title">ВНЕСТИ ПОДАРОК</div>
+    <div class="hero-text">
+      Добавьте Telegram Collectible Gift в свой инвентарь FART2.
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">Как внести подарок</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div>
+          Перейдите по username
+          <span class="username">@fart2_backpack</span>
+          в Telegram.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">2</div>
+        <div>
+          Вручную выберите подарок / NFT и отправьте его на этот аккаунт.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">3</div>
+        <div>
+          После отправки вернитесь сюда, вставьте ссылку на отправленный NFT
+          вида <b>https://t.me/nft/...</b> и отправьте заявку на проверку.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">4</div>
+        <div>
+          После подтверждения администратором подарок появится у вас в Инвентаре.
+        </div>
+      </div>
+    </div>
+
+    <button id="openTelegram" class="telegram-btn" type="button">
+      🎁 Перейти к @fart2_backpack
+    </button>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">Я уже отправил подарок</div>
+
+    <div class="label">Ссылка на NFT</div>
+
+    <input
+      id="giftUrl"
+      class="input"
+      type="url"
+      inputmode="url"
+      autocapitalize="none"
+      autocomplete="off"
+      placeholder="https://t.me/nft/..."
+    >
+
+    <button id="submitBtn" class="submit" type="button">
+      ✅ Отправить на проверку
+    </button>
+
+    <div class="hint">
+      Подарок не попадёт в инвентарь автоматически. Сначала администратор проверит,
+      что NFT действительно получен на @fart2_backpack.
+    </div>
+
+    <div id="status" class="status"></div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  const tg = window.Telegram?.WebApp || null;
+
+  try {
+    tg?.ready();
+    tg?.expand();
+    tg?.setHeaderColor("#07090e");
+    tg?.setBackgroundColor("#07090e");
+  } catch (_) {}
+
+  function setStatus(text, type) {
+    const el = document.getElementById("status");
+    el.textContent = text;
+    el.className = "status show " + (type || "");
+  }
+
+  function getInitData() {
+    if (!tg?.initData) {
+      throw new Error("Откройте мини-приложение внутри Telegram");
+    }
+    return tg.initData;
+  }
+
+  async function post(url, body) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok) {
+      throw new Error(
+        data?.detail ||
+        data?.error ||
+        data?.message ||
+        `Ошибка сервера ${response.status}`
+      );
+    }
+
+    return data;
+  }
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    window.location.href = "/";
+  });
+
+  document.getElementById("openTelegram").addEventListener("click", () => {
+    const url = "https://t.me/fart2_backpack";
+
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(url);
+    } else if (tg?.openLink) {
+      tg.openLink(url);
+    } else {
+      window.location.href = url;
+    }
+  });
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const button = document.getElementById("submitBtn");
+    const giftUrl = document.getElementById("giftUrl").value.trim();
+
+    if (!giftUrl) {
+      setStatus("Вставьте ссылку на отправленный NFT.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    const oldText = button.textContent;
+    button.textContent = "Отправляем…";
+
+    try {
+      const data = await post("/api/deposit", {
+        initData: getInitData(),
+        gift_url: giftUrl
+      });
+
+      setStatus(
+        `✅ Заявка #${data.deposit_id} отправлена. После подтверждения подарок появится в Инвентаре.`,
+        "ok"
+      );
+
+      document.getElementById("giftUrl").value = "";
+    } catch (error) {
+      setStatus("Ошибка: " + error.message, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = oldText;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
