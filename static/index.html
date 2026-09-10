@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -12,6 +13,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
+
     *{
       box-sizing:border-box;
       margin:0;
@@ -517,6 +519,7 @@
       }
 
     }
+
   </style>
 </head>
 
@@ -535,6 +538,7 @@
     </div>
 
   </header>
+
 
   <section class="wallet-top">
 
@@ -566,10 +570,15 @@
 
   </section>
 
+
   <div class="live">
+
     <span class="live-dot"></span>
+
     Live
+
   </div>
+
 
   <div class="quick-menu">
 
@@ -599,6 +608,7 @@
 
   </div>
 
+
   <button
     class="card blue"
     type="button"
@@ -622,6 +632,7 @@
     </div>
 
   </button>
+
 
   <button
     class="card orange"
@@ -647,6 +658,7 @@
 
   </button>
 
+
   <button
     class="card green"
     type="button"
@@ -670,6 +682,7 @@
     </div>
 
   </button>
+
 
   <button
     class="card purple"
@@ -698,6 +711,8 @@
 </div>
 
 
+<!-- ПОПОЛНЕНИЕ -->
+
 <div
   id="depositModal"
   class="modal"
@@ -720,6 +735,7 @@
       </button>
 
     </div>
+
 
     <button
       class="payment-btn"
@@ -750,6 +766,7 @@
       </div>
 
     </button>
+
 
     <button
       class="payment-btn"
@@ -786,6 +803,8 @@
 </div>
 
 
+<!-- STARS -->
+
 <div
   id="starsModal"
   class="modal"
@@ -809,9 +828,11 @@
 
     </div>
 
+
     <div class="field-label">
       Количество Stars
     </div>
+
 
     <input
       id="starsAmount"
@@ -824,6 +845,7 @@
       placeholder="Например, 100"
     >
 
+
     <button
       id="payStars"
       class="primary-btn"
@@ -831,6 +853,7 @@
     >
       ⭐ Оплатить Stars
     </button>
+
 
     <div class="hint">
       После нажатия откроется официальный платёжный экран Telegram.
@@ -840,6 +863,8 @@
 
 </div>
 
+
+<!-- TON -->
 
 <div
   id="tonModal"
@@ -864,9 +889,11 @@
 
     </div>
 
+
     <div class="field-label">
       Адрес для пополнения
     </div>
+
 
     <div
       id="tonAddress"
@@ -875,9 +902,11 @@
       Загрузка…
     </div>
 
+
     <div class="field-label">
       Количество TON
     </div>
+
 
     <input
       id="tonAmount"
@@ -888,6 +917,7 @@
       placeholder="Например, 1 или 0.1"
     >
 
+
     <button
       id="openTonWallet"
       class="primary-btn"
@@ -895,6 +925,7 @@
     >
       💎 Открыть TON-кошелёк
     </button>
+
 
     <div
       id="tonConfirmBlock"
@@ -905,12 +936,14 @@
         После отправки TON вернитесь сюда и вставьте hash или ссылку транзакции.
       </div>
 
+
       <div
         class="field-label"
         style="margin-top:14px"
       >
         Hash / ссылка транзакции
       </div>
+
 
       <input
         id="tonTxRef"
@@ -919,6 +952,7 @@
         autocomplete="off"
         placeholder="Вставьте hash или ссылку"
       >
+
 
       <button
         id="submitTon"
@@ -934,6 +968,8 @@
 
 </div>
 
+
+<!-- БАЛАНС -->
 
 <div
   id="walletModal"
@@ -958,6 +994,7 @@
 
     </div>
 
+
     <div class="balances">
 
       <div class="balance-row">
@@ -974,6 +1011,7 @@
         </div>
 
       </div>
+
 
       <div class="balance-row">
 
@@ -2050,7 +2088,7 @@
             ) {
 
               window.location.href =
-                "/upgrade";
+                "/static/upgrade.html";
 
             }
 
