@@ -2,13 +2,22 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
   <title>FART2 NFT BOT</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent
+    }
 
     html,body{
       width:100%;
@@ -397,6 +406,10 @@
       margin-top:2px
     }
 
+    .primary-btn:active{
+      transform:scale(.985)
+    }
+
     .secondary-btn{
       width:100%;
       border:1px solid #343a46;
@@ -461,6 +474,7 @@
     }
 
     @media(max-width:520px){
+
       .app{
         padding-left:15px;
         padding-right:15px
@@ -501,6 +515,7 @@
       .card-icon{
         font-size:65px
       }
+
     }
   </style>
 </head>
@@ -510,6 +525,7 @@
 <div class="app">
 
   <header class="header">
+
     <div class="title">
       FART2 NFT BOT
     </div>
@@ -517,6 +533,7 @@
     <div class="subtitle">
       мини-приложение
     </div>
+
   </header>
 
 
@@ -888,11 +905,10 @@
     <input
       id="tonAmount"
       class="field"
-      type="number"
+      type="text"
       inputmode="decimal"
-      min="0.000000001"
-      step="0.01"
-      placeholder="Например, 1"
+      autocomplete="off"
+      placeholder="Например, 1 или 0.1"
     >
 
 
@@ -927,6 +943,7 @@
         id="tonTxRef"
         class="field"
         type="text"
+        autocomplete="off"
         placeholder="Вставьте hash или ссылку"
       >
 
@@ -1289,6 +1306,79 @@
   }
 
 
+  /*
+    Преобразует TON в nanoTON без ошибок Number.
+    Например:
+    1 TON   = 1000000000 nanoTON
+    0.1 TON = 100000000 nanoTON
+  */
+
+  function tonToNano(value) {
+
+    const normalized =
+      String(value)
+        .trim()
+        .replace(",", ".");
+
+
+    if (
+      !/^\d+(\.\d{1,9})?$/.test(
+        normalized
+      )
+    ) {
+
+      throw new Error(
+        "Введите корректную сумму TON. Например: 1 или 0.1"
+      );
+
+    }
+
+
+    const parts =
+      normalized.split(".");
+
+
+    const whole =
+      parts[0];
+
+
+    const fraction =
+      parts[1] || "";
+
+
+    const paddedFraction =
+      fraction.padEnd(
+        9,
+        "0"
+      );
+
+
+    const nanoTon =
+
+      BigInt(whole) *
+      1000000000n +
+
+      BigInt(
+        paddedFraction
+      );
+
+
+    if (
+      nanoTon <= 0n
+    ) {
+
+      throw new Error(
+        "Сумма TON должна быть больше нуля"
+      );
+
+    }
+
+
+    return nanoTon;
+
+  }
+
+
   async function startStarsPayment() {
 
     const button =
@@ -1409,7 +1499,6 @@
 
           }
 
-
           else if (
             status ===
             "cancelled"
@@ -1420,7 +1509,6 @@
             );
 
           }
-
 
           else if (
             status ===
@@ -1464,27 +1552,30 @@
   }
 
 
+  /*
+    ИСПРАВЛЕННОЕ ОТКРЫТИЕ TONKEEPER
+  */
+
   async function openTonPayment() {
+
+    const button =
+      document.getElementById(
+        "openTonWallet"
+      );
+
 
     const amountText =
       document.getElementById(
         "tonAmount"
-      ).value.trim();
+      )
+      .value
+      .trim();
 
 
-    const amount =
-      Number(
-        amountText
-      );
-
-
-    if (
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
+    if (!amountText) {
 
       showToast(
-        "Введите корректное количество TON"
+        "Введите количество TON"
       );
 
       return;
@@ -1492,10 +1583,27 @@
     }
 
 
+    button.disabled =
+      true;
+
+
+    const oldText =
+      button.textContent;
+
+
+    button.textContent =
+      "Открываем кошелёк…";
+
+
     try {
 
       requireTelegram();
 
+
+      /*
+        Если адрес почему-то ещё не загрузился,
+        пробуем получить его ещё раз с сервера.
+      */
 
       if (!tonDepositAddress) {
 
@@ -1507,18 +1615,15 @@
       if (!tonDepositAddress) {
 
         throw new Error(
-          "TON_DEPOSIT_ADDRESS не настроен на сервере"
+          "TON-адрес пополнения не настроен на сервере"
         );
 
       }
 
 
       const nanoTon =
-        BigInt(
-          Math.round(
-            amount *
-            1000000000
-          )
+        tonToNano(
+          amountText
         );
 
 
@@ -1526,9 +1631,14 @@
         "FARTOV2 deposit";
 
 
-      const tonUrl =
+      /*
+        Используем HTTPS universal link Tonkeeper
+        вместо ton://transfer
+      */
 
-        "ton://transfer/" +
+      const walletUrl =
+
+        "https://app.tonkeeper.com/transfer/" +
 
         encodeURIComponent(
           tonDepositAddress
@@ -1545,6 +1655,12 @@
         );
 
 
+      /*
+        Показываем блок ввода hash,
+        чтобы после оплаты пользователь
+        мог отправить транзакцию на проверку.
+      */
+
       document
         .getElementById(
           "tonConfirmBlock"
@@ -1555,8 +1671,47 @@
         );
 
 
-      window.location.href =
-        tonUrl;
+      /*
+        Основной способ открытия внутри Telegram.
+      */
+
+      if (
+        tg &&
+        typeof tg.openLink ===
+          "function"
+      ) {
+
+        tg.openLink(
+          walletUrl
+        );
+
+        return;
+
+      }
+
+
+      /*
+        Запасной вариант.
+      */
+
+      const newWindow =
+        window.open(
+          walletUrl,
+          "_blank"
+        );
+
+
+      /*
+        Если iPhone заблокировал новое окно,
+        открываем ссылку в текущем окне.
+      */
+
+      if (!newWindow) {
+
+        window.location.href =
+          walletUrl;
+
+      }
 
     } catch (error) {
 
@@ -1572,6 +1727,15 @@
         5000
       );
 
+    } finally {
+
+      button.disabled =
+        false;
+
+
+      button.textContent =
+        oldText;
+
     }
 
   }
@@ -1585,25 +1749,43 @@
       );
 
 
-    const amount =
+    const amountRaw =
       document.getElementById(
         "tonAmount"
-      ).value.trim();
+      )
+      .value
+      .trim();
 
 
     const txRef =
       document.getElementById(
         "tonTxRef"
-      ).value.trim();
+      )
+      .value
+      .trim();
 
 
-    if (
-      !amount ||
-      Number(amount) <= 0
-    ) {
+    let normalizedAmount =
+      "";
+
+
+    try {
+
+      tonToNano(
+        amountRaw
+      );
+
+
+      normalizedAmount =
+        amountRaw.replace(
+          ",",
+          "."
+        );
+
+    } catch (error) {
 
       showToast(
-        "Укажите сумму TON"
+        error.message
       );
 
       return;
@@ -1652,7 +1834,7 @@
             "TON",
 
           amount:
-            String(amount),
+            normalizedAmount,
 
           tx_ref:
             txRef
@@ -1720,6 +1902,7 @@
 
         event.preventDefault();
 
+
         openModal(
           "depositModal"
         );
@@ -1761,7 +1944,6 @@
               );
 
             }
-
 
             else if (
               currency ===
@@ -1826,6 +2008,7 @@
           event => {
 
             event.preventDefault();
+
 
             closeModal(
               button.dataset.close
@@ -1902,7 +2085,6 @@
 
             }
 
-
             else if (
               section ===
               "stars"
@@ -1914,7 +2096,6 @@
 
             }
 
-
             else if (
               section ===
               "gift"
@@ -1924,7 +2105,6 @@
                 "/deposit";
 
             }
-
 
             else if (
               section ===
@@ -1936,7 +2116,6 @@
 
             }
 
-
             else if (
               section ===
               "upgrade"
@@ -1947,7 +2126,6 @@
               );
 
             }
-
 
             else if (
               section ===
