@@ -9,7 +9,7 @@
 name="viewport"
 content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>FARTOV NFT</title>
+<title>FARTOV2 NFT</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -18,7 +18,6 @@ content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 :root{
   --bg:#090a0d;
   --card:#15171c;
-  --card2:#101217;
   --line:#292d37;
   --muted:#969dab;
   --accent:#7657ff;
@@ -32,7 +31,7 @@ content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 body{
   margin:0;
   background:var(--bg);
-  color:#fff;
+  color:white;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
@@ -43,21 +42,21 @@ body{
 }
 
 .brand{
-  font-size:29px;
+  font-size:28px;
   font-weight:900;
-  margin:4px 0 20px;
+  margin-bottom:18px;
 }
 
 .card{
   background:var(--card);
   border:1px solid var(--line);
-  border-radius:22px;
+  border-radius:20px;
   padding:18px;
-  margin-bottom:15px;
+  margin-bottom:14px;
 }
 
 .title{
-  font-size:21px;
+  font-size:20px;
   font-weight:900;
   margin-bottom:10px;
 }
@@ -69,50 +68,40 @@ body{
 }
 
 .big{
-  font-size:36px;
+  font-size:32px;
   font-weight:900;
-}
-
-.deposit{
-  font-size:22px;
-  font-weight:900;
-  margin:12px 0;
 }
 
 select,
 input{
   width:100%;
-  padding:15px;
-  border-radius:15px;
+  padding:14px;
+  border-radius:14px;
   border:1px solid var(--line);
-  background:#0d0f14;
-  color:#fff;
+  background:#0e1014;
+  color:white;
   font-size:16px;
   margin-top:10px;
 }
 
 button,
-a.btn{
+.btn{
   display:block;
   width:100%;
-  margin-top:12px;
-  padding:15px;
+  padding:14px;
+  margin-top:10px;
   border:0;
-  border-radius:15px;
+  border-radius:14px;
   background:var(--accent);
-  color:#fff;
+  color:white;
   text-decoration:none;
   text-align:center;
-  font-weight:850;
+  font-weight:800;
   font-size:16px;
 }
 
-button:disabled{
-  opacity:.5;
-}
-
 .secondary{
-  background:#22262e !important;
+  background:#242830;
 }
 
 .screen{
@@ -128,72 +117,123 @@ button:disabled{
   left:0;
   right:0;
   bottom:0;
+  display:flex;
   background:#0b0c10;
   border-top:1px solid var(--line);
-  display:flex;
-  z-index:20;
+  z-index:50;
 }
 
 .tab{
   flex:1;
-  padding:15px 3px;
   text-align:center;
-  color:#9299a7;
-  font-size:13px;
+  padding:14px 2px;
+  font-size:12px;
+  color:#8e95a2;
 }
 
 .tab.active{
-  color:#fff;
-  font-weight:700;
+  color:white;
+  font-weight:800;
 }
 
-.giftPreview{
-  margin-top:15px;
+.balanceGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.balanceBox{
   padding:15px;
-  background:var(--card2);
+  background:#0e1014;
   border:1px solid var(--line);
-  border-radius:18px;
-  display:none;
+  border-radius:17px;
 }
 
-.giftPreview.show{
-  display:block;
+.currency{
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:7px;
 }
 
-.giftImageBox{
-  width:100%;
+.amount{
+  font-size:25px;
+  font-weight:900;
+}
+
+.currencySection{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+
+.address{
+  background:#0b0d11;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:11px;
+  margin-top:8px;
+  font-size:12px;
+  word-break:break-all;
+}
+
+.historyItem{
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.historyAmount{
+  font-size:16px;
+  font-weight:800;
+}
+
+.pending{
+  color:#ffd166;
+}
+
+.approved{
+  color:#37d69e;
+}
+
+.rejected{
+  color:#ff6b6b;
+}
+
+.giftCard{
   display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-bottom:14px;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
 }
 
 .giftImage{
-  width:180px;
-  height:180px;
-  border-radius:20px;
+  width:68px;
+  height:68px;
   object-fit:contain;
-  background:#0a0c10;
+  border-radius:14px;
+  background:#0d0f13;
+}
+
+.giftInfo{
+  flex:1;
 }
 
 .giftName{
-  font-size:20px;
-  font-weight:900;
-  text-align:center;
+  font-weight:800;
 }
 
-.giftNumber{
-  text-align:center;
-  color:var(--muted);
+.giftLink{
+  color:#86aaff;
+  font-size:11px;
   margin-top:5px;
-  font-size:13px;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .wheelWrap{
+  position:relative;
   display:flex;
   justify-content:center;
-  margin:22px 0 10px;
-  position:relative;
+  margin:20px 0;
 }
 
 .pointer{
@@ -201,1391 +241,1417 @@ button:disabled{
   top:-3px;
   left:50%;
   transform:translateX(-50%);
-  width:0;
-  height:0;
-  border-left:14px solid transparent;
-  border-right:14px solid transparent;
-  border-top:30px solid #ffd54a;
+  border-left:13px solid transparent;
+  border-right:13px solid transparent;
+  border-top:29px solid #ffd54a;
   z-index:4;
 }
 
 #wheel{
-  width:310px;
-  height:310px;
+  width:300px;
+  height:300px;
+  border:12px solid #293343;
   border-radius:50%;
-  border:12px solid #2b3442;
   transition:transform 3.6s cubic-bezier(.12,.72,.17,1);
 }
 
 .odds{
-  text-align:center;
-  font-size:30px;
+  font-size:28px;
   font-weight:900;
-  margin-top:12px;
-}
-
-.result{
   text-align:center;
-  font-size:19px;
-  font-weight:850;
-  margin-top:14px;
-  min-height:24px;
-}
-
-.giftCard{
-  display:flex;
-  gap:13px;
-  align-items:center;
-  padding:14px 0;
-  border-bottom:1px solid var(--line);
-}
-
-.giftCard:last-child{
-  border-bottom:0;
-}
-
-.giftThumb{
-  width:70px;
-  height:70px;
-  border-radius:14px;
-  object-fit:contain;
-  background:#0c0e12;
-  flex:0 0 70px;
-}
-
-.giftInfo{
-  flex:1;
-  min-width:0;
-}
-
-.giftTitle{
-  font-size:16px;
-  font-weight:850;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.giftLink{
-  font-size:12px;
-  color:#7fa8ff;
-  margin-top:5px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-.status{
-  font-size:12px;
-  color:#38d69f;
-  font-weight:800;
-}
-
-.emptyImage{
-  width:180px;
-  height:180px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:20px;
-  background:#0d1015;
-  color:#747b88;
-  font-size:45px;
 }
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="wrap">
 
-  <div class="brand">
-    FARTOV NFT
-  </div>
 
+<div class="brand">
+FARTOV2 NFT
+</div>
 
-  <section
-  id="home"
-  class="screen active">
 
-    <div class="card">
+<section
+id="home"
+class="screen active">
 
-      <div
-      class="title"
-      id="userName">
-        Загрузка…
-      </div>
+<div class="card">
 
-      <div
-      class="big"
-      id="count">
-        0
-      </div>
+<div
+class="title"
+id="userName">
+Загрузка…
+</div>
 
-      <div class="muted">
-        подарков в профиле
-      </div>
+<div class="muted">
+NFT-подарки и отдельные балансы доступны через меню ниже.
+</div>
 
-    </div>
+</div>
 
-  </section>
+</section>
 
 
-  <section
-  id="upgrade"
-  class="screen">
+<section
+id="upgrade"
+class="screen">
 
-    <div class="card">
+<div class="card">
 
-      <div class="title">
-        Upgrade
-      </div>
+<div class="title">
+Upgrade
+</div>
 
-      <div class="muted">
-        Выбери свой NFT-подарок:
-      </div>
+<div class="muted">
+Выбери подарок:
+</div>
 
-      <select
-      id="sourceGift"
-      onchange="updateGiftPreview()">
+<select id="sourceGift">
 
-        <option value="">
-          Нет доступных подарков
-        </option>
+<option value="">
+Нет подарков
+</option>
 
-      </select>
+</select>
 
 
-      <div
-      id="giftPreview"
-      class="giftPreview">
+<select id="targetGift">
 
-        <div class="giftImageBox">
+<option value="1.5">
+×1.5 — 62%
+</option>
 
-          <img
-          id="selectedGiftImage"
-          class="giftImage"
-          style="display:none">
+<option value="2">
+×2 — 46%
+</option>
 
-          <div
-          id="selectedGiftFallback"
-          class="emptyImage">
-            🎁
-          </div>
+<option value="3">
+×3 — 29%
+</option>
 
-        </div>
+<option value="5">
+×5 — 16%
+</option>
 
-        <div
-        id="selectedGiftName"
-        class="giftName">
-          Telegram Gift
-        </div>
+</select>
 
-        <div
-        id="selectedGiftNumber"
-        class="giftNumber">
-        </div>
 
-      </div>
+<div class="wheelWrap">
 
+<div class="pointer"></div>
 
-      <div
-      class="muted"
-      style="margin-top:18px">
-        Выбери цель:
-      </div>
+<canvas
+id="wheel"
+width="600"
+height="600">
+</canvas>
 
+</div>
 
-      <select
-      id="targetGift">
 
-        <option value="1.5">
-          Upgrade ×1.5 — шанс 62%
-        </option>
+<div
+class="odds"
+id="odds">
+62%
+</div>
 
-        <option value="2">
-          Upgrade ×2 — шанс 46%
-        </option>
 
-        <option value="3">
-          Upgrade ×3 — шанс 29%
-        </option>
+<button onclick="spin()">
+Крутить
+</button>
 
-        <option value="5">
-          Upgrade ×5 — шанс 16%
-        </option>
 
-      </select>
+<div
+id="upgradeResult"
+style="
+text-align:center;
+font-weight:800;
+margin-top:12px;
+">
+</div>
 
+</div>
 
-      <div class="wheelWrap">
+</section>
 
-        <div class="pointer"></div>
 
-        <canvas
-        id="wheel"
-        width="620"
-        height="620">
-        </canvas>
+<section
+id="balance"
+class="screen">
 
-      </div>
+<div class="card">
 
+<div class="title">
+Баланс
+</div>
 
-      <div
-      class="odds"
-      id="odds">
-        62%
-      </div>
 
+<div class="balanceGrid">
 
-      <button
-      id="spinBtn"
-      onclick="spin()">
-        Крутить
-      </button>
+<div class="balanceBox">
 
+<div class="currency">
+⭐ Stars
+</div>
 
-      <div
-      id="result"
-      class="result">
-      </div>
+<div
+class="amount"
+id="balXTR">
+0
+</div>
 
-    </div>
+</div>
 
-  </section>
 
+<div class="balanceBox">
 
-  <section
-  id="deposit"
-  class="screen">
+<div class="currency">
+💎 TON
+</div>
 
-    <div class="card">
+<div
+class="amount"
+id="balTON">
+0
+</div>
 
-      <div class="title">
-        Внести подарок
-      </div>
+</div>
 
-      <div class="muted">
-        1. Отправь collectible gift на:
-      </div>
 
-      <div
-      class="deposit"
-      id="depUser">
-        @fart2_backpack
-      </div>
+<div class="balanceBox">
 
-      <a
-      class="btn secondary"
-      id="depLink"
-      href="https://t.me/fart2_backpack">
-        Открыть аккаунт
-      </a>
+<div class="currency">
+₮ USDT
+</div>
 
-      <div
-      class="muted"
-      style="margin-top:18px">
-        2. Вставь публичную ссылку подарка:
-      </div>
+<div
+class="amount"
+id="balUSDT">
+0
+</div>
 
-      <input
-      id="giftUrl"
-      placeholder="https://t.me/nft/...">
+</div>
 
-      <button onclick="sendDep()">
-        Отправить на проверку
-      </button>
 
-      <div
-      id="msg"
-      class="muted"
-      style="margin-top:12px">
-      </div>
+<div class="balanceBox">
 
-    </div>
+<div class="currency">
+GRAM
+</div>
 
-  </section>
+<div
+class="amount"
+id="balGRAM">
+0
+</div>
 
+</div>
 
-  <section
-  id="inventory"
-  class="screen">
+</div>
 
-    <div class="card">
 
-      <div class="title">
-        Мои подарки
-      </div>
+<div class="currencySection">
 
-      <div
-      id="items">
-      </div>
+<div class="title">
+⭐ Пополнить Stars
+</div>
 
-    </div>
 
-  </section>
+<input
+type="number"
+id="starsAmount"
+value="100"
+min="1"
+placeholder="Количество Stars">
+
+
+<button onclick="buyStars()">
+Пополнить Stars
+</button>
+
+
+<div
+id="starsStatus"
+class="muted"
+style="margin-top:9px">
+</div>
+
+</div>
+
+
+<div class="currencySection">
+
+<div class="title">
+TON / USDT / GRAM
+</div>
+
+
+<select
+id="cryptoCurrency"
+onchange="updateAddress()">
+
+<option value="TON">
+TON
+</option>
+
+<option value="USDT">
+USDT
+</option>
+
+<option value="GRAM">
+GRAM
+</option>
+
+</select>
+
+
+<div
+id="cryptoAddress"
+class="address">
+Адрес не указан
+</div>
+
+
+<input
+id="cryptoAmount"
+placeholder="Сумма">
+
+
+<input
+id="cryptoTx"
+placeholder="Hash или ссылка транзакции">
+
+
+<button onclick="sendCryptoRequest()">
+Отправить на проверку
+</button>
+
+
+<div
+id="cryptoStatus"
+class="muted"
+style="margin-top:9px">
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="title">
+Заявки
+</div>
+
+<div
+id="paymentRequests"
+class="muted">
+Пока нет заявок.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="title">
+История
+</div>
+
+<div
+id="history"
+class="muted">
+История пуста.
+</div>
+
+</div>
+
+</section>
+
+
+<section
+id="deposit"
+class="screen">
+
+<div class="card">
+
+<div class="title">
+Внести NFT
+</div>
+
+
+<div class="muted">
+Отправь collectible gift на:
+</div>
+
+
+<div
+style="
+font-size:22px;
+font-weight:900;
+margin:12px 0;
+"
+id="depositUsername">
+@fart2_backpack
+</div>
+
+
+<a
+id="depositLink"
+class="btn secondary"
+href="https://t.me/fart2_backpack">
+Открыть аккаунт
+</a>
+
+
+<input
+id="giftUrl"
+placeholder="https://t.me/nft/...">
+
+
+<button onclick="sendGift()">
+Отправить на проверку
+</button>
+
+
+<div
+id="giftStatus"
+class="muted"
+style="margin-top:10px">
+</div>
+
+</div>
+
+</section>
+
+
+<section
+id="gifts"
+class="screen">
+
+<div class="card">
+
+<div class="title">
+Мои подарки
+</div>
+
+<div id="giftList">
+</div>
+
+</div>
+
+</section>
+
 
 </div>
 
 
 <div class="tabs">
 
-  <div
-  class="tab active"
-  onclick="showTab('home',this)">
-    Главная
-  </div>
+<div
+class="tab active"
+onclick="showTab('home',this)">
+Главная
+</div>
 
-  <div
-  class="tab"
-  onclick="showTab('upgrade',this)">
-    Upgrade
-  </div>
+<div
+class="tab"
+onclick="showTab('upgrade',this)">
+Upgrade
+</div>
 
-  <div
-  class="tab"
-  onclick="showTab('deposit',this)">
-    Депозит
-  </div>
+<div
+class="tab"
+onclick="showTab('balance',this)">
+Баланс
+</div>
 
-  <div
-  class="tab"
-  onclick="showTab('inventory',this)">
-    Подарки
-  </div>
+<div
+class="tab"
+onclick="showTab('deposit',this)">
+NFT
+</div>
+
+<div
+class="tab"
+onclick="showTab('gifts',this)">
+Подарки
+</div>
 
 </div>
 
 
 <script>
 
-const tg = Telegram.WebApp;
+const tg =
+Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
+
 let deposits = [];
+
+let paymentData = null;
+
 let rotation = 0;
 
+
 const oddsMap = {
-  "1.5":62,
-  "2":46,
-  "3":29,
-  "5":16
+
+"1.5":62,
+
+"2":46,
+
+"3":29,
+
+"5":16
+
 };
 
 
-function showTab(id,element){
+function showTab(
+id,
+element
+){
 
-  document
-  .querySelectorAll('.screen')
-  .forEach(
-    x => x.classList.remove('active')
-  );
+document
+.querySelectorAll(
+'.screen'
+)
+.forEach(
+x =>
+x.classList.remove(
+'active'
+)
+);
 
-  document
-  .querySelectorAll('.tab')
-  .forEach(
-    x => x.classList.remove('active')
-  );
 
-  document
-  .getElementById(id)
-  .classList.add('active');
+document
+.querySelectorAll(
+'.tab'
+)
+.forEach(
+x =>
+x.classList.remove(
+'active'
+)
+);
 
-  if(element){
-    element.classList.add('active');
-  }
+
+document
+.getElementById(
+id
+)
+.classList.add(
+'active'
+);
+
+
+element
+.classList.add(
+'active'
+);
+
+
+if(
+id === 'balance'
+){
+
+loadBalances();
 
 }
-
-
-function safeText(value){
-
-  if(
-    value === null
-    ||
-    value === undefined
-  ){
-    return '';
-  }
-
-  return String(value);
-}
-
-
-function findGiftById(id){
-
-  return deposits.find(
-    gift =>
-    String(gift.id)
-    ===
-    String(id)
-  );
-
-}
-
-
-function updateGiftPreview(){
-
-  const selector =
-  document.getElementById(
-    'sourceGift'
-  );
-
-  const preview =
-  document.getElementById(
-    'giftPreview'
-  );
-
-  const image =
-  document.getElementById(
-    'selectedGiftImage'
-  );
-
-  const fallback =
-  document.getElementById(
-    'selectedGiftFallback'
-  );
-
-  const name =
-  document.getElementById(
-    'selectedGiftName'
-  );
-
-  const number =
-  document.getElementById(
-    'selectedGiftNumber'
-  );
-
-
-  const gift =
-  findGiftById(
-    selector.value
-  );
-
-
-  if(!gift){
-
-    preview
-    .classList
-    .remove('show');
-
-    return;
-
-  }
-
-
-  preview
-  .classList
-  .add('show');
-
-
-  name.innerText =
-  gift.gift_name
-  ||
-  'Telegram Gift';
-
-
-  number.innerText =
-  'Gift #' +
-  gift.id;
-
-
-  if(gift.gift_image){
-
-    image.src =
-    gift.gift_image;
-
-    image.style.display =
-    'block';
-
-    fallback.style.display =
-    'none';
-
-
-    image.onerror = () => {
-
-      image.style.display =
-      'none';
-
-      fallback.style.display =
-      'flex';
-
-    };
-
-  }
-
-  else{
-
-    image.style.display =
-    'none';
-
-    fallback.style.display =
-    'flex';
-
-  }
 
 }
 
 
 function drawWheel(percent){
 
-  const canvas =
-  document.getElementById(
-    'wheel'
-  );
-
-  const ctx =
-  canvas.getContext(
-    '2d'
-  );
-
-  const cx =
-  canvas.width / 2;
-
-  const cy =
-  canvas.height / 2;
-
-  const radius =
-  265;
+const canvas =
+document.getElementById(
+'wheel'
+);
 
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+const ctx =
+canvas.getContext(
+'2d'
+);
 
 
-  const start =
-  -Math.PI / 2;
+const cx =
+300;
+
+const cy =
+300;
+
+const radius =
+250;
 
 
-  const greenAngle =
-  2 *
-  Math.PI *
-  (
-    percent /
-    100
-  );
+ctx.clearRect(
+0,
+0,
+600,
+600
+);
 
 
-  ctx.beginPath();
-
-  ctx.moveTo(
-    cx,
-    cy
-  );
-
-  ctx.arc(
-    cx,
-    cy,
-    radius,
-    start,
-    start + greenAngle
-  );
-
-  ctx.closePath();
-
-  ctx.fillStyle =
-  '#19c986';
-
-  ctx.fill();
+const start =
+-Math.PI / 2;
 
 
-  ctx.beginPath();
-
-  ctx.moveTo(
-    cx,
-    cy
-  );
-
-  ctx.arc(
-    cx,
-    cy,
-    radius,
-    start + greenAngle,
-    start + Math.PI * 2
-  );
-
-  ctx.closePath();
-
-  ctx.fillStyle =
-  '#202733';
-
-  ctx.fill();
+const green =
+Math.PI *
+2 *
+percent /
+100;
 
 
-  for(
-    let i = 0;
-    i < 72;
-    i++
-  ){
+ctx.beginPath();
 
-    const angle =
-    start +
-    i *
-    (
-      Math.PI *
-      2 /
-      72
-    );
+ctx.moveTo(
+cx,
+cy
+);
 
+ctx.arc(
+cx,
+cy,
+radius,
+start,
+start + green
+);
 
-    ctx.beginPath();
+ctx.closePath();
 
+ctx.fillStyle =
+'#19c986';
 
-    ctx.moveTo(
-
-      cx +
-      Math.cos(angle) *
-      80,
-
-      cy +
-      Math.sin(angle) *
-      80
-
-    );
+ctx.fill();
 
 
-    ctx.lineTo(
+ctx.beginPath();
 
-      cx +
-      Math.cos(angle) *
-      radius,
+ctx.moveTo(
+cx,
+cy
+);
 
-      cy +
-      Math.sin(angle) *
-      radius
+ctx.arc(
+cx,
+cy,
+radius,
+start + green,
+start + Math.PI * 2
+);
 
-    );
+ctx.closePath();
 
+ctx.fillStyle =
+'#202733';
 
-    ctx.strokeStyle =
-    'rgba(255,255,255,.10)';
-
-
-    ctx.lineWidth =
-    2;
-
-
-    ctx.stroke();
-
-  }
+ctx.fill();
 
 
-  ctx.beginPath();
+for(
+let i=0;
+i<72;
+i++
+){
 
-  ctx.arc(
-    cx,
-    cy,
-    88,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fillStyle =
-  '#24303a';
-
-  ctx.fill();
+const angle =
+start +
+i *
+Math.PI *
+2 /
+72;
 
 
-  ctx.fillStyle =
-  '#fff';
+ctx.beginPath();
 
-  ctx.font =
-  'bold 42px -apple-system';
 
-  ctx.textAlign =
-  'center';
+ctx.moveTo(
 
-  ctx.fillText(
-    percent + '%',
-    cx,
-    cy + 8
-  );
+cx +
+Math.cos(angle) *
+75,
+
+cy +
+Math.sin(angle) *
+75
+
+);
+
+
+ctx.lineTo(
+
+cx +
+Math.cos(angle) *
+radius,
+
+cy +
+Math.sin(angle) *
+radius
+
+);
+
+
+ctx.strokeStyle =
+'rgba(255,255,255,.11)';
+
+
+ctx.stroke();
+
+}
+
+
+ctx.beginPath();
+
+ctx.arc(
+cx,
+cy,
+82,
+0,
+Math.PI*2
+);
+
+ctx.fillStyle =
+'#25313b';
+
+ctx.fill();
+
+
+ctx.fillStyle =
+'white';
+
+ctx.textAlign =
+'center';
+
+ctx.font =
+'bold 40px sans-serif';
+
+ctx.fillText(
+percent + '%',
+cx,
+cy + 12
+);
 
 }
 
 
 document
 .getElementById(
-  'targetGift'
+'targetGift'
 )
 .addEventListener(
 'change',
-event => {
+function(){
 
-  const percent =
-  oddsMap[
-    event.target.value
-  ];
+const percent =
+oddsMap[
+this.value
+];
 
-  document
-  .getElementById(
-    'odds'
-  )
-  .innerText =
-  percent + '%';
 
-  drawWheel(
-    percent
-  );
+odds.innerText =
+percent + '%';
+
+
+drawWheel(
+percent
+);
 
 }
 );
 
 
-async function hideGift(
-  giftId
-){
-
-  const response =
-  await fetch(
-    '/api/hide-gift',
-    {
-
-      method:'POST',
-
-      headers:{
-        'Content-Type':
-        'application/json'
-      },
-
-      body:
-      JSON.stringify({
-
-        initData:
-        tg.initData,
-
-        deposit_id:
-        Number(
-          giftId
-        )
-
-      })
-
-    }
-  );
-
-
-  const data =
-  await response.json();
-
-
-  if(!response.ok){
-
-    throw new Error(
-      data.detail
-      ||
-      'Не удалось обновить подарок'
-    );
-
-  }
-
-}
-
-
 async function spin(){
 
-  const source =
-  document
-  .getElementById(
-    'sourceGift'
-  )
-  .value;
+const giftId =
+sourceGift.value;
 
 
-  if(!source){
+if(!giftId){
 
-    document
-    .getElementById(
-      'result'
-    )
-    .innerText =
-    'Сначала выбери подарок.';
+upgradeResult.innerText =
+'Сначала выбери подарок';
 
-    return;
-
-  }
-
-
-  const multiplier =
-  document
-  .getElementById(
-    'targetGift'
-  )
-  .value;
-
-
-  const percent =
-  oddsMap[
-    multiplier
-  ];
-
-
-  const button =
-  document
-  .getElementById(
-    'spinBtn'
-  );
-
-
-  button.disabled =
-  true;
-
-
-  document
-  .getElementById(
-    'result'
-  )
-  .innerText =
-  '';
-
-
-  const win =
-  Math.random() *
-  100 <
-  percent;
-
-
-  let landing;
-
-
-  if(win){
-
-    landing =
-    Math.random() *
-    (percent - 2)
-    +
-    1;
-
-  }
-
-  else{
-
-    landing =
-    percent
-    +
-    Math.random() *
-    (98 - percent)
-    +
-    1;
-
-  }
-
-
-  const angle =
-  360 -
-  (
-    landing /
-    100 *
-    360
-  );
-
-
-  rotation +=
-  1440 +
-  angle;
-
-
-  document
-  .getElementById(
-    'wheel'
-  )
-  .style
-  .transform =
-  `rotate(${rotation}deg)`;
-
-
-  setTimeout(
-  async () => {
-
-    try{
-
-      if(win){
-
-        document
-        .getElementById(
-          'result'
-        )
-        .innerText =
-        '✅ Успех';
-
-      }
-
-      else{
-
-        await hideGift(
-          source
-        );
-
-        document
-        .getElementById(
-          'result'
-        )
-        .innerText =
-        '❌ Неудача';
-
-        await load();
-
-      }
-
-    }
-
-    catch(error){
-
-      document
-      .getElementById(
-        'result'
-      )
-      .innerText =
-      'Ошибка: '
-      +
-      error.message;
-
-    }
-
-    finally{
-
-      button.disabled =
-      false;
-
-    }
-
-  },
-  3650
-  );
+return;
 
 }
 
 
-function renderInventory(
-  gifts
+const percent =
+oddsMap[
+targetGift.value
+];
+
+
+const win =
+Math.random() *
+100 <
+percent;
+
+
+let point;
+
+
+if(win){
+
+point =
+Math.random() *
+Math.max(
+1,
+percent-2
+)
++
+1;
+
+}else{
+
+point =
+percent +
+Math.random() *
+Math.max(
+1,
+98-percent
+)
++
+1;
+
+}
+
+
+const angle =
+360 -
+point / 100 * 360;
+
+
+rotation +=
+1440 +
+angle;
+
+
+wheel.style.transform =
+`rotate(${rotation}deg)`;
+
+
+upgradeResult.innerText =
+'';
+
+
+setTimeout(
+async()=>{
+
+if(win){
+
+upgradeResult.innerText =
+'✅ Успех';
+
+}else{
+
+upgradeResult.innerText =
+'❌ Неудача';
+
+}
+
+},
+3700
+);
+
+}
+
+
+async function api(
+url,
+body
 ){
 
-  const container =
-  document.getElementById(
-    'items'
-  );
+const response =
+await fetch(
+url,
+{
+
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:
+JSON.stringify(
+body
+)
+
+}
+);
 
 
-  if(!gifts.length){
-
-    container.innerHTML =
-    '<div class="muted">Пока нет подарков.</div>';
-
-    return;
-
-  }
+const data =
+await response.json();
 
 
-  container.innerHTML =
-  gifts.map(
-    gift => {
+if(!response.ok){
 
-      const name =
-      safeText(
-        gift.gift_name
-      )
-      ||
-      'Telegram Gift';
-
-
-      const image =
-      safeText(
-        gift.gift_image
-      );
-
-
-      const link =
-      safeText(
-        gift.gift_url
-      );
-
-
-      const imageHtml =
-      image
-
-      ?
-
-      `
-      <img
-      class="giftThumb"
-      src="${image}"
-      onerror="this.style.display='none'">
-      `
-
-      :
-
-      `
-      <div
-      class="giftThumb"
-      style="
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:30px;
-      ">
-        🎁
-      </div>
-      `;
-
-
-      return `
-      <div class="giftCard">
-
-        ${imageHtml}
-
-        <div class="giftInfo">
-
-          <div class="giftTitle">
-            ${name}
-          </div>
-
-          <div class="giftLink">
-            ${link}
-          </div>
-
-          <div class="status">
-            Gift #${gift.id} · подтвержден
-          </div>
-
-        </div>
-
-      </div>
-      `;
-
-    }
-  ).join('');
+throw new Error(
+data.detail ||
+'Ошибка'
+);
 
 }
 
 
-async function load(){
-
-  const userName =
-  document
-  .getElementById(
-    'userName'
-  );
-
-
-  if(!tg.initData){
-
-    userName.innerText =
-    'Открой Mini App из Telegram';
-
-    return;
-
-  }
-
-
-  try{
-
-    const response =
-    await fetch(
-      '/api/me',
-      {
-
-        method:
-        'POST',
-
-        headers:{
-          'Content-Type':
-          'application/json'
-        },
-
-        body:
-        JSON.stringify({
-
-          initData:
-          tg.initData
-
-        })
-
-      }
-    );
-
-
-    const data =
-    await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.detail
-        ||
-        'Ошибка загрузки'
-      );
-
-    }
-
-
-    deposits =
-    data.deposits
-    ||
-    [];
-
-
-    userName.innerText =
-
-    data.user.first_name
-
-    ||
-
-    (
-      data.user.username
-      ?
-      '@' +
-      data.user.username
-      :
-      ''
-    )
-
-    ||
-
-    String(
-      data.user.id
-    );
-
-
-    document
-    .getElementById(
-      'depUser'
-    )
-    .innerText =
-    data.deposit_username;
-
-
-    document
-    .getElementById(
-      'depLink'
-    )
-    .href =
-
-    'https://t.me/' +
-
-    data
-    .deposit_username
-    .replace(
-      '@',
-      ''
-    );
-
-
-    const gifts =
-    deposits.filter(
-      gift =>
-
-      gift.status ===
-      'approved'
-
-      &&
-
-      !Number(
-        gift.hidden
-      )
-    );
-
-
-    document
-    .getElementById(
-      'count'
-    )
-    .innerText =
-    gifts.length;
-
-
-    const selector =
-    document
-    .getElementById(
-      'sourceGift'
-    );
-
-
-    selector.innerHTML =
-
-    gifts.length
-
-    ?
-
-    gifts.map(
-      gift => {
-
-        const title =
-        gift.gift_name
-        ||
-        'Telegram Gift';
-
-        return `
-        <option value="${gift.id}">
-          ${title}
-        </option>
-        `;
-
-      }
-    ).join('')
-
-    :
-
-    `
-    <option value="">
-      Нет доступных подарков
-    </option>
-    `;
-
-
-    renderInventory(
-      gifts
-    );
-
-
-    updateGiftPreview();
-
-  }
-
-  catch(error){
-
-    userName.innerText =
-    'Ошибка: '
-    +
-    error.message;
-
-  }
+return data;
 
 }
 
 
-async function sendDep(){
+async function loadMain(){
 
-  const message =
-  document
-  .getElementById(
-    'msg'
-  );
+if(!tg.initData){
 
+userName.innerText =
+'Открой Mini App через Telegram';
 
-  const input =
-  document
-  .getElementById(
-    'giftUrl'
-  );
+return;
+
+}
 
 
-  if(
-    !input.value.trim()
-  ){
+try{
 
-    message.innerText =
-    'Вставь ссылку на подарок.';
-
-    return;
-
-  }
-
-
-  message.innerText =
-  'Проверяем подарок…';
+const data =
+await api(
+'/api/me',
+{
+initData:
+tg.initData
+}
+);
 
 
-  try{
-
-    const response =
-    await fetch(
-      '/api/deposit',
-      {
-
-        method:
-        'POST',
-
-        headers:{
-          'Content-Type':
-          'application/json'
-        },
-
-        body:
-        JSON.stringify({
-
-          initData:
-          tg.initData,
-
-          gift_url:
-          input.value.trim()
-
-        })
-
-      }
-    );
+deposits =
+data.deposits ||
+[];
 
 
-    const data =
-    await response.json();
+userName.innerText =
+
+data.user.first_name
+
+||
+
+(
+data.user.username
+?
+'@' +
+data.user.username
+:
+''
+);
 
 
-    if(!response.ok){
-
-      throw new Error(
-        data.detail
-        ||
-        'Ошибка'
-      );
-
-    }
+depositUsername.innerText =
+data.deposit_username;
 
 
-    const name =
-    data.gift
-    &&
-    data.gift.name
-
-    ?
-
-    data.gift.name
-
-    :
-
-    'Подарок';
+depositLink.href =
+'https://t.me/' +
+data.deposit_username.replace(
+'@',
+''
+);
 
 
-    message.innerText =
-    'Готово: '
-    +
-    name
-    +
-    '. Ожидает проверки.';
+const visible =
+deposits.filter(
+x =>
+x.status ===
+'approved'
+&&
+!Number(
+x.hidden
+)
+);
 
 
-    input.value =
-    '';
+sourceGift.innerHTML =
+
+visible.length
+
+?
+
+visible.map(
+gift =>
+`
+<option value="${gift.id}">
+${gift.gift_name || 'Telegram Gift'}
+</option>
+`
+).join('')
+
+:
+
+'<option value="">Нет подарков</option>';
 
 
-    await load();
+giftList.innerHTML =
 
-  }
+visible.length
 
-  catch(error){
+?
 
-    message.innerText =
-    error.message;
+visible.map(
+gift => {
 
-  }
+const image =
+gift.gift_image
+
+?
+
+`<img
+class="giftImage"
+src="${gift.gift_image}"
+onerror="this.style.display='none'">`
+
+:
+
+`<div
+class="giftImage"
+style="
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+">
+🎁
+</div>`;
+
+
+return `
+<div class="giftCard">
+
+${image}
+
+<div class="giftInfo">
+
+<div class="giftName">
+${gift.gift_name || 'Telegram Gift'}
+</div>
+
+<div class="giftLink">
+${gift.gift_url}
+</div>
+
+</div>
+
+</div>
+`;
+
+}).join('')
+
+:
+
+'<div class="muted">Нет подарков.</div>';
+
+
+}catch(error){
+
+userName.innerText =
+'Ошибка: ' +
+error.message;
+
+}
+
+}
+
+
+async function sendGift(){
+
+giftStatus.innerText =
+'Проверяем…';
+
+
+try{
+
+const data =
+await api(
+'/api/deposit',
+{
+
+initData:
+tg.initData,
+
+gift_url:
+giftUrl.value.trim()
+
+}
+);
+
+
+giftStatus.innerText =
+'Готово: ' +
+(
+data.gift.name ||
+'NFT'
+)
++
+'. Ожидает проверки.';
+
+
+giftUrl.value =
+'';
+
+
+await loadMain();
+
+
+}catch(error){
+
+giftStatus.innerText =
+error.message;
+
+}
+
+}
+
+
+async function loadBalances(){
+
+try{
+
+const data =
+await api(
+'/api/balances',
+{
+
+initData:
+tg.initData
+
+}
+);
+
+
+paymentData =
+data;
+
+
+balXTR.innerText =
+data.balances.XTR;
+
+
+balTON.innerText =
+data.balances.TON;
+
+
+balUSDT.innerText =
+data.balances.USDT;
+
+
+balGRAM.innerText =
+data.balances.GRAM;
+
+
+updateAddress();
+
+
+paymentRequests.innerHTML =
+
+data.requests.length
+
+?
+
+data.requests.map(
+x =>
+`
+<div class="historyItem">
+
+<div class="historyAmount">
+${x.amount} ${x.currency}
+</div>
+
+<div class="${x.status}">
+${x.status}
+</div>
+
+<div class="muted">
+${x.tx_ref}
+</div>
+
+</div>
+`
+).join('')
+
+:
+
+'Пока нет заявок.';
+
+
+history.innerHTML =
+
+data.history.length
+
+?
+
+data.history.map(
+x =>
+`
+<div class="historyItem">
+
+<div class="historyAmount">
++${x.amount} ${x.currency}
+</div>
+
+<div class="muted">
+${x.kind}
+</div>
+
+</div>
+`
+).join('')
+
+:
+
+'История пуста.';
+
+
+}catch(error){
+
+cryptoStatus.innerText =
+error.message;
+
+}
+
+}
+
+
+function updateAddress(){
+
+if(!paymentData){
+return;
+}
+
+
+const currency =
+cryptoCurrency.value;
+
+
+const address =
+paymentData.addresses[
+currency
+];
+
+
+cryptoAddress.innerText =
+
+address
+
+||
+
+'Адрес ещё не настроен в Railway';
+
+}
+
+
+async function buyStars(){
+
+const amount =
+parseInt(
+starsAmount.value
+);
+
+
+if(
+!amount
+||
+amount < 1
+){
+
+starsStatus.innerText =
+'Укажи количество Stars';
+
+return;
+
+}
+
+
+starsStatus.innerText =
+'Создаём счёт…';
+
+
+try{
+
+const data =
+await api(
+'/api/stars-invoice',
+{
+
+initData:
+tg.initData,
+
+amount:
+amount
+
+}
+);
+
+
+tg.openInvoice(
+
+data.invoice_url,
+
+async function(status){
+
+if(
+status ===
+'paid'
+){
+
+starsStatus.innerText =
+'✅ Оплата прошла';
+
+setTimeout(
+loadBalances,
+1000
+);
+
+}
+
+else if(
+status ===
+'cancelled'
+){
+
+starsStatus.innerText =
+'Оплата отменена';
+
+}
+
+else{
+
+starsStatus.innerText =
+'Статус: ' +
+status;
+
+}
+
+}
+
+);
+
+
+}catch(error){
+
+starsStatus.innerText =
+error.message;
+
+}
+
+}
+
+
+async function sendCryptoRequest(){
+
+const currency =
+cryptoCurrency.value;
+
+
+if(
+!cryptoAmount.value.trim()
+){
+
+cryptoStatus.innerText =
+'Укажи сумму';
+
+return;
+
+}
+
+
+if(
+!cryptoTx.value.trim()
+){
+
+cryptoStatus.innerText =
+'Укажи hash транзакции';
+
+return;
+
+}
+
+
+cryptoStatus.innerText =
+'Отправляем заявку…';
+
+
+try{
+
+const data =
+await api(
+'/api/manual-deposit',
+{
+
+initData:
+tg.initData,
+
+currency:
+currency,
+
+amount:
+cryptoAmount.value.trim(),
+
+tx_ref:
+cryptoTx.value.trim()
+
+}
+);
+
+
+cryptoStatus.innerText =
+'✅ Заявка #' +
+data.request_id +
+' отправлена на проверку';
+
+
+cryptoAmount.value =
+'';
+
+
+cryptoTx.value =
+'';
+
+
+await loadBalances();
+
+
+}catch(error){
+
+cryptoStatus.innerText =
+error.message;
+
+}
 
 }
 
 
 drawWheel(
-  62
+62
 );
 
-load();
+
+loadMain();
 
 </script>
+
 
 </body>
 
