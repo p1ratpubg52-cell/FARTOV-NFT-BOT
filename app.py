@@ -44,9 +44,9 @@ DEPOSIT_USERNAME = os.getenv(
     "fart2_backpack"
 ).lstrip("@")
 
-# Если @fart2_backpack — обычный пользователь, а не канал,
-# можно указать его числовой Telegram ID в переменной окружения DEPOSIT_USER_ID.
-DEPOSIT_USER_ID = int(os.getenv("DEPOSIT_USER_ID", "0") or 0)
+# @fart2_backpack — обычный пользователь.
+# Его числовой Telegram ID:
+DEPOSIT_USER_ID = 8853704536
 
 
 TON_DEPOSIT_ADDRESS = os.getenv(
@@ -681,14 +681,15 @@ def normalize_owned_gift_for_catalog(owned):
 
 async def load_backpack_catalog():
 
-    # Сначала пробуем @fart2_backpack как канал/чат.
+    # @fart2_backpack — обычный пользователь, поэтому сразу
+    # получаем подарки через getUserGifts по числовому user_id.
     try:
 
         result = await asyncio.to_thread(
             telegram_api_call,
-            "getChatGifts",
+            "getUserGifts",
             {
-                "chat_id": "@" + DEPOSIT_USERNAME,
+                "user_id": DEPOSIT_USER_ID,
                 "exclude_unlimited": True,
                 "exclude_limited_upgradable": True,
                 "exclude_limited_non_upgradable": True,
@@ -709,59 +710,36 @@ async def load_backpack_catalog():
             if item:
                 items.append(item)
 
+        # Подтягиваем название/картинку с публичной NFT-страницы.
+        # Даже если мета не загрузится, сам NFT всё равно останется в каталоге.
+        async def enrich(item):
+            meta = await asyncio.to_thread(
+                fetch_gift_meta,
+                item["gift_url"]
+            )
+            if meta.get("name"):
+                item["name"] = meta["name"]
+            if meta.get("image"):
+                item["image_url"] = meta["image"]
+            return item
+
+        if items:
+            items = list(
+                await asyncio.gather(
+                    *(enrich(item) for item in items)
+                )
+            )
+
         return items, ""
 
-    except Exception as channel_error:
-
-        # Если это обычный пользователь, Telegram Bot API требует numeric user_id.
-        if DEPOSIT_USER_ID:
-
-            try:
-
-                result = await asyncio.to_thread(
-                    telegram_api_call,
-                    "getUserGifts",
-                    {
-                        "user_id": DEPOSIT_USER_ID,
-                        "exclude_unlimited": True,
-                        "exclude_limited_upgradable": True,
-                        "exclude_limited_non_upgradable": True,
-                        "exclude_from_blockchain": False,
-                        "exclude_unique": False,
-                        "sort_by_price": True,
-                        "offset": "",
-                        "limit": 100
-                    }
-                )
-
-                items = []
-
-                for owned in result.get("gifts", []):
-                    item = normalize_owned_gift_for_catalog(
-                        owned
-                    )
-                    if item:
-                        items.append(item)
-
-                return items, ""
-
-            except Exception as user_error:
-                return [], (
-                    "Не удалось получить каталог @"
-                    + DEPOSIT_USERNAME
-                    + ". getChatGifts: "
-                    + str(channel_error)
-                    + "; getUserGifts: "
-                    + str(user_error)
-                )
-
+    except Exception as error:
         return [], (
-            "Не удалось получить каталог @"
+            "Не удалось получить NFT пользователя @"
             + DEPOSIT_USERNAME
-            + " как канал. Если это обычный пользователь, "
-            + "добавь его числовой ID в переменную DEPOSIT_USER_ID. "
-            + "Ошибка: "
-            + str(channel_error)
+            + " (ID "
+            + str(DEPOSIT_USER_ID)
+            + "). Ошибка Telegram: "
+            + str(error)
         )
 
 
@@ -1003,8 +981,6 @@ async def upgrade_catalog(
 
     items, warning = await load_backpack_catalog()
 
-    # Важно: даже если Telegram не дал каталог, возвращаем 200,
-    # чтобы Promise.all в upgrade.html не ломал загрузку инвентаря.
     return {
         "items": items,
         "warning": warning,
