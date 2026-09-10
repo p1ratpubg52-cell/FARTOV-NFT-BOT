@@ -1,763 +1,1755 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-<title>FARTOV2 NFT</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<style>
-:root{
-  --bg:#08090c;
-  --card:#15171c;
-  --line:#292d37;
-  --muted:#969dab;
-  --accent:#7657ff;
-  --green:#19ce8c;
-}
-
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-  margin:0;
-  min-height:100%;
-  background:var(--bg);
-  color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-body{
-  padding:0;
-}
-
-button,
-input,
-select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-  touch-action:manipulation;
-}
-
-#debugBar{
-  display:none;
-  position:fixed;
-  top:8px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:99999;
-  background:#19ce8c;
-  color:#06140e;
-  padding:8px 14px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:900;
-}
-
-.wrap{
-  max-width:560px;
-  margin:auto;
-  padding:16px 16px 105px;
-}
-
-.screen{
-  display:none;
-}
-
-.screen.active{
-  display:block;
-}
-
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:22px;
-  padding:18px;
-  margin-bottom:14px;
-}
-
-.title{
-  font-size:22px;
-  font-weight:900;
-  margin-bottom:10px;
-}
-
-.muted{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.45;
-}
-
-input,
-select{
-  width:100%;
-  margin-top:10px;
-  padding:15px;
-  border:1px solid var(--line);
-  border-radius:15px;
-  background:#0d0f14;
-  color:#fff;
-  font-size:16px;
-  outline:none;
-}
-
-button,
-.btn{
-  display:block;
-  width:100%;
-  margin-top:11px;
-  padding:15px;
-  border:0;
-  border-radius:15px;
-  background:var(--accent);
-  color:#fff;
-  text-decoration:none;
-  text-align:center;
-  font-size:16px;
-  font-weight:850;
-}
-
-.secondary{
-  background:#242832;
-}
-
-/* HEADER */
-
-.homeTop{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:18px;
-}
-
-.avatar{
-  width:60px;
-  height:60px;
-  flex:0 0 60px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  font-weight:900;
-  background:linear-gradient(145deg,#25e3d4,#7858ff);
-  border:3px solid #7657ff;
-  box-shadow:0 0 25px rgba(118,87,255,.35);
-}
-
-.balanceHead{
-  flex:1;
-  min-width:0;
-}
-
-.balanceCaption{
-  font-size:13px;
-  color:var(--muted);
-}
-
-.balanceMain{
-  margin-top:3px;
-  font-size:25px;
-  font-weight:900;
-}
-
-.topup{
-  width:auto;
-  margin:0;
-  padding:13px 16px;
-  white-space:nowrap;
-  background:linear-gradient(135deg,#7257ff,#9a74ff);
-}
-
-/* LIVE */
-
-.liveWrap{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:17px;
-}
-
-.liveSide{
-  width:30px;
-  flex:0 0 30px;
-}
-
-.liveDot{
-  width:9px;
-  height:9px;
-  margin:auto;
-  border-radius:50%;
-  background:#1bd98e;
-  box-shadow:0 0 10px #1bd98e;
-}
-
-.liveWord{
-  writing-mode:vertical-rl;
-  transform:rotate(180deg);
-  margin:6px auto 0;
-  text-align:center;
-  font-weight:900;
-}
-
-.liveRow{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  scrollbar-width:none;
-}
-
-.liveRow::-webkit-scrollbar{
-  display:none;
-}
-
-.liveGift{
-  width:64px;
-  height:64px;
-  flex:0 0 64px;
-  border-radius:16px;
-  background:linear-gradient(145deg,#202733,#11141a);
-  border:1px solid rgba(255,255,255,.1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  font-size:29px;
-}
-
-.liveGift img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* BANNERS */
-
-.banner{
-  min-height:150px;
-  padding:20px;
-  margin-bottom:14px;
-  border-radius:25px;
-  position:relative;
-  overflow:hidden;
-  cursor:pointer;
-  touch-action:manipulation;
-  border:1px solid rgba(255,255,255,.1);
-}
-
-.banner:active{
-  transform:scale(.99);
-}
-
-.blue{
-  background:
-    radial-gradient(circle at 88% 15%,rgba(255,255,255,.30),transparent 28%),
-    linear-gradient(135deg,#5cc3ff,#568aff 55%,#4851c8);
-}
-
-.orange{
-  background:
-    radial-gradient(circle at 88% 10%,rgba(255,255,255,.20),transparent 30%),
-    linear-gradient(135deg,#ffbc22,#ff8300);
-}
-
-.purple{
-  background:
-    radial-gradient(circle at 88% 15%,rgba(255,255,255,.18),transparent 30%),
-    linear-gradient(135deg,#951aff,#6422df 55%,#3f168f);
-}
-
-.badge{
-  display:inline-block;
-  padding:7px 11px;
-  border-radius:10px;
-  background:#fff;
-  color:#5576d9;
-  font-size:12px;
-  font-weight:900;
-}
-
-.bannerTitle{
-  margin-top:18px;
-  font-size:28px;
-  line-height:1;
-  font-weight:1000;
-}
-
-.bannerText{
-  margin-top:8px;
-  max-width:70%;
-  font-size:14px;
-  line-height:1.35;
-  font-weight:650;
-  color:rgba(255,255,255,.86);
-}
-
-.bannerEmoji{
-  position:absolute;
-  right:18px;
-  bottom:15px;
-  font-size:73px;
-  filter:drop-shadow(0 12px 10px rgba(0,0,0,.25));
-}
-
-/* BALANCE */
-
-.balanceGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.balanceBox{
-  padding:15px;
-  border-radius:17px;
-  background:#0e1014;
-  border:1px solid var(--line);
-}
-
-.currency{
-  color:var(--muted);
-  font-size:14px;
-}
-
-.amount{
-  margin-top:5px;
-  font-size:25px;
-  font-weight:900;
-}
-
-.section{
-  margin-top:20px;
-  padding-top:18px;
-  border-top:1px solid var(--line);
-}
-
-.address{
-  margin-top:10px;
-  padding:12px;
-  border-radius:13px;
-  background:#0b0d11;
-  border:1px solid var(--line);
-  font-size:12px;
-  word-break:break-all;
-}
-
-/* NFT */
-
-.gift{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  padding:13px 0;
-  border-bottom:1px solid var(--line);
-}
-
-.giftImg{
-  width:70px;
-  height:70px;
-  flex:0 0 70px;
-  border-radius:14px;
-  object-fit:contain;
-  background:#0c0e12;
-}
-
-.giftFallback{
-  width:70px;
-  height:70px;
-  flex:0 0 70px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:14px;
-  background:#0c0e12;
-  font-size:30px;
-}
-
-.giftInfo{
-  flex:1;
-  min-width:0;
-}
-
-.giftName{
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.giftLink{
-  margin-top:5px;
-  color:#84a7ff;
-  font-size:11px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-/* UPGRADE VISUAL */
-
-.preview{
-  display:none;
-  margin-top:14px;
-  padding:15px;
-  border-radius:18px;
-  background:#0e1014;
-  border:1px solid var(--line);
-  text-align:center;
-}
-
-.preview.show{
-  display:block;
-}
-
-.preview img{
-  width:150px;
-  height:150px;
-  border-radius:18px;
-  object-fit:contain;
-}
-
-.previewName{
-  margin-top:10px;
-  font-size:19px;
-  font-weight:900;
-}
-
-.wheel{
-  width:290px;
-  height:290px;
-  margin:25px auto 15px;
-  position:relative;
-  border:12px solid #293343;
-  border-radius:50%;
-  background:conic-gradient(
-    var(--green) 0deg 223deg,
-    #202733 223deg 360deg
-  );
-  transition:transform 2.5s cubic-bezier(.1,.7,.2,1);
-}
-
-.wheel:before{
-  content:"";
-  width:100px;
-  height:100px;
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:#24303a;
-}
-
-.wheel:after{
-  content:"62%";
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  font-size:32px;
-  font-weight:900;
-}
-
-/* HISTORY */
-
-.historyItem{
-  padding:11px 0;
-  border-bottom:1px solid var(--line);
-}
-
-.pending{
-  color:#ffd166;
-}
-
-.approved{
-  color:#38d69f;
-}
-
-.rejected{
-  color:#ff6b6b;
-}
-
-/* TABS */
-
-.tabs{
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:72px;
-  display:flex;
-  z-index:1000;
-  background:#0e0f13;
-  border-top:1px solid #292d37;
-}
-
-.tab{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  color:#8e95a3;
-  font-size:11px;
-  cursor:pointer;
-  touch-action:manipulation;
-  user-select:none;
-}
-
-.tabIcon{
-  margin-bottom:3px;
-  font-size:20px;
-}
-
-.tab.active{
-  color:#fff;
-  font-weight:900;
-}
-</style>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <title>FART2 NFT BOT</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: #05070b;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      touch-action: manipulation;
+    }
+
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        18px
+        30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      color: #8f939d;
+      margin-top: 3px;
+      font-size: 17px;
+    }
+
+    .wallet-top {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .logo {
+      width: 92px;
+      height: 92px;
+      min-width: 92px;
+
+      border-radius: 50%;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: 42px;
+      font-weight: 900;
+
+      background: linear-gradient(
+        145deg,
+        #43d7ff,
+        #6b79ff,
+        #9b39ff
+      );
+
+      border: 5px solid #723eff;
+
+      box-shadow:
+        0 0 28px rgba(101, 76, 255, 0.35);
+    }
+
+    .wallet-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .balance-label {
+      color: #9b9faa;
+      font-size: 19px;
+      margin-bottom: 5px;
+    }
+
+    .main-balance {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .main-balance .unit {
+      color: #c6c8ce;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .deposit-main {
+      flex-shrink: 0;
+
+      border: none;
+
+      color: white;
+
+      background: linear-gradient(
+        135deg,
+        #7652ff,
+        #9e58ff
+      );
+
+      border-radius: 22px;
+
+      padding: 18px 20px;
+
+      font-size: 18px;
+      font-weight: 800;
+
+      cursor: pointer;
+
+      position: relative;
+      z-index: 10;
+    }
+
+    .deposit-main:active {
+      transform: scale(0.97);
+    }
+
+    .live {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .live-dot {
+      width: 13px;
+      height: 13px;
+      background: #21dd97;
+      border-radius: 50%;
+
+      box-shadow:
+        0 0 14px rgba(33, 221, 151, 0.8);
+    }
+
+    .quick-menu {
+      display: flex;
+      gap: 13px;
+
+      overflow-x: auto;
+
+      padding-bottom: 24px;
+
+      scrollbar-width: none;
+    }
+
+    .quick-menu::-webkit-scrollbar {
+      display: none;
+    }
+
+    .quick-btn {
+      min-width: 100px;
+      height: 100px;
+
+      border-radius: 25px;
+
+      border: 1px solid #303642;
+
+      background: linear-gradient(
+        180deg,
+        #191f2a,
+        #11151c
+      );
+
+      font-size: 36px;
+
+      cursor: pointer;
+
+      color: white;
+
+      position: relative;
+      z-index: 10;
+    }
+
+    .quick-btn:active {
+      transform: scale(0.95);
+    }
+
+    .card {
+      position: relative;
+
+      width: 100%;
+
+      min-height: 205px;
+
+      margin-bottom: 26px;
+
+      padding: 30px;
+
+      border: none;
+      border-radius: 34px;
+
+      color: white;
+
+      text-align: left;
+
+      overflow: hidden;
+
+      cursor: pointer;
+
+      z-index: 5;
+    }
+
+    .card:active {
+      transform: scale(0.985);
+    }
+
+    .blue {
+      background: linear-gradient(
+        135deg,
+        #55bfff,
+        #5b68ed
+      );
+    }
+
+    .orange {
+      background: linear-gradient(
+        135deg,
+        #ffb219,
+        #ff8800
+      );
+    }
+
+    .purple {
+      background: linear-gradient(
+        135deg,
+        #9c12ff,
+        #5a26ce
+      );
+    }
+
+    .badge {
+      display: inline-block;
+
+      background: white;
+      color: #5871d0;
+
+      border-radius: 16px;
+
+      padding: 9px 15px;
+
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .card-title {
+      margin-top: 27px;
+
+      font-size: 37px;
+      line-height: 1;
+
+      font-weight: 900;
+
+      max-width: 82%;
+    }
+
+    .card-text {
+      margin-top: 12px;
+
+      font-size: 20px;
+      font-weight: 700;
+
+      max-width: 72%;
+
+      line-height: 1.25;
+    }
+
+    .card-icon {
+      position: absolute;
+
+      right: 22px;
+      bottom: 23px;
+
+      font-size: 78px;
+
+      filter:
+        drop-shadow(
+          0 10px 8px rgba(0,0,0,0.25)
+        );
+    }
+
+    /* MODAL */
+
+    .modal {
+      position: fixed;
+
+      inset: 0;
+
+      display: none;
+
+      justify-content: center;
+      align-items: flex-end;
+
+      background: rgba(0,0,0,0.72);
+
+      z-index: 99999;
+
+      pointer-events: none;
+    }
+
+    .modal.active {
+      display: flex;
+      pointer-events: auto;
+    }
+
+    .sheet {
+      width: 100%;
+      max-width: 720px;
+
+      max-height: 85vh;
+
+      overflow-y: auto;
+
+      background: #12161e;
+
+      border-radius: 30px 30px 0 0;
+
+      padding:
+        24px
+        18px
+        calc(26px + env(safe-area-inset-bottom));
+
+      border: 1px solid #282e38;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 20px;
+    }
+
+    .sheet-title {
+      font-size: 27px;
+      font-weight: 850;
+    }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 50%;
+
+      border: none;
+
+      color: white;
+      background: #262c36;
+
+      font-size: 20px;
+
+      cursor: pointer;
+    }
+
+    .payment-btn {
+      width: 100%;
+
+      margin-bottom: 11px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      border: 1px solid #343a46;
+
+      border-radius: 20px;
+
+      background: #1a1f28;
+
+      padding: 17px 18px;
+
+      color: white;
+
+      cursor: pointer;
+    }
+
+    .payment-btn:active {
+      transform: scale(0.985);
+    }
+
+    .payment-left {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .payment-icon {
+      font-size: 31px;
+    }
+
+    .payment-name {
+      font-size: 19px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .payment-description {
+      display: block;
+
+      font-size: 13px;
+
+      color: #9ca2ad;
+
+      font-weight: 500;
+
+      margin-top: 3px;
+    }
+
+    .arrow {
+      font-size: 27px;
+      color: #a8acb5;
+    }
+
+    .balances {
+      display: grid;
+      gap: 11px;
+    }
+
+    .balance-row {
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      border-radius: 20px;
+
+      background: #1a1f28;
+
+      border: 1px solid #343a46;
+
+      padding: 18px;
+    }
+
+    .balance-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .balance-number {
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .status {
+      text-align: center;
+
+      margin-top: 15px;
+
+      color: #a4a9b3;
+
+      font-size: 13px;
+
+      line-height: 1.4;
+    }
+
+    .toast {
+      position: fixed;
+
+      left: 50%;
+      bottom: 30px;
+
+      transform: translateX(-50%);
+
+      width: max-content;
+      max-width: 90%;
+
+      padding: 13px 17px;
+
+      border-radius: 14px;
+
+      background: #242a34;
+
+      color: white;
+
+      font-size: 15px;
+      font-weight: 600;
+
+      text-align: center;
+
+      display: none;
+
+      z-index: 200000;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .loader {
+      width: 18px;
+      height: 18px;
+
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: white;
+
+      border-radius: 50%;
+
+      animation: rotate 0.7s linear infinite;
+    }
+
+    @keyframes rotate {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .logo {
+        width: 82px;
+        height: 82px;
+        min-width: 82px;
+      }
+
+      .balance-label {
+        font-size: 16px;
+      }
+
+      .main-balance {
+        font-size: 31px;
+      }
+
+      .deposit-main {
+        padding: 16px 16px;
+        font-size: 17px;
+      }
+
+      .card {
+        min-height: 190px;
+        padding: 27px 23px;
+      }
+
+      .card-title {
+        font-size: 31px;
+      }
+
+      .card-text {
+        font-size: 18px;
+      }
+
+      .card-icon {
+        font-size: 65px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="debugBar">
-  JavaScript запущен
-</div>
+<div class="app">
 
-<div class="wrap">
+  <header class="header">
+    <div class="title">FART2 NFT BOT</div>
+    <div class="subtitle">мини-приложение</div>
+  </header>
 
-<!-- HOME -->
 
-<section id="home" class="screen active">
+  <section class="wallet-top">
 
-  <div class="homeTop">
-
-    <div id="avatar" class="avatar">
+    <div class="logo">
       F
     </div>
 
-    <div class="balanceHead">
+    <div class="wallet-info">
 
-      <div class="balanceCaption">
+      <div class="balance-label">
         Ваш баланс
       </div>
 
-      <div class="balanceMain">
+      <div class="main-balance">
         💎
-        <span id="homeTON">0</span>
-        <small style="font-size:12px;color:#969dab">
-          TON
-        </small>
+        <span id="topTonBalance">0</span>
+        <span class="unit">TON</span>
       </div>
 
     </div>
 
-    <button id="homeTopup" class="topup" type="button">
+    <button
+      id="openDeposit"
+      class="deposit-main"
+      type="button"
+    >
       💳 Пополнить
     </button>
 
+  </section>
+
+
+  <div class="live">
+    <span class="live-dot"></span>
+    Live
   </div>
 
 
-  <div class="liveWrap">
+  <div class="quick-menu">
 
-    <div class="liveSide">
-      <div class="liveDot"></div>
-      <div class="liveWord">Live</div>
-    </div>
+    <button
+      class="quick-btn"
+      type="button"
+      data-section="gift"
+    >
+      🎁
+    </button>
 
-    <div id="liveRow" class="liveRow">
+    <button
+      class="quick-btn"
+      type="button"
+      data-section="nft"
+    >
+      💎
+    </button>
 
-      <div class="liveGift">🎁</div>
-      <div class="liveGift">💎</div>
-      <div class="liveGift">⭐</div>
-      <div class="liveGift">🔥</div>
-      <div class="liveGift">🚀</div>
+    <button
+      class="quick-btn"
+      type="button"
+      data-section="stars"
+    >
+      ⭐
+    </button>
 
-    </div>
+    <button
+      class="quick-btn"
+      type="button"
+      data-section="live"
+    >
+      🔥
+    </button>
 
   </div>
 
 
-  <div id="bannerUpgrade" class="banner blue">
+  <button
+    class="card blue"
+    type="button"
+    data-section="upgrade"
+  >
 
-    <div class="badge">
+    <span class="badge">
       ⚡ ХИТ
-    </div>
+    </span>
 
-    <div class="bannerTitle">
+    <div class="card-title">
       🚀 UPGRADE NFT
     </div>
 
-    <div class="bannerText">
+    <div class="card-text">
       Выбери NFT и открой Upgrade
     </div>
 
-    <div class="bannerEmoji">
+    <div class="card-icon">
       🚀
     </div>
 
-  </div>
+  </button>
 
 
-  <div id="bannerDeposit" class="banner orange">
+  <button
+    class="card orange"
+    type="button"
+    data-section="gift"
+  >
 
-    <div class="badge">
+    <span class="badge">
       🎁 NFT
-    </div>
+    </span>
 
-    <div class="bannerTitle">
+    <div class="card-title">
       ВНЕСТИ ПОДАРОК
     </div>
 
-    <div class="bannerText">
+    <div class="card-text">
       Добавь Telegram Collectible Gift
     </div>
 
-    <div class="bannerEmoji">
+    <div class="card-icon">
       🎁
     </div>
 
-  </div>
+  </button>
 
 
-  <div id="bannerBalance" class="banner purple">
+  <button
+    class="card purple"
+    type="button"
+    data-section="wallet"
+  >
 
-    <div class="badge">
+    <span class="badge">
       💰 WALLET
-    </div>
+    </span>
 
-    <div class="bannerTitle">
+    <div class="card-title">
       БАЛАНС
     </div>
 
-    <div class="bannerText">
+    <div class="card-text">
       Stars · TON · USDT · GRAM
     </div>
 
-    <div class="bannerEmoji">
+    <div class="card-icon">
       💎
     </div>
 
-  </div>
+  </button>
 
-</section>
+</div>
 
 
-<!-- UPGRADE -->
 
-<section id="upgrade" class="screen">
+<!-- ПОПОЛНЕНИЕ -->
 
-  <div class="card">
+<div
+  id="depositModal"
+  class="modal"
+>
 
-    <div class="title">
-      Upgrade
-    </div>
+  <div class="sheet">
 
-    <div class="muted">
-      Выбери NFT из инвентаря:
-    </div>
+    <div class="sheet-header">
 
-    <select id="upgradeGift">
-      <option value="">
-        Нет доступных NFT
-      </option>
-    </select>
-
-    <div id="preview" class="preview">
-
-      <img id="previewImg" style="display:none">
-
-      <div id="previewFallback" style="font-size:60px">
-        🎁
+      <div class="sheet-title">
+        Пополнить баланс
       </div>
 
-      <div id="previewName" class="previewName"></div>
-
-    </div>
-
-    <div id="wheel" class="wheel"></div>
-
-    <button id="spinDemo" type="button">
-      Крутить
-    </button>
-
-    <div
-      id="demoResult"
-      style="text-align:center;font-weight:900;margin-top:13px">
-    </div>
-
-    <div
-      class="muted"
-      style="text-align:center;margin-top:12px">
-      Колесо здесь визуальное и не списывает реальные NFT или денежный баланс.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- BALANCE -->
-
-<section id="balance" class="screen">
-
-  <div class="card">
-
-    <div class="title">
-      Баланс
-    </div>
-
-    <div class="balanceGrid">
-
-      <div class="balanceBox">
-        <div class="currency">⭐ Stars</div>
-        <div id="balXTR" class="amount">0</div>
-      </div>
-
-      <div class="balanceBox">
-        <div class="currency">💎 TON</div>
-        <div id="balTON" class="amount">0</div>
-      </div>
-
-      <div class="balanceBox">
-        <div class="currency">₮ USDT</div>
-        <div id="balUSDT" class="amount">0</div>
-      </div>
-
-      <div class="balanceBox">
-        <div class="currency">GRAM</div>
-        <div id="balGRAM" class="amount">0</div>
-      </div>
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="title">
-        ⭐ Пополнить Stars
-      </div>
-
-      <input
-        id="starsAmount"
-        type="number"
-        value="100"
-        min="1"
-        placeholder="Количество Stars">
-
-      <button id="buyStars" type="button">
-        Пополнить Stars
+      <button
+        class="close-btn"
+        type="button"
+        data-close="depositModal"
+      >
+        ✕
       </button>
 
-      <div
-        id="starsStatus"
-        class="muted"
-        style="
+    </div>
+
+
+    <button
+      class="payment-btn"
+      type="button"
+      data-deposit="stars"
+    >
+
+      <div class="payment-left">
+
+        <div class="payment-icon">
+          ⭐
+        </div>
+
+        <div class="payment-name">
+          Telegram Stars
+
+          <span class="payment-description">
+            Пополнение звёздами Telegram
+          </span>
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="payment-btn"
+      type="button"
+      data-deposit="ton"
+    >
+
+      <div class="payment-left">
+
+        <div class="payment-icon">
+          💎
+        </div>
+
+        <div class="payment-name">
+          TON
+
+          <span class="payment-description">
+            Пополнение TON
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="payment-btn"
+      type="button"
+      data-deposit="usdt"
+    >
+
+      <div class="payment-left">
+
+        <div class="payment-icon">
+          💵
+        </div>
+
+        <div class="payment-name">
+          USDT
+
+          <span class="payment-description">
+            USDT в сети TON
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="payment-btn"
+      type="button"
+      data-deposit="gram"
+    >
+
+      <div class="payment-left">
+
+        <div class="payment-icon">
+          🪙
+        </div>
+
+        <div class="payment-name">
+          GRAM
+
+          <span class="payment-description">
+            Пополнение GRAM
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <div class="status">
+      После выбора валюты приложение отправит запрос вашему серверу.
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- БАЛАНС -->
+
+<div
+  id="walletModal"
+  class="modal"
+>
+
+  <div class="sheet">
+
+    <div class="sheet-header">
+
+      <div class="sheet-title">
+        Ваш баланс
+      </div>
+
+      <button
+        class="close-btn"
+        type="button"
+        data-close="walletModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="balances">
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          ⭐ Stars
+        </div>
+
+        <div
+          id="starsBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          💎 TON
+        </div>
+
+        <div
+          id="tonBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          💵 USDT
+        </div>
+
+        <div
+          id="usdtBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          🪙 GRAM
+        </div>
+
+        <div
+          id="gramBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<div
+  id="toast"
+  class="toast"
+></div>
+
+
+
+<script>
+
+(() => {
+
+  /* ================================
+     TELEGRAM
+  ================================= */
+
+  const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+      ? window.Telegram.WebApp
+      : null;
+
+
+  if (tg) {
+
+    try {
+
+      tg.ready();
+
+      tg.expand();
+
+      tg.setHeaderColor("#05070b");
+
+      tg.setBackgroundColor("#05070b");
+
+    } catch (error) {
+
+      console.log(
+        "Telegram init:",
+        error
+      );
+
+    }
+
+  }
+
+
+
+  /* ================================
+     HELPERS
+  ================================= */
+
+  function showToast(message) {
+
+    const toast =
+      document.getElementById("toast");
+
+    toast.textContent =
+      message;
+
+    toast.classList.add("show");
+
+
+    clearTimeout(
+      window.toastTimer
+    );
+
+
+    window.toastTimer =
+      setTimeout(() => {
+
+        toast.classList.remove(
+          "show"
+        );
+
+      }, 2500);
+
+  }
+
+
+
+  function haptic() {
+
+    try {
+
+      tg?.HapticFeedback
+        ?.impactOccurred("light");
+
+    } catch (_) {}
+
+  }
+
+
+
+  function openModal(id) {
+
+    const modal =
+      document.getElementById(id);
+
+    if (!modal) return;
+
+    modal.classList.add(
+      "active"
+    );
+
+    haptic();
+
+  }
+
+
+
+  function closeModal(id) {
+
+    const modal =
+      document.getElementById(id);
+
+    if (!modal) return;
+
+    modal.classList.remove(
+      "active"
+    );
+
+  }
+
+
+
+  function telegramUser() {
+
+    try {
+
+      return (
+        tg?.initDataUnsafe?.user ||
+        null
+      );
+
+    } catch (_) {
+
+      return null;
+
+    }
+
+  }
+
+
+
+  function getTelegramId() {
+
+    const user =
+      telegramUser();
+
+    return user?.id || null;
+
+  }
+
+
+
+  /* ================================
+     API
+  ================================= */
+
+  async function api(
+    url,
+    options = {}
+  ) {
+
+    const headers = {
+      "Content-Type":
+        "application/json",
+
+      ...(options.headers || {})
+    };
+
+
+    if (tg?.initData) {
+
+      headers[
+        "X-Telegram-Init-Data"
+      ] = tg.initData;
+
+    }
+
+
+    const response =
+      await fetch(
+        url,
+        {
+          ...options,
+          headers
+        }
+      );
+
+
+    let data = {};
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch (_) {}
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        data.message ||
+        "Ошибка сервера"
+      );
+
+    }
+
+
+    return data;
+
+  }
+
+
+
+  /* ================================
+     BALANCE
+  ================================= */
+
+  function setBalances(data) {
+
+    const ton =
+      Number(
+        data?.ton ?? 0
+      );
+
+
+    const stars =
+      Number(
+        data?.stars ?? 0
+      );
+
+
+    const usdt =
+      Number(
+        data?.usdt ?? 0
+      );
+
+
+    const gram =
+      Number(
+        data?.gram ?? 0
+      );
+
+
+    document.getElementById(
+      "topTonBalance"
+    ).textContent =
+      ton;
+
+
+    document.getElementById(
+      "tonBalance"
+    ).textContent =
+      ton;
+
+
+    document.getElementById(
+      "starsBalance"
+    ).textContent =
+      stars;
+
+
+    document.getElementById(
+      "usdtBalance"
+    ).textContent =
+      usdt;
+
+
+    document.getElementById(
+      "gramBalance"
+    ).textContent =
+      gram;
+
+  }
+
+
+
+  async function loadBalance() {
+
+    try {
+
+      const telegramId =
+        getTelegramId();
+
+
+      const query =
+        telegramId
+          ? `?telegram_id=${telegramId}`
+          : "";
+
+
+      const data =
+        await api(
+          `/api/balance${query}`
+        );
+
+
+      setBalances(
+        data
+      );
+
+    } catch (error) {
+
+      console.log(
+        "Balance API пока не подключён:",
+        error.message
+      );
+
+    }
+
+  }
+
+
+
+  /* ================================
+     PAYMENT
+  ================================= */
+
+  async function startDeposit(
+    currency,
+    button
+  ) {
+
+    haptic();
+
+
+    const oldHTML =
+      button.innerHTML;
+
+
+    button.disabled =
+      true;
+
+
+    try {
+
+      const data =
+        await api(
+          `/api/deposit/${currency}`,
+          {
+
+            method: "POST",
+
+            body: JSON.stringify({
+
+              telegram_id:
+                getTelegramId(),
+
+              initData:
+                tg?.initData || ""
+
+            })
+
+          }
+        );
+
+
+      /*
+        STARS
+
+        Backend может вернуть:
+
+        {
+          "invoice_link":
+          "https://t.me/$..."
+        }
+      */
+
+      if (
+        currency === "stars" &&
+        data.invoice_link
+      ) {
+
+        if (
+          tg &&
+          typeof tg.openInvoice ===
+            "function"
+        ) {
+
+          tg.openInvoice(
+            data.invoice_link,
+            status => {
+
+              if (
+                status === "paid"
+              ) {
+
+                showToast(
+                  "Оплата прошла успешно"
+                );
+
+                loadBalance();
+
+              }
+
+            }
+          );
+
+          return;
+
+        }
+
+      }
+
+
+
+      /*
+        TON / USDT / GRAM
+
+        Backend может вернуть:
+
+        {
+          "url":
+          "ton://transfer/..."
+        }
+      */
+
+      const paymentUrl =
+        data.url ||
+        data.payment_url ||
+        data.pay_url;
+
+
+      if (paymentUrl) {
+
+        if (tg?.openLink) {
+
+          tg.openLink(
+            paymentUrl
+          );
+
+        } else {
+
+          window.location.href =
+            paymentUrl;
+
+        }
+
+        return;
+
+      }
+
+
+
+      /*
+        Альтернативный вариант:
+
+        backend вернул адрес кошелька
+      */
+
+      if (data.address) {
+
+        await navigator.clipboard
+          ?.writeText(
+            data.address
+          );
+
+
+        showToast(
+          "Адрес кошелька скопирован"
+        );
+
+        return;
+
+      }
+
+
+      showToast(
+        "Сервер не вернул ссылку для оплаты"
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      showToast(
+        "Платёжный сервер ещё не подключён"
+      );
+
+    } finally {
+
+      button.disabled =
+        false;
+
+      button.innerHTML =
+        oldHTML;
+
+    }
+
+  }
+
+
+
+  /* ================================
+     MAIN DEPOSIT BUTTON
+  ================================= */
+
+  document
+    .getElementById(
+      "openDeposit"
+    )
+    .addEventListener(
+      "click",
+      function(event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        openModal(
+          "depositModal"
+        );
+
+      }
+    );
+
+
+
+  /* ================================
+     CLOSE MODALS
+  ================================= */
+
+  document
+    .querySelectorAll(
+      "[data-close]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        event => {
+
+          event.preventDefault();
+
+          event.stopPropagation();
+
+          closeModal(
+            button.dataset.close
+          );
+
+        }
+      );
+
+    });
+
+
+
+  document
+    .querySelectorAll(
+      ".modal"
+    )
+    .forEach(modal => {
+
+      modal.addEventListener(
+        "click",
+        event => {
+
+          if (
+            event.target === modal
+          ) {
+
+            closeModal(
+              modal.id
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+
+  /* ================================
+     PAYMENT BUTTONS
+  ================================= */
+
+  document
+    .querySelectorAll(
+      "[data-deposit]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        event => {
+
+          event.preventDefault();
+
+          event.stopPropagation();
+
+
+          const currency =
+            button.dataset.deposit;
+
+
+          startDeposit(
+            currency,
+            button
+          );
+
+        }
+      );
+
+    });
+
+
+
+  /* ================================
+     MAIN SECTIONS
+  ================================= */
+
+  document
+    .querySelectorAll(
+      "[data-section]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        event => {
+
+          event.preventDefault();
+
+          event.stopPropagation();
+
+
+          const section =
+            button.dataset.section;
+
+
+          haptic();
+
+
+          switch (
+            section
+          ) {
+
+            case "wallet":
+
+              openModal(
+                "walletModal"
+              );
+
+              loadBalance();
+
+              break;
+
+
+            case "stars":
+
+              openModal(
+                "depositModal"
+              );
+
+              break;
+
+
+            case "gift":
+
+              showToast(
+                "Раздел подарков"
+              );
+
+              break;
+
+
+            case "nft":
+
+              showToast(
+                "Раздел NFT"
+              );
+
+              break;
+
+
+            case "upgrade":
+
+              showToast(
+                "Upgrade NFT"
+              );
+
+              break;
+
+
+            case "live":
+
+              showToast(
+                "Live"
+              );
+
+              break;
+
+          }
+
+        }
+      );
+
+    });
+
+
+
+  /* ================================
+     FIX FOR INVISIBLE OVERLAYS
+  ================================= */
+
+  document.documentElement.style
+    .pointerEvents =
+      "auto";
+
+
+  document.body.style
+    .pointerEvents =
+      "auto";
+
+
+
+  /* ================================
+     INITIAL LOAD
+  ================================= */
+
+  loadBalance();
+
+
+})();
+
+</script>
+
+</body>
+</html>
