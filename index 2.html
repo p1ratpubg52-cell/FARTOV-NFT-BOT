@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <title>FART2 NFT BOT</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root{
+      --bg:#07090d;
+      --card:#11151d;
+      --card2:#171c26;
+      --text:#fff;
+      --muted:#a6aab4;
+      --violet:#7b4dff;
+      --violet2:#9d36ff;
+      --blue:#55b7ff;
+      --orange:#ff9d0a;
+      --green:#20d991;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    body{min-height:100vh}
+    button{font:inherit}
+    .app{
+      width:min(100%, 720px);
+      margin:0 auto;
+      min-height:100vh;
+      background:var(--bg);
+      padding:24px 20px calc(28px + env(safe-area-inset-bottom));
+    }
+    .title{text-align:center;font-family:Georgia,serif;font-size:29px;font-weight:800;letter-spacing:.4px;margin-top:4px}
+    .subtitle{text-align:center;color:var(--muted);font-size:18px;margin:4px 0 28px}
+    .balance-row{display:flex;align-items:center;gap:18px;margin:8px 0 24px}
+    .avatar{
+      width:112px;height:112px;border-radius:50%;
+      display:grid;place-items:center;font-weight:900;font-size:46px;
+      background:linear-gradient(145deg,#4cd7ff,#8262ff);
+      border:6px solid #763dff;box-shadow:0 0 28px rgba(123,77,255,.4);
+      flex:none
+    }
+    .balance-box{flex:1}
+    .balance-label{font-size:22px;color:var(--muted);margin-bottom:5px}
+    .balance-value{font-size:45px;font-weight:900;line-height:1}
+    .balance-value small{font-size:18px;color:#c7c9d0}
+    .topup{
+      flex:none;border:0;border-radius:22px;padding:22px 27px;
+      color:#fff;background:linear-gradient(135deg,#7553ff,#9e54ff);
+      font-size:23px;font-weight:800;cursor:pointer;position:relative;z-index:10
+    }
+    .nav{display:flex;gap:14px;overflow-x:auto;padding:4px 0 22px;scrollbar-width:none}
+    .nav::-webkit-scrollbar{display:none}
+    .nav-btn{
+      min-width:120px;height:120px;border-radius:28px;border:1px solid #323846;
+      background:linear-gradient(180deg,#171d27,#0f131a);
+      color:#fff;font-size:38px;cursor:pointer;position:relative;z-index:10
+    }
+    .live{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;margin-bottom:12px}
+    .dot{width:13px;height:13px;background:var(--green);border-radius:50%;box-shadow:0 0 14px rgba(32,217,145,.7)}
+    .banner{
+      width:100%;min-height:210px;border:0;border-radius:34px;margin:0 0 26px;
+      padding:32px 34px;text-align:left;color:#fff;cursor:pointer;
+      position:relative;overflow:hidden;z-index:5
+    }
+    .banner.blue{background:linear-gradient(135deg,#58b8ff,#5961e7)}
+    .banner.orange{background:linear-gradient(135deg,#ffb016,#ff8807)}
+    .banner.purple{background:linear-gradient(135deg,#9b13ff,#5e27ce)}
+    .pill{display:inline-block;background:#fff;color:#5574d4;padding:10px 16px;border-radius:16px;font-weight:800;font-size:18px}
+    .banner h2{font-size:40px;line-height:1.05;margin:28px 0 10px;max-width:82%}
+    .banner p{font-size:22px;font-weight:700;margin:0;opacity:.95;max-width:75%}
+    .emoji{position:absolute;right:24px;bottom:25px;font-size:85px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.25))}
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.72);
+      display:none;align-items:flex-end;justify-content:center;z-index:9999;
+    }
+    .modal.open{display:flex}
+    .sheet{
+      width:min(100%,720px);background:#12161e;border-radius:30px 30px 0 0;
+      padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+      max-height:82vh;overflow:auto;
+      border:1px solid #2a303a;
+    }
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .sheet h3{font-size:27px;margin:0}
+    .close{
+      width:42px;height:42px;border-radius:50%;border:0;background:#242a35;color:#fff;font-size:22px;cursor:pointer
+    }
+    .asset{
+      width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;
+      border:1px solid #343b49;background:#1a1f29;border-radius:20px;color:#fff;
+      padding:18px 20px;margin:12px 0;cursor:pointer
+    }
+    .asset-left{display:flex;align-items:center;gap:14px;font-size:20px;font-weight:800}
+    .asset-emoji{font-size:32px}
+    .asset small{display:block;color:#9ca3af;font-size:14px;font-weight:500;margin-top:3px}
+    .notice{color:#aeb4bf;font-size:14px;line-height:1.45;margin-top:16px}
+    .toast{
+      position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
+      background:#222936;color:#fff;padding:12px 18px;border-radius:14px;
+      z-index:12000;display:none;max-width:90%;text-align:center
+    }
+    .toast.show{display:block}
+    @media(max-width:560px){
+      .app{padding-left:16px;padding-right:16px}
+      .avatar{width:86px;height:86px;font-size:36px}
+      .balance-label{font-size:18px}
+      .balance-value{font-size:34px}
+      .topup{padding:17px 18px;font-size:19px}
+      .nav-btn{min-width:96px;height:96px;border-radius:24px;font-size:32px}
+      .banner{min-height:185px;padding:28px 24px}
+      .banner h2{font-size:31px}
+      .banner p{font-size:19px}
+      .emoji{font-size:66px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="title">FART2 NFT BOT</div>
+    <div class="subtitle">мини-приложение</div>
+
+    <section class="balance-row">
+      <div class="avatar">F</div>
+      <div class="balance-box">
+        <div class="balance-label">Ваш баланс</div>
+        <div class="balance-value">💎 <span id="tonBalance">0</span> <small>TON</small></div>
+      </div>
+      <button class="topup" id="topupBtn" type="button">💳 Пополнить</button>
+    </section>
+
+    <div class="live"><span class="dot"></span> Live</div>
+
+    <nav class="nav">
+      <button class="nav-btn" type="button" data-action="gift">🎁</button>
+      <button class="nav-btn" type="button" data-action="nft">💎</button>
+      <button class="nav-btn" type="button" data-action="stars">⭐</button>
+      <button class="nav-btn" type="button" data-action="fire">🔥</button>
+    </nav>
+
+    <button class="banner blue" type="button" data-action="upgrade">
+      <span class="pill">⚡ ХИТ</span>
+      <h2>🚀 UPGRADE NFT</h2>
+      <p>Выбери NFT и открой Upgrade</p>
+      <span class="emoji">🚀</span>
+    </button>
+
+    <button class="banner orange" type="button" data-action="gift">
+      <span class="pill">🎁 NFT</span>
+      <h2>ВНЕСТИ ПОДАРОК</h2>
+      <p>Добавь Telegram Collectible Gift</p>
+      <span class="emoji">🎁</span>
+    </button>
+
+    <button class="banner purple" type="button" data-action="wallet">
+      <span class="pill">💰 WALLET</span>
+      <h2>БАЛАНС</h2>
+      <p>Stars · TON · USDT · GRAM</p>
+      <span class="emoji">💎</span>
+    </button>
+  </main>
+
+  <div class="modal" id="depositModal" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3>Пополнить баланс</h3>
+        <button class="close" type="button" data-close="depositModal">✕</button>
+      </div>
+
+      <button class="asset" type="button" data-deposit="stars">
+        <span class="asset-left"><span class="asset-emoji">⭐</span><span>Telegram Stars<small>Пополнение звёздами</small></span></span><span>›</span>
+      </button>
+      <button class="asset" type="button" data-deposit="ton">
+        <span class="asset-left"><span class="asset-emoji">💎</span><span>TON<small>Пополнение через TON</small></span></span><span>›</span>
+      </button>
+      <button class="asset" type="button" data-deposit="usdt">
+        <span class="asset-left"><span class="asset-emoji">💵</span><span>USDT<small>USDT в сети TON</small></span></span><span>›</span>
+      </button>
+      <button class="asset" type="button" data-deposit="gram">
+        <span class="asset-left"><span class="asset-emoji">🪙</span><span>GRAM<small>Пополнение GRAM</small></span></span><span>›</span>
+      </button>
+
+      <div class="notice">
+        Интерфейс кнопок полностью активен. Для реального зачисления криптовалюты и Stars
+        должны быть подключены серверные маршруты/API вашего бота.
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="walletModal" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3>Ваши балансы</h3>
+        <button class="close" type="button" data-close="walletModal">✕</button>
+      </div>
+      <div class="asset"><span class="asset-left"><span class="asset-emoji">⭐</span><span>Stars</span></span><b id="starsBalance">0</b></div>
+      <div class="asset"><span class="asset-left"><span class="asset-emoji">💎</span><span>TON</span></span><b id="walletTon">0</b></div>
+      <div class="asset"><span class="asset-left"><span class="asset-emoji">💵</span><span>USDT</span></span><b id="usdtBalance">0</b></div>
+      <div class="asset"><span class="asset-left"><span class="asset-emoji">🪙</span><span>GRAM</span></span><b id="gramBalance">0</b></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg) {
+        try {
+          tg.ready();
+          tg.expand();
+          tg.setHeaderColor('#07090d');
+          tg.setBackgroundColor('#07090d');
+        } catch (e) {}
+      }
+
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => [...document.querySelectorAll(s)];
+
+      const openModal = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('open');
+        el.setAttribute('aria-hidden','false');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      };
+
+      const closeModal = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('open');
+        el.setAttribute('aria-hidden','true');
+      };
+
+      const toast = (text) => {
+        const t = $('#toast');
+        t.textContent = text;
+        t.classList.add('show');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+      };
+
+      $('#topupBtn').addEventListener('click', () => openModal('depositModal'));
+
+      $$('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.close));
+      });
+
+      $$('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal(modal.id);
+        });
+      });
+
+      $$('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          if (action === 'wallet') return openModal('walletModal');
+          if (action === 'gift') return toast('Раздел подарков открыт');
+          if (action === 'nft') return toast('Раздел NFT открыт');
+          if (action === 'stars') return openModal('depositModal');
+          if (action === 'fire') return toast('Раздел Live открыт');
+          if (action === 'upgrade') return toast('Upgrade NFT открыт');
+        });
+      });
+
+      $$('[data-deposit]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const asset = btn.dataset.deposit;
+
+          // Реальные платежи подключаются к вашему backend API.
+          // Здесь кнопки гарантированно реагируют и готовы для подключения маршрутов:
+          // POST /api/deposit/stars
+          // POST /api/deposit/ton
+          // POST /api/deposit/usdt
+          // POST /api/deposit/gram
+
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          toast('Выбрано пополнение: ' + asset.toUpperCase());
+        });
+      });
+
+      // Prevent accidental ghost overlays from blocking taps.
+      document.documentElement.style.pointerEvents = 'auto';
+      document.body.style.pointerEvents = 'auto';
+    })();
+  </script>
+</body>
+</html>
