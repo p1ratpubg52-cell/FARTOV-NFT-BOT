@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -136,9 +137,7 @@
 
     .deposit-main {
       flex-shrink: 0;
-
       border: none;
-
       color: white;
 
       background: linear-gradient(
@@ -148,16 +147,10 @@
       );
 
       border-radius: 22px;
-
       padding: 18px 20px;
-
       font-size: 18px;
       font-weight: 800;
-
       cursor: pointer;
-
-      position: relative;
-      z-index: 10;
     }
 
     .deposit-main:active {
@@ -168,7 +161,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-
       font-weight: 700;
       margin-bottom: 12px;
     }
@@ -176,11 +168,8 @@
     .live-dot {
       width: 13px;
       height: 13px;
-
       background: #21dd97;
-
       border-radius: 50%;
-
       box-shadow:
         0 0 14px rgba(33, 221, 151, .8);
     }
@@ -188,11 +177,8 @@
     .quick-menu {
       display: flex;
       gap: 13px;
-
       overflow-x: auto;
-
       padding-bottom: 24px;
-
       scrollbar-width: none;
     }
 
@@ -205,7 +191,6 @@
       height: 100px;
 
       border-radius: 25px;
-
       border: 1px solid #303642;
 
       background: linear-gradient(
@@ -215,13 +200,8 @@
       );
 
       font-size: 36px;
-
       cursor: pointer;
-
       color: white;
-
-      position: relative;
-      z-index: 10;
     }
 
     .quick-btn:active {
@@ -230,27 +210,19 @@
 
     .card {
       position: relative;
-
       width: 100%;
-
       min-height: 205px;
 
       margin-bottom: 26px;
-
       padding: 30px;
 
       border: none;
       border-radius: 34px;
 
       color: white;
-
       text-align: left;
-
       overflow: hidden;
-
       cursor: pointer;
-
-      z-index: 5;
     }
 
     .card:active {
@@ -288,7 +260,6 @@
       color: #5871d0;
 
       border-radius: 16px;
-
       padding: 9px 15px;
 
       font-weight: 900;
@@ -300,7 +271,6 @@
 
       font-size: 37px;
       line-height: 1;
-
       font-weight: 900;
 
       max-width: 82%;
@@ -313,16 +283,13 @@
       font-weight: 700;
 
       max-width: 72%;
-
       line-height: 1.25;
     }
 
     .card-icon {
       position: absolute;
-
       right: 22px;
       bottom: 23px;
-
       font-size: 78px;
 
       filter:
@@ -333,7 +300,6 @@
 
     .modal {
       position: fixed;
-
       inset: 0;
 
       display: none;
@@ -344,7 +310,6 @@
       background: rgba(0,0,0,.72);
 
       z-index: 99999;
-
       pointer-events: none;
     }
 
@@ -358,7 +323,6 @@
       max-width: 720px;
 
       max-height: 88vh;
-
       overflow-y: auto;
 
       background: #12161e;
@@ -391,29 +355,24 @@
       height: 42px;
 
       border-radius: 50%;
-
       border: none;
 
       color: white;
       background: #262c36;
 
       font-size: 20px;
-
       cursor: pointer;
     }
 
     .payment-btn {
       width: 100%;
-
       margin-bottom: 11px;
 
       display: flex;
-
       align-items: center;
       justify-content: space-between;
 
       border: 1px solid #343a46;
-
       border-radius: 20px;
 
       background: #1a1f28;
@@ -421,7 +380,6 @@
       padding: 17px 18px;
 
       color: white;
-
       cursor: pointer;
     }
 
@@ -449,11 +407,9 @@
       display: block;
 
       font-size: 13px;
-
       color: #9ca2ad;
 
       font-weight: 500;
-
       margin-top: 3px;
     }
 
@@ -469,14 +425,12 @@
 
     .balance-row {
       display: flex;
-
       align-items: center;
       justify-content: space-between;
 
       border-radius: 20px;
 
       background: #1a1f28;
-
       border: 1px solid #343a46;
 
       padding: 18px;
@@ -499,7 +453,6 @@
     .field-label {
       font-size: 14px;
       color: #a4a9b3;
-
       margin: 2px 2px 8px;
     }
 
@@ -507,17 +460,14 @@
       width: 100%;
 
       border: 1px solid #343a46;
-
       border-radius: 18px;
 
       background: #1a1f28;
-
       color: white;
 
       padding: 16px 17px;
 
       font-size: 18px;
-
       outline: none;
 
       margin-bottom: 12px;
@@ -531,7 +481,6 @@
       width: 100%;
 
       border: none;
-
       border-radius: 19px;
 
       background: linear-gradient(
@@ -548,15 +497,12 @@
       font-weight: 800;
 
       cursor: pointer;
-
-      margin-top: 2px;
     }
 
     .secondary-btn {
       width: 100%;
 
       border: 1px solid #343a46;
-
       border-radius: 19px;
 
       background: #1a1f28;
@@ -576,15 +522,12 @@
     .primary-btn:disabled,
     .secondary-btn:disabled {
       opacity: .55;
-      cursor: default;
     }
 
     .hint {
       color: #a4a9b3;
       font-size: 13px;
-
       line-height: 1.45;
-
       margin-top: 12px;
     }
 
@@ -592,18 +535,15 @@
       word-break: break-all;
 
       background: #0d1118;
-
       border: 1px solid #303642;
 
       border-radius: 16px;
-
       padding: 13px;
 
       font-size: 13px;
-
       line-height: 1.35;
 
-      margin: 0 0 12px;
+      margin-bottom: 12px;
     }
 
     .hidden {
@@ -624,7 +564,6 @@
       padding: 13px 17px;
 
       border-radius: 14px;
-
       background: #242a34;
 
       color: white;
@@ -685,7 +624,6 @@
       .card-icon {
         font-size: 65px;
       }
-
     }
   </style>
 </head>
@@ -695,7 +633,6 @@
 <div class="app">
 
   <header class="header">
-
     <div class="title">
       FART2 NFT BOT
     </div>
@@ -703,7 +640,6 @@
     <div class="subtitle">
       мини-приложение
     </div>
-
   </header>
 
 
@@ -720,17 +656,9 @@
       </div>
 
       <div class="main-balance">
-
         💎
-
-        <span id="topTonBalance">
-          0
-        </span>
-
-        <span class="unit">
-          TON
-        </span>
-
+        <span id="topTonBalance">0</span>
+        <span class="unit">TON</span>
       </div>
 
     </div>
@@ -747,11 +675,8 @@
 
 
   <div class="live">
-
     <span class="live-dot"></span>
-
     Live
-
   </div>
 
 
@@ -869,7 +794,6 @@
 </div>
 
 
-
 <!-- ПОПОЛНЕНИЕ -->
 
 <div
@@ -909,13 +833,11 @@
         </div>
 
         <div class="payment-name">
-
           Telegram Stars
 
           <span class="payment-description">
             Оплата через Telegram Stars
           </span>
-
         </div>
 
       </div>
@@ -940,13 +862,11 @@
         </div>
 
         <div class="payment-name">
-
           TON
 
           <span class="payment-description">
             Перевод TON на кошелёк проекта
           </span>
-
         </div>
 
       </div>
@@ -960,7 +880,6 @@
   </div>
 
 </div>
-
 
 
 <!-- STARS -->
@@ -1022,7 +941,6 @@
   </div>
 
 </div>
-
 
 
 <!-- TON -->
@@ -1095,10 +1013,7 @@
     >
 
       <div class="hint">
-
-        После отправки TON вернитесь сюда
-        и вставьте hash или ссылку транзакции.
-
+        После отправки TON вернитесь сюда и вставьте hash или ссылку транзакции.
       </div>
 
 
@@ -1131,7 +1046,6 @@
   </div>
 
 </div>
-
 
 
 <!-- БАЛАНС -->
@@ -1200,12 +1114,10 @@
 </div>
 
 
-
 <div
   id="toast"
   class="toast"
 ></div>
-
 
 
 <script>
@@ -1245,7 +1157,6 @@
   }
 
 
-
   function showToast(
     message,
     timeout = 3200
@@ -1283,7 +1194,6 @@
   }
 
 
-
   function haptic() {
 
     try {
@@ -1299,7 +1209,6 @@
   }
 
 
-
   function openModal(id) {
 
     document
@@ -1313,7 +1222,6 @@
   }
 
 
-
   function closeModal(id) {
 
     document
@@ -1322,7 +1230,6 @@
       .remove("active");
 
   }
-
 
 
   function requireTelegram() {
@@ -1339,7 +1246,6 @@
     return tg.initData;
 
   }
-
 
 
   async function api(
@@ -1400,7 +1306,6 @@
     return data;
 
   }
-
 
 
   async function loadBalance() {
@@ -1484,7 +1389,6 @@
     }
 
   }
-
 
 
   async function startStarsPayment() {
@@ -1607,7 +1511,6 @@
 
           }
 
-
           else if (
             status ===
             "cancelled"
@@ -1618,7 +1521,6 @@
             );
 
           }
-
 
           else if (
             status ===
@@ -1660,7 +1562,6 @@
     }
 
   }
-
 
 
   async function openTonPayment() {
@@ -1774,7 +1675,6 @@
     }
 
   }
-
 
 
   async function submitTonForReview() {
@@ -1910,7 +1810,6 @@
   }
 
 
-
   document
     .getElementById(
       "openDeposit"
@@ -1927,7 +1826,6 @@
 
       }
     );
-
 
 
   document
@@ -1986,7 +1884,6 @@
     );
 
 
-
   document
     .getElementById(
       "payStars"
@@ -1995,7 +1892,6 @@
       "click",
       startStarsPayment
     );
-
 
 
   document
@@ -2008,7 +1904,6 @@
     );
 
 
-
   document
     .getElementById(
       "submitTon"
@@ -2017,7 +1912,6 @@
       "click",
       submitTonForReview
     );
-
 
 
   document
@@ -2033,7 +1927,6 @@
 
             event.preventDefault();
 
-
             closeModal(
               button.dataset.close
             );
@@ -2043,7 +1936,6 @@
 
       }
     );
-
 
 
   document
@@ -2073,7 +1965,6 @@
 
       }
     );
-
 
 
   document
@@ -2129,9 +2020,8 @@
               "gift"
             ) {
 
-              showToast(
-                "Раздел подарков"
-              );
+              window.location.href =
+                "/deposit";
 
             }
 
@@ -2176,7 +2066,6 @@
 
       }
     );
-
 
 
   loadBalance();
