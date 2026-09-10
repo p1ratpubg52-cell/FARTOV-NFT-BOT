@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <title>Инвентарь — FART2</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: #07090e;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      padding:
+        calc(16px + env(safe-area-inset-top))
+        16px
+        calc(28px + env(safe-area-inset-bottom));
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .back {
+      border: 1px solid #323846;
+      background: #171c25;
+      color: #fff;
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .hero {
+      border-radius: 30px;
+      padding: 25px 22px;
+      background: linear-gradient(135deg, #25c58f, #147561);
+      margin-bottom: 18px;
+      box-shadow: 0 16px 40px rgba(37, 197, 143, .14);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #fff;
+      color: #218069;
+      border-radius: 16px;
+      padding: 8px 13px;
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      font-weight: 950;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .hero-text {
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 700;
+      color: rgba(255,255,255,.94);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 2px 14px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .count {
+      color: #aeb4bf;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .gift-card {
+      background: #12161e;
+      border: 1px solid #2d3440;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+
+    .gift-image-wrap {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(145deg, #171d26, #0d1117);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .gift-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .placeholder {
+      font-size: 54px;
+    }
+
+    .gift-info {
+      padding: 13px;
+    }
+
+    .gift-name {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.25;
+      min-height: 40px;
+    }
+
+    .gift-status {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 6px 9px;
+      border-radius: 10px;
+      background: rgba(34, 201, 144, .12);
+      color: #42d9a4;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .gift-link {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 11px;
+      margin-top: 11px;
+      background: #242b36;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .empty {
+      display: none;
+      background: #12161e;
+      border: 1px solid #2d3440;
+      border-radius: 24px;
+      padding: 28px 20px;
+      text-align: center;
+      color: #aeb4bf;
+      line-height: 1.5;
+    }
+
+    .empty.show {
+      display: block;
+    }
+
+    .empty-icon {
+      font-size: 52px;
+      margin-bottom: 10px;
+    }
+
+    .empty-title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #9da3ad;
+      padding: 24px;
+      font-size: 15px;
+    }
+
+    .error {
+      display: none;
+      margin-bottom: 14px;
+      padding: 13px;
+      border-radius: 16px;
+      background: #1b1518;
+      border: 1px solid rgba(255, 92, 92, .5);
+      color: #ffb5b5;
+      line-height: 1.4;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    @media (max-width: 390px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+
+    <button
+      id="backBtn"
+      class="back"
+      type="button"
+    >
+      ← Назад
+    </button>
+
+    <div class="brand">
+      FART2 NFT BOT
+    </div>
+
+    <div style="width:76px"></div>
+
+  </div>
+
+
+  <section class="hero">
+
+    <div class="hero-badge">
+      🎒 NFT
+    </div>
+
+    <div class="hero-title">
+      ИНВЕНТАРЬ
+    </div>
+
+    <div class="hero-text">
+      Здесь находятся все ваши подтверждённые подарки и NFT.
+    </div>
+
+  </section>
+
+
+  <div
+    id="errorBox"
+    class="error"
+  ></div>
+
+
+  <div class="toolbar">
+
+    <div class="section-title">
+      Мои подарки
+    </div>
+
+    <div
+      id="count"
+      class="count"
+    >
+      0 шт.
+    </div>
+
+  </div>
+
+
+  <div
+    id="loading"
+    class="loading"
+  >
+    Загружаем инвентарь…
+  </div>
+
+
+  <div
+    id="grid"
+    class="grid"
+  ></div>
+
+
+  <div
+    id="empty"
+    class="empty"
+  >
+
+    <div class="empty-icon">
+      🎁
+    </div>
+
+    <div class="empty-title">
+      Инвентарь пуст
+    </div>
+
+    <div>
+      После подтверждения подарка администратором он появится здесь.
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+(() => {
+
+  const tg =
+    window.Telegram?.WebApp ||
+    null;
+
+
+  try {
+
+    tg?.ready();
+
+    tg?.expand();
+
+    tg?.setHeaderColor(
+      "#07090e"
+    );
+
+    tg?.setBackgroundColor(
+      "#07090e"
+    );
+
+  } catch (_) {}
+
+
+  function showError(message) {
+
+    const box =
+      document.getElementById(
+        "errorBox"
+      );
+
+
+    box.textContent =
+      message;
+
+
+    box.classList.add(
+      "show"
+    );
+
+  }
+
+
+  function getInitData() {
+
+    if (!tg?.initData) {
+
+      throw new Error(
+        "Откройте мини-приложение внутри Telegram"
+      );
+
+    }
+
+
+    return tg.initData;
+
+  }
+
+
+  async function post(
+    url,
+    body
+  ) {
+
+    const response =
+      await fetch(
+        url,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              body
+            )
+
+        }
+      );
+
+
+    let data = {};
+
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch (_) {}
+
+
+    if (!response.ok) {
+
+      throw new Error(
+
+        data?.detail ||
+
+        data?.error ||
+
+        data?.message ||
+
+        `Ошибка сервера ${response.status}`
+
+      );
+
+    }
+
+
+    return data;
+
+  }
+
+
+  function escapeHtml(text) {
+
+    return String(
+      text || ""
+    )
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+  function renderGift(gift) {
+
+    const image =
+      gift.gift_image
+
+      ? `
+        <img
+          class="gift-image"
+          src="${escapeHtml(gift.gift_image)}"
+          alt=""
+        >
+      `
+
+      : `
+        <div class="placeholder">
+          🎁
+        </div>
+      `;
+
+
+    return `
+
+      <div class="gift-card">
+
+        <div class="gift-image-wrap">
+
+          ${image}
+
+        </div>
+
+
+        <div class="gift-info">
+
+          <div class="gift-name">
+
+            ${
+              escapeHtml(
+                gift.gift_name ||
+                "Telegram Gift"
+              )
+            }
+
+          </div>
+
+
+          <div class="gift-status">
+            ✅ В инвентаре
+          </div>
+
+
+          <button
+            class="gift-link"
+            type="button"
+            data-url="${escapeHtml(gift.gift_url)}"
+          >
+            Открыть NFT
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  async function loadInventory() {
+
+    const loading =
+      document.getElementById(
+        "loading"
+      );
+
+
+    const grid =
+      document.getElementById(
+        "grid"
+      );
+
+
+    const empty =
+      document.getElementById(
+        "empty"
+      );
+
+
+    const count =
+      document.getElementById(
+        "count"
+      );
+
+
+    try {
+
+      const data =
+        await post(
+          "/api/me",
+          {
+
+            initData:
+              getInitData()
+
+          }
+        );
+
+
+      const gifts =
+        (
+          data.deposits ||
+          []
+        ).filter(
+
+          item =>
+
+            item.status ===
+              "approved"
+
+            &&
+
+            Number(
+              item.hidden || 0
+            ) === 0
+
+        );
+
+
+      count.textContent =
+        `${gifts.length} шт.`;
+
+
+      if (
+        !gifts.length
+      ) {
+
+        empty.classList.add(
+          "show"
+        );
+
+
+        return;
+
+      }
+
+
+      grid.innerHTML =
+        gifts
+          .map(
+            renderGift
+          )
+          .join("");
+
+
+      grid
+        .querySelectorAll(
+          "[data-url]"
+        )
+        .forEach(
+          button => {
+
+            button.addEventListener(
+              "click",
+              () => {
+
+                const url =
+                  button.dataset.url;
+
+
+                if (
+                  tg?.openTelegramLink &&
+                  url.startsWith(
+                    "https://t.me/"
+                  )
+                ) {
+
+                  tg.openTelegramLink(
+                    url
+                  );
+
+                }
+
+
+                else if (
+                  tg?.openLink
+                ) {
+
+                  tg.openLink(
+                    url
+                  );
+
+                }
+
+
+                else {
+
+                  window.location.href =
+                    url;
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+
+    } catch (error) {
+
+      showError(
+        "Ошибка: " +
+        error.message
+      );
+
+    } finally {
+
+      loading.style.display =
+        "none";
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "backBtn"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  loadInventory();
+
+})();
+
+</script>
+
+</body>
+</html>
