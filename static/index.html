@@ -22,17 +22,26 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-body{
+html,body{
   margin:0;
+  min-height:100%;
   background:var(--bg);
   color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
+button,input,select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
 .wrap{
   max-width:560px;
   margin:auto;
-  padding:16px 16px 100px;
+  padding:16px 16px 105px;
 }
 
 .screen{
@@ -63,8 +72,7 @@ body{
   line-height:1.45;
 }
 
-input,
-select{
+input,select{
   width:100%;
   margin-top:10px;
   padding:15px;
@@ -76,10 +84,9 @@ select{
   outline:none;
 }
 
-button,
-.btn{
-  width:100%;
+button,.btn{
   display:block;
+  width:100%;
   margin-top:11px;
   padding:15px;
   border:0;
@@ -95,7 +102,6 @@ button,
 .secondary{
   background:#242832;
 }
-
 
 /* HEADER */
 
@@ -123,6 +129,7 @@ button,
 
 .balanceHead{
   flex:1;
+  min-width:0;
 }
 
 .balanceCaption{
@@ -143,7 +150,6 @@ button,
   white-space:nowrap;
   background:linear-gradient(135deg,#7257ff,#9b75ff);
 }
-
 
 /* LIVE */
 
@@ -207,7 +213,6 @@ button,
   object-fit:cover;
 }
 
-
 /* HOME BANNERS */
 
 .banner{
@@ -227,20 +232,20 @@ button,
 
 .blue{
   background:
-  radial-gradient(circle at 88% 15%,rgba(255,255,255,.3),transparent 28%),
-  linear-gradient(135deg,#5cc3ff,#568aff 55%,#4851c8);
+    radial-gradient(circle at 88% 15%,rgba(255,255,255,.3),transparent 28%),
+    linear-gradient(135deg,#5cc3ff,#568aff 55%,#4851c8);
 }
 
 .orange{
   background:
-  radial-gradient(circle at 88% 10%,rgba(255,255,255,.2),transparent 30%),
-  linear-gradient(135deg,#ffbc22,#ff8300);
+    radial-gradient(circle at 88% 10%,rgba(255,255,255,.2),transparent 30%),
+    linear-gradient(135deg,#ffbc22,#ff8300);
 }
 
 .purple{
   background:
-  radial-gradient(circle at 88% 15%,rgba(255,255,255,.18),transparent 30%),
-  linear-gradient(135deg,#951aff,#6422df 55%,#3f168f);
+    radial-gradient(circle at 88% 15%,rgba(255,255,255,.18),transparent 30%),
+    linear-gradient(135deg,#951aff,#6422df 55%,#3f168f);
 }
 
 .badge{
@@ -276,7 +281,6 @@ button,
   font-size:73px;
   filter:drop-shadow(0 12px 10px rgba(0,0,0,.25));
 }
-
 
 /* BALANCE */
 
@@ -319,7 +323,6 @@ button,
   font-size:12px;
   word-break:break-all;
 }
-
 
 /* GIFTS */
 
@@ -373,8 +376,7 @@ button,
   text-overflow:ellipsis;
 }
 
-
-/* UPGRADE DEMO */
+/* UPGRADE DISPLAY */
 
 .preview{
   display:none;
@@ -414,6 +416,7 @@ button,
     #202733 223deg 360deg
   );
   position:relative;
+  transition:transform 2s cubic-bezier(.12,.72,.17,1);
 }
 
 .wheel:before{
@@ -445,7 +448,6 @@ button,
   font-size:13px;
 }
 
-
 /* HISTORY */
 
 .historyItem{
@@ -464,7 +466,6 @@ button,
 .rejected{
   color:#ff6b6b;
 }
-
 
 /* TABS */
 
@@ -488,6 +489,7 @@ button,
   justify-content:center;
   color:#8e95a3;
   font-size:11px;
+  cursor:pointer;
 }
 
 .tabIcon{
@@ -499,15 +501,12 @@ button,
   color:#fff;
   font-weight:850;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="wrap">
-
-<!-- HOME -->
 
 <section id="home" class="screen active">
 
@@ -523,14 +522,11 @@ button,
       </div>
     </div>
 
-    <button
-      class="topup"
-      onclick="openTab('balance')">
+    <button id="homeTopup" class="topup">
       💳 Пополнить
     </button>
 
   </div>
-
 
   <div class="liveWrap">
 
@@ -549,140 +545,69 @@ button,
 
   </div>
 
-
-  <div
-    class="banner blue"
-    onclick="openTab('upgrade')">
-
+  <div id="bannerUpgrade" class="banner blue">
     <div class="badge">⚡ ХИТ</div>
-
-    <div class="bannerTitle">
-      🚀 UPGRADE NFT
-    </div>
-
-    <div class="bannerText">
-      Выбери NFT и открой Upgrade
-    </div>
-
-    <div class="bannerEmoji">
-      🚀
-    </div>
-
+    <div class="bannerTitle">🚀 UPGRADE NFT</div>
+    <div class="bannerText">Выбери NFT и открой Upgrade</div>
+    <div class="bannerEmoji">🚀</div>
   </div>
 
-
-  <div
-    class="banner orange"
-    onclick="openTab('deposit')">
-
-    <div class="badge">
-      🎁 NFT
-    </div>
-
-    <div class="bannerTitle">
-      ВНЕСТИ ПОДАРОК
-    </div>
-
-    <div class="bannerText">
-      Добавь Telegram Collectible Gift
-    </div>
-
-    <div class="bannerEmoji">
-      🎁
-    </div>
-
+  <div id="bannerDeposit" class="banner orange">
+    <div class="badge">🎁 NFT</div>
+    <div class="bannerTitle">ВНЕСТИ ПОДАРОК</div>
+    <div class="bannerText">Добавь Telegram Collectible Gift</div>
+    <div class="bannerEmoji">🎁</div>
   </div>
 
-
-  <div
-    class="banner purple"
-    onclick="openTab('balance')">
-
-    <div class="badge">
-      💰 WALLET
-    </div>
-
-    <div class="bannerTitle">
-      БАЛАНС
-    </div>
-
-    <div class="bannerText">
-      Stars · TON · USDT · GRAM
-    </div>
-
-    <div class="bannerEmoji">
-      💎
-    </div>
-
+  <div id="bannerBalance" class="banner purple">
+    <div class="badge">💰 WALLET</div>
+    <div class="bannerTitle">БАЛАНС</div>
+    <div class="bannerText">Stars · TON · USDT · GRAM</div>
+    <div class="bannerEmoji">💎</div>
   </div>
 
 </section>
 
-
-<!-- UPGRADE -->
 
 <section id="upgrade" class="screen">
 
   <div class="card">
 
-    <div class="title">
-      Upgrade
-    </div>
+    <div class="title">Upgrade</div>
 
     <div class="muted">
       Выбери NFT:
     </div>
 
-    <select
-      id="upgradeGift"
-      onchange="showGiftPreview()">
-
-      <option value="">
-        Нет доступных NFT
-      </option>
-
+    <select id="upgradeGift">
+      <option value="">Нет доступных NFT</option>
     </select>
 
-    <div
-      id="preview"
-      class="preview">
+    <div id="preview" class="preview">
 
-      <img
-        id="previewImg"
-        style="display:none">
+      <img id="previewImg" style="display:none">
 
-      <div
-        id="previewFallback"
-        style="font-size:60px">
+      <div id="previewFallback" style="font-size:60px">
         🎁
       </div>
 
-      <div
-        id="previewName"
-        class="previewName">
-      </div>
+      <div id="previewName" class="previewName"></div>
 
     </div>
 
-
-    <div class="wheel"></div>
+    <div id="wheel" class="wheel"></div>
 
     <div class="demoNote">
-      Здесь работает только визуальное демо Upgrade.
-      Реальные NFT и денежные балансы случайным результатом не списываются.
+      Выбор и отображение NFT работают. Колесо здесь визуальное и не списывает реальные NFT или баланс.
     </div>
 
-    <button onclick="demoSpin()">
-      Крутить Demo
+    <button id="spinDemo">
+      Крутить
     </button>
 
     <div
       id="demoResult"
-      style="
-        text-align:center;
-        font-weight:900;
-        margin-top:13px;
-      ">
+      style="text-align:center;font-weight:900;margin-top:13px">
     </div>
 
   </div>
@@ -690,15 +615,11 @@ button,
 </section>
 
 
-<!-- BALANCE -->
-
 <section id="balance" class="screen">
 
   <div class="card">
 
-    <div class="title">
-      Баланс
-    </div>
+    <div class="title">Баланс</div>
 
     <div class="balanceGrid">
 
@@ -724,7 +645,6 @@ button,
 
     </div>
 
-
     <div class="section">
 
       <div class="title">
@@ -738,7 +658,7 @@ button,
         min="1"
         placeholder="Количество Stars">
 
-      <button onclick="buyStars()">
+      <button id="buyStars">
         Пополнить Stars
       </button>
 
@@ -750,29 +670,20 @@ button,
 
     </div>
 
-
     <div class="section">
 
       <div class="title">
         TON / USDT / GRAM
       </div>
 
-      <select
-        id="cryptoCurrency"
-        onchange="updateAddress()">
-
+      <select id="cryptoCurrency">
         <option value="TON">TON</option>
         <option value="USDT">USDT</option>
         <option value="GRAM">GRAM</option>
-
       </select>
 
-      <div
-        id="cryptoAddress"
-        class="address">
-
+      <div id="cryptoAddress" class="address">
         Адрес ещё не настроен в Railway
-
       </div>
 
       <input
@@ -783,7 +694,7 @@ button,
         id="cryptoTx"
         placeholder="Hash или ссылка транзакции">
 
-      <button onclick="sendCrypto()">
+      <button id="sendCrypto">
         Отправить на проверку
       </button>
 
@@ -797,40 +708,22 @@ button,
 
   </div>
 
-
   <div class="card">
-
-    <div class="title">
-      Заявки
-    </div>
-
+    <div class="title">Заявки</div>
     <div id="requests">
-      <div class="muted">
-        Пока нет заявок.
-      </div>
+      <div class="muted">Пока нет заявок.</div>
     </div>
-
   </div>
 
-
   <div class="card">
-
-    <div class="title">
-      История
-    </div>
-
+    <div class="title">История</div>
     <div id="history">
-      <div class="muted">
-        История пуста.
-      </div>
+      <div class="muted">История пуста.</div>
     </div>
-
   </div>
 
 </section>
 
-
-<!-- NFT DEPOSIT -->
 
 <section id="deposit" class="screen">
 
@@ -846,11 +739,7 @@ button,
 
     <div
       id="depositUsername"
-      style="
-        font-size:22px;
-        font-weight:900;
-        margin:12px 0;
-      ">
+      style="font-size:22px;font-weight:900;margin:12px 0">
 
       @fart2_backpack
 
@@ -865,19 +754,15 @@ button,
 
     </a>
 
-    <div
-      class="muted"
-      style="margin-top:18px">
-
+    <div class="muted" style="margin-top:18px">
       Вставь публичную ссылку подарка:
-
     </div>
 
     <input
       id="giftUrl"
       placeholder="https://t.me/nft/...">
 
-    <button onclick="sendGift()">
+    <button id="sendGift">
       Отправить на проверку
     </button>
 
@@ -891,8 +776,6 @@ button,
 
 </section>
 
-
-<!-- GIFTS -->
 
 <section id="gifts" class="screen">
 
@@ -915,58 +798,31 @@ button,
 </div>
 
 
-<!-- BOTTOM -->
-
 <div class="tabs">
 
-  <div
-    class="tab active"
-    data-id="home"
-    onclick="openTab('home')">
-
+  <div class="tab active" data-id="home">
     <div class="tabIcon">🏠</div>
     Главная
-
   </div>
 
-  <div
-    class="tab"
-    data-id="upgrade"
-    onclick="openTab('upgrade')">
-
+  <div class="tab" data-id="upgrade">
     <div class="tabIcon">🚀</div>
     Upgrade
-
   </div>
 
-  <div
-    class="tab"
-    data-id="balance"
-    onclick="openTab('balance')">
-
+  <div class="tab" data-id="balance">
     <div class="tabIcon">💎</div>
     Баланс
-
   </div>
 
-  <div
-    class="tab"
-    data-id="deposit"
-    onclick="openTab('deposit')">
-
+  <div class="tab" data-id="deposit">
     <div class="tabIcon">🎁</div>
     NFT
-
   </div>
 
-  <div
-    class="tab"
-    data-id="gifts"
-    onclick="openTab('gifts')">
-
+  <div class="tab" data-id="gifts">
     <div class="tabIcon">📦</div>
     Подарки
-
   </div>
 
 </div>
@@ -974,318 +830,61 @@ button,
 
 <script>
 
-const tg = Telegram.WebApp;
+document.addEventListener('DOMContentLoaded', () => {
 
-tg.ready();
-tg.expand();
+  const tg =
+    window.Telegram?.WebApp;
 
-let deposits = [];
-let balanceData = null;
-
-
-/* ---------- API ---------- */
-
-async function api(url, body){
-
-  const response = await fetch(
-    url,
-    {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(body)
-    }
-  );
-
-  let data = {};
-
-  try{
-    data = await response.json();
-  }catch(e){}
-
-  if(!response.ok){
-
-    throw new Error(
-      data.detail || 'Ошибка сервера'
-    );
-
-  }
-
-  return data;
-}
-
-
-/* ---------- NAVIGATION ---------- */
-
-function openTab(id){
-
-  document
-    .querySelectorAll('.screen')
-    .forEach(
-      el => el.classList.remove('active')
-    );
-
-  document
-    .querySelectorAll('.tab')
-    .forEach(
-      el => el.classList.remove('active')
-    );
-
-  const screen =
-    document.getElementById(id);
-
-  if(screen){
-    screen.classList.add('active');
-  }
-
-  const tab =
-    document.querySelector(
-      `.tab[data-id="${id}"]`
-    );
-
-  if(tab){
-    tab.classList.add('active');
-  }
-
-  window.scrollTo(0,0);
-
-  if(id === 'balance'){
-    loadBalances();
-  }
-
-}
-
-
-/* ---------- MAIN ---------- */
-
-async function loadMain(){
-
-  if(!tg.initData){
+  if(!tg){
+    console.error('Telegram WebApp SDK not loaded');
     return;
   }
 
-  try{
+  tg.ready();
+  tg.expand();
 
-    const data =
-      await api(
-        '/api/me',
+  let deposits = [];
+  let balanceData = null;
+  let wheelRotation = 0;
+
+
+  async function api(url, body){
+
+    const response =
+      await fetch(
+        url,
         {
-          initData:tg.initData
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify(body)
         }
       );
 
-    deposits =
-      data.deposits || [];
+    let data = {};
 
-    const person =
-      data.user.first_name
-      ||
-      data.user.username
-      ||
-      'F';
+    try{
+      data = await response.json();
+    }catch(e){}
 
-    document
-      .getElementById('avatar')
-      .innerText =
-        person
-        .replace('@','')
-        .charAt(0)
-        .toUpperCase()
-        ||
-        'F';
+    if(!response.ok){
+      throw new Error(
+        data.detail || 'Ошибка сервера'
+      );
+    }
 
+    return data;
+  }
+
+
+  function openTab(id){
 
     document
-      .getElementById('depositUsername')
-      .innerText =
-        data.deposit_username;
-
-
-    document
-      .getElementById('depositLink')
-      .href =
-        'https://t.me/' +
-        data.deposit_username.replace('@','');
-
-
-    const gifts =
-      deposits.filter(
-        x =>
-          x.status === 'approved'
-          &&
-          !Number(x.hidden)
+      .querySelectorAll('.screen')
+      .forEach(el =>
+        el.classList.remove('active')
       );
 
-
-    renderLive(gifts);
-    renderGifts(gifts);
-    renderUpgradeSelector(gifts);
-
-  }
-
-  catch(error){
-
-    console.log(
-      'MAIN ERROR',
-      error
-    );
-
-  }
-
-}
-
-
-/* ---------- LIVE ---------- */
-
-function renderLive(gifts){
-
-  const box =
-    document.getElementById('liveRow');
-
-  if(!gifts.length){
-
-    box.innerHTML = `
-      <div class="liveGift">🎁</div>
-      <div class="liveGift">💎</div>
-      <div class="liveGift">⭐</div>
-      <div class="liveGift">🔥</div>
-      <div class="liveGift">🚀</div>
-    `;
-
-    return;
-  }
-
-  box.innerHTML =
-    gifts
-      .slice(0,12)
-      .map(
-        gift => {
-
-          if(gift.gift_image){
-
-            return `
-              <div class="liveGift">
-                <img
-                  src="${gift.gift_image}"
-                  onerror="
-                    this.parentElement.innerHTML='🎁'
-                  ">
-              </div>
-            `;
-
-          }
-
-          return `
-            <div class="liveGift">
-              🎁
-            </div>
-          `;
-
-        }
-      )
-      .join('');
-
-}
-
-
-/* ---------- INVENTORY ---------- */
-
-function renderGifts(gifts){
-
-  const box =
-    document.getElementById('giftList');
-
-  if(!gifts.length){
-
-    box.innerHTML =
-      '<div class="muted">Пока нет подарков.</div>';
-
-    return;
-  }
-
-  box.innerHTML =
-    gifts.map(
-      gift => {
-
-        const image =
-          gift.gift_image
-
-          ?
-
-          `
-          <img
-            class="giftImg"
-            src="${gift.gift_image}"
-            onerror="this.style.display='none'">
-          `
-
-          :
-
-          `
-          <div class="giftFallback">
-            🎁
-          </div>
-          `;
-
-
-        return `
-        <div class="gift">
-
-          ${image}
-
-          <div class="giftInfo">
-
-            <div class="giftName">
-              ${gift.gift_name || 'Telegram Gift'}
-            </div>
-
-            <div class="giftLink">
-              ${gift.gift_url || ''}
-            </div>
-
-            <div
-              style="
-                margin-top:5px;
-                font-size:12px;
-                color:#38d69f;
-                font-weight:800;
-              ">
-
-              ✓ Gift #${gift.id}
-
-            </div>
-
-          </div>
-
-        </div>
-        `;
-
-      }
-    ).join('');
-
-}
-
-
-/* ---------- UPGRADE DISPLAY ---------- */
-
-function renderUpgradeSelector(gifts){
-
-  const select =
-    document.getElementById('upgradeGift');
-
-  if(!gifts.length){
-
-    select.innerHTML =
-      '<option value="">Нет доступных NFT</option>';
-
-    showGiftPreview();
-
-    return;
-  }
-
-  select.innerHTML =
-    gifts.map(
-      gift => `
-        <option value="${gift.id}">
-          ${gift.gift_name || 'Telegram
+    document
+      .
