@@ -2,627 +2,504 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>FART2 NFT BOT</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:#05070b;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+      overflow-x:hidden
     }
 
-    html,
-    body {
-      width: 100%;
-      min-height: 100%;
-      background: #05070b;
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      overflow-x: hidden;
+    body{
+      padding-bottom:env(safe-area-inset-bottom)
     }
 
-    body {
-      padding-bottom: env(safe-area-inset-bottom);
+    button,input{
+      font-family:inherit
     }
 
-    button,
-    input {
-      font-family: inherit;
+    button{
+      touch-action:manipulation
     }
 
-    button {
-      touch-action: manipulation;
+    .app{
+      width:100%;
+      max-width:720px;
+      margin:0 auto;
+      padding:calc(18px + env(safe-area-inset-top)) 18px 30px;
+      position:relative;
+      z-index:1
     }
 
-    .app {
-      width: 100%;
-      max-width: 720px;
-      margin: 0 auto;
-
-      padding:
-        calc(18px + env(safe-area-inset-top))
-        18px
-        30px;
-
-      position: relative;
-      z-index: 1;
+    .header{
+      text-align:center;
+      margin-bottom:28px
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 28px;
+    .title{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;
+      font-weight:800;
+      letter-spacing:.5px
     }
 
-    .title {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 27px;
-      font-weight: 800;
-      letter-spacing: .5px;
+    .subtitle{
+      color:#8f939d;
+      margin-top:3px;
+      font-size:17px
     }
 
-    .subtitle {
-      color: #8f939d;
-      margin-top: 3px;
-      font-size: 17px;
+    .wallet-top{
+      display:flex;
+      align-items:center;
+      gap:15px;
+      margin-bottom:25px
     }
 
-    .wallet-top {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
+    .logo{
+      width:92px;
+      height:92px;
+      min-width:92px;
+      border-radius:50%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:42px;
+      font-weight:900;
+      background:linear-gradient(145deg,#43d7ff,#6b79ff,#9b39ff);
+      border:5px solid #723eff;
+      box-shadow:0 0 28px rgba(101,76,255,.35)
     }
 
-    .logo {
-      width: 92px;
-      height: 92px;
-      min-width: 92px;
-
-      border-radius: 50%;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      font-size: 42px;
-      font-weight: 900;
-
-      background: linear-gradient(
-        145deg,
-        #43d7ff,
-        #6b79ff,
-        #9b39ff
-      );
-
-      border: 5px solid #723eff;
-
-      box-shadow:
-        0 0 28px rgba(101, 76, 255, .35);
+    .wallet-info{
+      flex:1;
+      min-width:0
     }
 
-    .wallet-info {
-      flex: 1;
-      min-width: 0;
+    .balance-label{
+      color:#9b9faa;
+      font-size:19px;
+      margin-bottom:5px
     }
 
-    .balance-label {
-      color: #9b9faa;
-      font-size: 19px;
-      margin-bottom: 5px;
+    .main-balance{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      font-size:34px;
+      font-weight:900
     }
 
-    .main-balance {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-
-      font-size: 34px;
-      font-weight: 900;
+    .main-balance .unit{
+      color:#c6c8ce;
+      font-size:17px;
+      font-weight:700
     }
 
-    .main-balance .unit {
-      color: #c6c8ce;
-      font-size: 17px;
-      font-weight: 700;
+    .deposit-main{
+      flex-shrink:0;
+      border:none;
+      color:#fff;
+      background:linear-gradient(135deg,#7652ff,#9e58ff);
+      border-radius:22px;
+      padding:18px 20px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      position:relative;
+      z-index:10
     }
 
-    .deposit-main {
-      flex-shrink: 0;
-      border: none;
-      color: white;
-
-      background: linear-gradient(
-        135deg,
-        #7652ff,
-        #9e58ff
-      );
-
-      border-radius: 22px;
-      padding: 18px 20px;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
+    .deposit-main:active{
+      transform:scale(.97)
     }
 
-    .deposit-main:active {
-      transform: scale(.97);
+    .live{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:700;
+      margin-bottom:12px
     }
 
-    .live {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      margin-bottom: 12px;
+    .live-dot{
+      width:13px;
+      height:13px;
+      background:#21dd97;
+      border-radius:50%;
+      box-shadow:0 0 14px rgba(33,221,151,.8)
     }
 
-    .live-dot {
-      width: 13px;
-      height: 13px;
-      background: #21dd97;
-      border-radius: 50%;
-      box-shadow:
-        0 0 14px rgba(33, 221, 151, .8);
+    .quick-menu{
+      display:flex;
+      gap:13px;
+      overflow-x:auto;
+      padding-bottom:24px;
+      scrollbar-width:none
     }
 
-    .quick-menu {
-      display: flex;
-      gap: 13px;
-      overflow-x: auto;
-      padding-bottom: 24px;
-      scrollbar-width: none;
+    .quick-menu::-webkit-scrollbar{
+      display:none
     }
 
-    .quick-menu::-webkit-scrollbar {
-      display: none;
+    .quick-btn{
+      min-width:100px;
+      height:100px;
+      border-radius:25px;
+      border:1px solid #303642;
+      background:linear-gradient(180deg,#191f2a,#11151c);
+      font-size:36px;
+      cursor:pointer;
+      color:#fff;
+      position:relative;
+      z-index:10
     }
 
-    .quick-btn {
-      min-width: 100px;
-      height: 100px;
-
-      border-radius: 25px;
-      border: 1px solid #303642;
-
-      background: linear-gradient(
-        180deg,
-        #191f2a,
-        #11151c
-      );
-
-      font-size: 36px;
-      cursor: pointer;
-      color: white;
+    .quick-btn:active{
+      transform:scale(.95)
     }
 
-    .quick-btn:active {
-      transform: scale(.95);
+    .card{
+      position:relative;
+      width:100%;
+      min-height:205px;
+      margin-bottom:26px;
+      padding:30px;
+      border:none;
+      border-radius:34px;
+      color:#fff;
+      text-align:left;
+      overflow:hidden;
+      cursor:pointer;
+      z-index:5
     }
 
-    .card {
-      position: relative;
-      width: 100%;
-      min-height: 205px;
-
-      margin-bottom: 26px;
-      padding: 30px;
-
-      border: none;
-      border-radius: 34px;
-
-      color: white;
-      text-align: left;
-      overflow: hidden;
-      cursor: pointer;
+    .card:active{
+      transform:scale(.985)
     }
 
-    .card:active {
-      transform: scale(.985);
+    .blue{
+      background:linear-gradient(135deg,#55bfff,#5b68ed)
     }
 
-    .blue {
-      background: linear-gradient(
-        135deg,
-        #55bfff,
-        #5b68ed
-      );
+    .orange{
+      background:linear-gradient(135deg,#ffb219,#ff8800)
     }
 
-    .orange {
-      background: linear-gradient(
-        135deg,
-        #ffb219,
-        #ff8800
-      );
+    .green{
+      background:linear-gradient(135deg,#25c58f,#147561)
     }
 
-    .purple {
-      background: linear-gradient(
-        135deg,
-        #9c12ff,
-        #5a26ce
-      );
+    .purple{
+      background:linear-gradient(135deg,#9c12ff,#5a26ce)
     }
 
-    .badge {
-      display: inline-block;
-
-      background: white;
-      color: #5871d0;
-
-      border-radius: 16px;
-      padding: 9px 15px;
-
-      font-weight: 900;
-      font-size: 16px;
+    .badge{
+      display:inline-block;
+      background:#fff;
+      color:#5871d0;
+      border-radius:16px;
+      padding:9px 15px;
+      font-weight:900;
+      font-size:16px
     }
 
-    .card-title {
-      margin-top: 27px;
-
-      font-size: 37px;
-      line-height: 1;
-      font-weight: 900;
-
-      max-width: 82%;
+    .card-title{
+      margin-top:27px;
+      font-size:37px;
+      line-height:1;
+      font-weight:900;
+      max-width:82%
     }
 
-    .card-text {
-      margin-top: 12px;
-
-      font-size: 20px;
-      font-weight: 700;
-
-      max-width: 72%;
-      line-height: 1.25;
+    .card-text{
+      margin-top:12px;
+      font-size:20px;
+      font-weight:700;
+      max-width:72%;
+      line-height:1.25
     }
 
-    .card-icon {
-      position: absolute;
-      right: 22px;
-      bottom: 23px;
-      font-size: 78px;
-
-      filter:
-        drop-shadow(
-          0 10px 8px rgba(0,0,0,.25)
-        );
+    .card-icon{
+      position:absolute;
+      right:22px;
+      bottom:23px;
+      font-size:78px;
+      filter:drop-shadow(0 10px 8px rgba(0,0,0,.25))
     }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-
-      display: none;
-
-      justify-content: center;
-      align-items: flex-end;
-
-      background: rgba(0,0,0,.72);
-
-      z-index: 99999;
-      pointer-events: none;
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      justify-content:center;
+      align-items:flex-end;
+      background:rgba(0,0,0,.72);
+      z-index:99999;
+      pointer-events:none
     }
 
-    .modal.active {
-      display: flex;
-      pointer-events: auto;
+    .modal.active{
+      display:flex;
+      pointer-events:auto
     }
 
-    .sheet {
-      width: 100%;
-      max-width: 720px;
-
-      max-height: 88vh;
-      overflow-y: auto;
-
-      background: #12161e;
-
-      border-radius: 30px 30px 0 0;
-
-      padding:
-        24px
-        18px
-        calc(26px + env(safe-area-inset-bottom));
-
-      border: 1px solid #282e38;
+    .sheet{
+      width:100%;
+      max-width:720px;
+      max-height:88vh;
+      overflow-y:auto;
+      background:#12161e;
+      border-radius:30px 30px 0 0;
+      padding:24px 18px calc(26px + env(safe-area-inset-bottom));
+      border:1px solid #282e38
     }
 
-    .sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      margin-bottom: 20px;
+    .sheet-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px
     }
 
-    .sheet-title {
-      font-size: 27px;
-      font-weight: 850;
+    .sheet-title{
+      font-size:27px;
+      font-weight:850
     }
 
-    .close-btn {
-      width: 42px;
-      height: 42px;
-
-      border-radius: 50%;
-      border: none;
-
-      color: white;
-      background: #262c36;
-
-      font-size: 20px;
-      cursor: pointer;
+    .close-btn{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      border:none;
+      color:#fff;
+      background:#262c36;
+      font-size:20px;
+      cursor:pointer
     }
 
-    .payment-btn {
-      width: 100%;
-      margin-bottom: 11px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      border: 1px solid #343a46;
-      border-radius: 20px;
-
-      background: #1a1f28;
-
-      padding: 17px 18px;
-
-      color: white;
-      cursor: pointer;
+    .payment-btn{
+      width:100%;
+      margin-bottom:11px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border:1px solid #343a46;
+      border-radius:20px;
+      background:#1a1f28;
+      padding:17px 18px;
+      color:#fff;
+      cursor:pointer
     }
 
-    .payment-btn:active {
-      transform: scale(.985);
+    .payment-btn:active{
+      transform:scale(.985)
     }
 
-    .payment-left {
-      display: flex;
-      align-items: center;
-      gap: 13px;
+    .payment-left{
+      display:flex;
+      align-items:center;
+      gap:13px
     }
 
-    .payment-icon {
-      font-size: 31px;
+    .payment-icon{
+      font-size:31px
     }
 
-    .payment-name {
-      font-size: 19px;
-      font-weight: 800;
-      text-align: left;
+    .payment-name{
+      font-size:19px;
+      font-weight:800;
+      text-align:left
     }
 
-    .payment-description {
-      display: block;
-
-      font-size: 13px;
-      color: #9ca2ad;
-
-      font-weight: 500;
-      margin-top: 3px;
+    .payment-description{
+      display:block;
+      font-size:13px;
+      color:#9ca2ad;
+      font-weight:500;
+      margin-top:3px
     }
 
-    .arrow {
-      font-size: 27px;
-      color: #a8acb5;
+    .arrow{
+      font-size:27px;
+      color:#a8acb5
     }
 
-    .balances {
-      display: grid;
-      gap: 11px;
+    .balances{
+      display:grid;
+      gap:11px
     }
 
-    .balance-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      border-radius: 20px;
-
-      background: #1a1f28;
-      border: 1px solid #343a46;
-
-      padding: 18px;
+    .balance-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-radius:20px;
+      background:#1a1f28;
+      border:1px solid #343a46;
+      padding:18px
     }
 
-    .balance-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      font-size: 19px;
-      font-weight: 800;
+    .balance-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:19px;
+      font-weight:800
     }
 
-    .balance-number {
-      font-size: 20px;
-      font-weight: 900;
+    .balance-number{
+      font-size:20px;
+      font-weight:900
     }
 
-    .field-label {
-      font-size: 14px;
-      color: #a4a9b3;
-      margin: 2px 2px 8px;
+    .field-label{
+      font-size:14px;
+      color:#a4a9b3;
+      margin:2px 2px 8px
     }
 
-    .field {
-      width: 100%;
-
-      border: 1px solid #343a46;
-      border-radius: 18px;
-
-      background: #1a1f28;
-      color: white;
-
-      padding: 16px 17px;
-
-      font-size: 18px;
-      outline: none;
-
-      margin-bottom: 12px;
+    .field{
+      width:100%;
+      border:1px solid #343a46;
+      border-radius:18px;
+      background:#1a1f28;
+      color:#fff;
+      padding:16px 17px;
+      font-size:18px;
+      outline:none;
+      margin-bottom:12px
     }
 
-    .field:focus {
-      border-color: #7652ff;
+    .field:focus{
+      border-color:#7652ff
     }
 
-    .primary-btn {
-      width: 100%;
-
-      border: none;
-      border-radius: 19px;
-
-      background: linear-gradient(
-        135deg,
-        #7652ff,
-        #9e58ff
-      );
-
-      padding: 17px;
-
-      color: white;
-
-      font-size: 18px;
-      font-weight: 800;
-
-      cursor: pointer;
+    .primary-btn{
+      width:100%;
+      border:none;
+      border-radius:19px;
+      background:linear-gradient(135deg,#7652ff,#9e58ff);
+      padding:17px;
+      color:#fff;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      margin-top:2px
     }
 
-    .secondary-btn {
-      width: 100%;
-
-      border: 1px solid #343a46;
-      border-radius: 19px;
-
-      background: #1a1f28;
-
-      padding: 15px;
-
-      color: white;
-
-      font-size: 16px;
-      font-weight: 750;
-
-      cursor: pointer;
-
-      margin-top: 10px;
+    .secondary-btn{
+      width:100%;
+      border:1px solid #343a46;
+      border-radius:19px;
+      background:#1a1f28;
+      padding:15px;
+      color:#fff;
+      font-size:16px;
+      font-weight:750;
+      cursor:pointer;
+      margin-top:10px
     }
 
     .primary-btn:disabled,
-    .secondary-btn:disabled {
-      opacity: .55;
+    .secondary-btn:disabled{
+      opacity:.55;
+      cursor:default
     }
 
-    .hint {
-      color: #a4a9b3;
-      font-size: 13px;
-      line-height: 1.45;
-      margin-top: 12px;
+    .hint{
+      color:#a4a9b3;
+      font-size:13px;
+      line-height:1.45;
+      margin-top:12px
     }
 
-    .address-box {
-      word-break: break-all;
-
-      background: #0d1118;
-      border: 1px solid #303642;
-
-      border-radius: 16px;
-      padding: 13px;
-
-      font-size: 13px;
-      line-height: 1.35;
-
-      margin-bottom: 12px;
+    .address-box{
+      word-break:break-all;
+      background:#0d1118;
+      border:1px solid #303642;
+      border-radius:16px;
+      padding:13px;
+      font-size:13px;
+      line-height:1.35;
+      margin:0 0 12px
     }
 
-    .hidden {
-      display: none !important;
+    .hidden{
+      display:none!important
     }
 
-    .toast {
-      position: fixed;
-
-      left: 50%;
-      bottom: 30px;
-
-      transform: translateX(-50%);
-
-      width: max-content;
-      max-width: 90%;
-
-      padding: 13px 17px;
-
-      border-radius: 14px;
-      background: #242a34;
-
-      color: white;
-
-      font-size: 15px;
-      font-weight: 600;
-
-      text-align: center;
-
-      display: none;
-
-      z-index: 200000;
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:30px;
+      transform:translateX(-50%);
+      width:max-content;
+      max-width:90%;
+      padding:13px 17px;
+      border-radius:14px;
+      background:#242a34;
+      color:#fff;
+      font-size:15px;
+      font-weight:600;
+      text-align:center;
+      display:none;
+      z-index:200000
     }
 
-    .toast.show {
-      display: block;
+    .toast.show{
+      display:block
     }
 
-    @media (max-width: 520px) {
-
-      .app {
-        padding-left: 15px;
-        padding-right: 15px;
+    @media(max-width:520px){
+      .app{
+        padding-left:15px;
+        padding-right:15px
       }
 
-      .logo {
-        width: 82px;
-        height: 82px;
-        min-width: 82px;
+      .logo{
+        width:82px;
+        height:82px;
+        min-width:82px
       }
 
-      .balance-label {
-        font-size: 16px;
+      .balance-label{
+        font-size:16px
       }
 
-      .main-balance {
-        font-size: 31px;
+      .main-balance{
+        font-size:31px
       }
 
-      .deposit-main {
-        padding: 16px;
-        font-size: 17px;
+      .deposit-main{
+        padding:16px;
+        font-size:17px
       }
 
-      .card {
-        min-height: 190px;
-        padding: 27px 23px;
+      .card{
+        min-height:190px;
+        padding:27px 23px
       }
 
-      .card-title {
-        font-size: 31px;
+      .card-title{
+        font-size:31px
       }
 
-      .card-text {
-        font-size: 18px;
+      .card-text{
+        font-size:18px
       }
 
-      .card-icon {
-        font-size: 65px;
+      .card-icon{
+        font-size:65px
       }
     }
   </style>
@@ -688,14 +565,6 @@
       data-section="gift"
     >
       🎁
-    </button>
-
-    <button
-      class="quick-btn"
-      type="button"
-      data-section="nft"
-    >
-      💎
     </button>
 
     <button
@@ -768,6 +637,31 @@
 
 
   <button
+    class="card green"
+    type="button"
+    data-section="inventory"
+  >
+
+    <span class="badge">
+      🎒 МОЁ
+    </span>
+
+    <div class="card-title">
+      ИНВЕНТАРЬ
+    </div>
+
+    <div class="card-text">
+      Ваши подтверждённые подарки и NFT
+    </div>
+
+    <div class="card-icon">
+      🎒
+    </div>
+
+  </button>
+
+
+  <button
     class="card purple"
     type="button"
     data-section="wallet"
@@ -833,11 +727,13 @@
         </div>
 
         <div class="payment-name">
+
           Telegram Stars
 
           <span class="payment-description">
             Оплата через Telegram Stars
           </span>
+
         </div>
 
       </div>
@@ -862,11 +758,13 @@
         </div>
 
         <div class="payment-name">
+
           TON
 
           <span class="payment-description">
             Перевод TON на кошелёк проекта
           </span>
+
         </div>
 
       </div>
@@ -1494,7 +1392,7 @@
           ) {
 
             showToast(
-              "Оплата прошла. Обновляю баланс…"
+              "✅ Оплата прошла. Обновляю баланс…"
             );
 
 
@@ -1511,6 +1409,7 @@
 
           }
 
+
           else if (
             status ===
             "cancelled"
@@ -1521,6 +1420,7 @@
             );
 
           }
+
 
           else if (
             status ===
@@ -1762,7 +1662,7 @@
 
 
       showToast(
-        "Заявка отправлена на проверку"
+        "✅ Заявка отправлена на проверку"
       );
 
 
@@ -2028,12 +1928,11 @@
 
             else if (
               section ===
-              "nft"
+              "inventory"
             ) {
 
-              showToast(
-                "Раздел NFT"
-              );
+              window.location.href =
+                "/inventory";
 
             }
 
