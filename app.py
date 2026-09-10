@@ -218,15 +218,15 @@ def parse_amount(currency, value):
     currency = currency.upper()
 
     if currency not in CURRENCY_DECIMALS:
-        raise HTTPException(400, "Неизвестная валюта")
+        raise HTTPException(400, "ÐÐµÐ¸Ð·Ð²ÐµÑÑÐ½Ð°Ñ Ð²Ð°Ð»ÑÑÐ°")
 
     try:
         amount = Decimal(str(value).replace(",", "."))
     except InvalidOperation:
-        raise HTTPException(400, "Неверная сумма")
+        raise HTTPException(400, "ÐÐµÐ²ÐµÑÐ½Ð°Ñ ÑÑÐ¼Ð¼Ð°")
 
     if amount <= 0:
-        raise HTTPException(400, "Сумма должна быть больше нуля")
+        raise HTTPException(400, "Ð¡ÑÐ¼Ð¼Ð° Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±ÑÑÑ Ð±Ð¾Ð»ÑÑÐµ Ð½ÑÐ»Ñ")
 
     factor = Decimal(currency_factor(currency))
 
@@ -238,7 +238,7 @@ def parse_amount(currency, value):
     )
 
     if units <= 0:
-        raise HTTPException(400, "Слишком маленькая сумма")
+        raise HTTPException(400, "Ð¡Ð»Ð¸ÑÐºÐ¾Ð¼ Ð¼Ð°Ð»ÐµÐ½ÑÐºÐ°Ñ ÑÑÐ¼Ð¼Ð°")
 
     return units
 
@@ -507,7 +507,7 @@ def normalize_gift_url(url):
     ):
         raise HTTPException(
             400,
-            "Вставь ссылку вида https://t.me/nft/..."
+            "ÐÑÑÐ°Ð²Ñ ÑÑÑÐ»ÐºÑ Ð²Ð¸Ð´Ð° https://t.me/nft/..."
         )
 
     return url
@@ -574,7 +574,7 @@ def fetch_gift_meta(url):
         )
 
         title = re.sub(
-            r"\s*[–—|-]\s*Telegram\s*$",
+            r"\s*[ââ|-]\s*Telegram\s*$",
             "",
             title or "",
             flags=re.I
@@ -637,6 +637,13 @@ async def index():
 async def deposit_page():
     return FileResponse(
         "static/deposit.html"
+    )
+
+
+@app.get("/inventory")
+async def inventory_page():
+    return FileResponse(
+        "static/inventory.html"
     )
 
 
@@ -822,13 +829,13 @@ async def stars_invoice(
     if amount < 1:
         raise HTTPException(
             400,
-            "Минимум 1 Star"
+            "ÐÐ¸Ð½Ð¸Ð¼ÑÐ¼ 1 Star"
         )
 
     if amount > 10000:
         raise HTTPException(
             400,
-            "Максимум 10000 Stars за одну оплату"
+            "ÐÐ°ÐºÑÐ¸Ð¼ÑÐ¼ 10000 Stars Ð·Ð° Ð¾Ð´Ð½Ñ Ð¾Ð¿Ð»Ð°ÑÑ"
         )
 
     invoice_payload = (
@@ -838,8 +845,8 @@ async def stars_invoice(
     )
 
     link = await bot.create_invoice_link(
-        title="Пополнение FARTOV2",
-        description=f"Пополнение баланса на {amount} Stars",
+        title="ÐÐ¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ FARTOV2",
+        description=f"ÐÐ¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ð±Ð°Ð»Ð°Ð½ÑÐ° Ð½Ð° {amount} Stars",
         payload=invoice_payload,
         currency="XTR",
         prices=[
@@ -881,7 +888,7 @@ async def manual_deposit(
     }:
         raise HTTPException(
             400,
-            "Можно внести TON, USDT или GRAM"
+            "ÐÐ¾Ð¶Ð½Ð¾ Ð²Ð½ÐµÑÑÐ¸ TON, USDT Ð¸Ð»Ð¸ GRAM"
         )
 
     tx_ref = payload.tx_ref.strip()
@@ -889,7 +896,7 @@ async def manual_deposit(
     if len(tx_ref) < 6:
         raise HTTPException(
             400,
-            "Укажи hash или ссылку транзакции"
+            "Ð£ÐºÐ°Ð¶Ð¸ hash Ð¸Ð»Ð¸ ÑÑÑÐ»ÐºÑ ÑÑÐ°Ð½Ð·Ð°ÐºÑÐ¸Ð¸"
         )
 
     amount_units = parse_amount(
@@ -925,7 +932,7 @@ async def manual_deposit(
     except sqlite3.IntegrityError:
         raise HTTPException(
             409,
-            "Эта транзакция уже зарегистрирована"
+            "Ð­ÑÐ° ÑÑÐ°Ð½Ð·Ð°ÐºÑÐ¸Ñ ÑÐ¶Ðµ Ð·Ð°ÑÐµÐ³Ð¸ÑÑÑÐ¸ÑÐ¾Ð²Ð°Ð½Ð°"
         )
 
     if ADMIN_ID:
@@ -934,7 +941,7 @@ async def manual_deposit(
             await bot.send_message(
                 ADMIN_ID,
                 f"""
-💰 Новое пополнение
+ð° ÐÐ¾Ð²Ð¾Ðµ Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ
 
 ID: {request_id}
 
@@ -943,16 +950,16 @@ User:
 
 @{user.get("username","")}
 
-Валюта:
+ÐÐ°Ð»ÑÑÐ°:
 {currency}
 
-Сумма:
+Ð¡ÑÐ¼Ð¼Ð°:
 {format_units(currency, amount_units)}
 
 TX:
 {tx_ref}
 
-После ручной проверки:
+ÐÐ¾ÑÐ»Ðµ ÑÑÑÐ½Ð¾Ð¹ Ð¿ÑÐ¾Ð²ÐµÑÐºÐ¸:
 
 /approvepay {request_id}
 
@@ -1024,7 +1031,7 @@ async def create_deposit(
     except sqlite3.IntegrityError:
         raise HTTPException(
             409,
-            "Этот подарок уже зарегистрирован"
+            "Ð­ÑÐ¾Ñ Ð¿Ð¾Ð´Ð°ÑÐ¾Ðº ÑÐ¶Ðµ Ð·Ð°ÑÐµÐ³Ð¸ÑÑÑÐ¸ÑÐ¾Ð²Ð°Ð½"
         )
 
     if ADMIN_ID:
@@ -1035,11 +1042,11 @@ async def create_deposit(
                 inline_keyboard=[
                     [
                         InlineKeyboardButton(
-                            text="✅ Подтвердить",
+                            text="â ÐÐ¾Ð´ÑÐ²ÐµÑÐ´Ð¸ÑÑ",
                             callback_data=f"gift_approve:{deposit_id}"
                         ),
                         InlineKeyboardButton(
-                            text="❌ Отклонить",
+                            text="â ÐÑÐºÐ»Ð¾Ð½Ð¸ÑÑ",
                             callback_data=f"gift_reject:{deposit_id}"
                         )
                     ]
@@ -1049,11 +1056,11 @@ async def create_deposit(
             await bot.send_message(
                 ADMIN_ID,
                 f"""
-🎁 Новый NFT депозит
+ð ÐÐ¾Ð²ÑÐ¹ NFT Ð´ÐµÐ¿Ð¾Ð·Ð¸Ñ
 
 ID: {deposit_id}
 
-Название:
+ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ:
 {meta["name"]}
 
 User:
@@ -1108,13 +1115,13 @@ async def hide_gift(
         if not gift:
             raise HTTPException(
                 404,
-                "Подарок не найден"
+                "ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½"
             )
 
         if gift["status"] != "approved":
             raise HTTPException(
                 400,
-                "Подарок не подтвержден"
+                "ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð½Ðµ Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÐµÐ½"
             )
 
         conn.execute("""
@@ -1171,12 +1178,12 @@ async def approve_gift_record(gift_id):
         )).fetchone()
 
         if not gift:
-            return False, "Подарок не найден", None
+            return False, "ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½", None
 
         if gift["status"] != "pending":
             return (
                 False,
-                f"Заявка уже обработана: {gift['status']}",
+                f"ÐÐ°ÑÐ²ÐºÐ° ÑÐ¶Ðµ Ð¾Ð±ÑÐ°Ð±Ð¾ÑÐ°Ð½Ð°: {gift['status']}",
                 gift
             )
 
@@ -1196,11 +1203,11 @@ async def approve_gift_record(gift_id):
         await bot.send_message(
             gift["user_id"],
             f"""
-✅ Подарок подтверждён
+â ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÑÐ½
 
 {gift["gift_name"] or "Telegram Gift"}
 
-Подарок добавлен в ваш инвентарь.
+ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½ Ð² Ð²Ð°Ñ Ð¸Ð½Ð²ÐµÐ½ÑÐ°ÑÑ.
 """
         )
     except Exception as error:
@@ -1209,12 +1216,12 @@ async def approve_gift_record(gift_id):
             repr(error)
         )
 
-    return True, f"✅ Gift #{gift_id} подтверждён", gift
+    return True, f"â Gift #{gift_id} Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÑÐ½", gift
 
 
 async def reject_gift_record(
     gift_id,
-    reason="Отклонено администратором"
+    reason="ÐÑÐºÐ»Ð¾Ð½ÐµÐ½Ð¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑÑÐ°ÑÐ¾ÑÐ¾Ð¼"
 ):
 
     with db() as conn:
@@ -1233,12 +1240,12 @@ async def reject_gift_record(
         )).fetchone()
 
         if not gift:
-            return False, "Подарок не найден", None
+            return False, "ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½", None
 
         if gift["status"] != "pending":
             return (
                 False,
-                f"Заявка уже обработана: {gift['status']}",
+                f"ÐÐ°ÑÐ²ÐºÐ° ÑÐ¶Ðµ Ð¾Ð±ÑÐ°Ð±Ð¾ÑÐ°Ð½Ð°: {gift['status']}",
                 gift
             )
 
@@ -1258,11 +1265,11 @@ async def reject_gift_record(
         await bot.send_message(
             gift["user_id"],
             f"""
-❌ Подарок отклонён
+â ÐÐ¾Ð´Ð°ÑÐ¾Ðº Ð¾ÑÐºÐ»Ð¾Ð½ÑÐ½
 
 {gift["gift_name"] or "Telegram Gift"}
 
-Если это ошибка, отправьте заявку ещё раз после проверки ссылки.
+ÐÑÐ»Ð¸ ÑÑÐ¾ Ð¾ÑÐ¸Ð±ÐºÐ°, Ð¾ÑÐ¿ÑÐ°Ð²ÑÑÐµ Ð·Ð°ÑÐ²ÐºÑ ÐµÑÑ ÑÐ°Ð· Ð¿Ð¾ÑÐ»Ðµ Ð¿ÑÐ¾Ð²ÐµÑÐºÐ¸ ÑÑÑÐ»ÐºÐ¸.
 """
         )
     except Exception as error:
@@ -1271,7 +1278,7 @@ async def reject_gift_record(
             repr(error)
         )
 
-    return True, f"❌ Gift #{gift_id} отклонён", gift
+    return True, f"â Gift #{gift_id} Ð¾ÑÐºÐ»Ð¾Ð½ÑÐ½", gift
 
 
 # =========================================================
@@ -1287,7 +1294,7 @@ async def pre_checkout(
         await query.answer(
             ok=False,
             error_message=
-            "Поддерживаются только Telegram Stars"
+            "ÐÐ¾Ð´Ð´ÐµÑÐ¶Ð¸Ð²Ð°ÑÑÑÑ ÑÐ¾Ð»ÑÐºÐ¾ Telegram Stars"
         )
         return
 
@@ -1297,7 +1304,7 @@ async def pre_checkout(
         await query.answer(
             ok=False,
             error_message=
-            "Неверный платеж"
+            "ÐÐµÐ²ÐµÑÐ½ÑÐ¹ Ð¿Ð»Ð°ÑÐµÐ¶"
         )
         return
 
@@ -1373,7 +1380,7 @@ async def successful_payment(
     )
 
     await message.answer(
-        f"⭐ Баланс пополнен на {amount} Stars"
+        f"â­ ÐÐ°Ð»Ð°Ð½Ñ Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½ Ð½Ð° {amount} Stars"
     )
 
 
@@ -1395,7 +1402,7 @@ async def start(
     ):
         buttons.append([
             InlineKeyboardButton(
-                text="🎮 OPEN MINI APP",
+                text="ð® OPEN MINI APP",
                 web_app=WebAppInfo(
                     url=WEBAPP_URL
                 )
@@ -1404,7 +1411,7 @@ async def start(
 
     buttons.append([
         InlineKeyboardButton(
-            text="🎁 @" + DEPOSIT_USERNAME,
+            text="ð @" + DEPOSIT_USERNAME,
             url="https://t.me/" + DEPOSIT_USERNAME
         )
     ])
@@ -1413,7 +1420,7 @@ async def start(
         f"""
 FARTOV2 NFT BOT
 
-Collectible gifts принимаются на @{DEPOSIT_USERNAME}.
+Collectible gifts Ð¿ÑÐ¸Ð½Ð¸Ð¼Ð°ÑÑÑÑ Ð½Ð° @{DEPOSIT_USERNAME}.
 """,
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=buttons
@@ -1448,7 +1455,7 @@ async def gift_approve_callback(
 
     if not is_admin_callback(callback):
         await callback.answer(
-            "Нет доступа",
+            "ÐÐµÑ Ð´Ð¾ÑÑÑÐ¿Ð°",
             show_alert=True
         )
         return
@@ -1459,7 +1466,7 @@ async def gift_approve_callback(
         )
     except Exception:
         await callback.answer(
-            "Неверный ID",
+            "ÐÐµÐ²ÐµÑÐ½ÑÐ¹ ID",
             show_alert=True
         )
         return
@@ -1485,7 +1492,7 @@ async def gift_approve_callback(
         if ok:
             try:
                 await callback.message.answer(
-                    f"✅ Заявка #{gift_id} подтверждена"
+                    f"â ÐÐ°ÑÐ²ÐºÐ° #{gift_id} Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÐµÐ½Ð°"
                 )
             except Exception:
                 pass
@@ -1500,7 +1507,7 @@ async def gift_reject_callback(
 
     if not is_admin_callback(callback):
         await callback.answer(
-            "Нет доступа",
+            "ÐÐµÑ Ð´Ð¾ÑÑÑÐ¿Ð°",
             show_alert=True
         )
         return
@@ -1511,7 +1518,7 @@ async def gift_reject_callback(
         )
     except Exception:
         await callback.answer(
-            "Неверный ID",
+            "ÐÐµÐ²ÐµÑÐ½ÑÐ¹ ID",
             show_alert=True
         )
         return
@@ -1537,7 +1544,7 @@ async def gift_reject_callback(
         if ok:
             try:
                 await callback.message.answer(
-                    f"❌ Заявка #{gift_id} отклонена"
+                    f"â ÐÐ°ÑÐ²ÐºÐ° #{gift_id} Ð¾ÑÐºÐ»Ð¾Ð½ÐµÐ½Ð°"
                 )
             except Exception:
                 pass
@@ -1564,7 +1571,7 @@ async def approve(
         or not parts[1].isdigit()
     ):
         await message.answer(
-            "Формат: /approve ID"
+            "Ð¤Ð¾ÑÐ¼Ð°Ñ: /approve ID"
         )
         return
 
@@ -1596,7 +1603,7 @@ async def reject(
         or not parts[1].isdigit()
     ):
         await message.answer(
-            "Формат: /reject ID [причина]"
+            "Ð¤Ð¾ÑÐ¼Ð°Ñ: /reject ID [Ð¿ÑÐ¸ÑÐ¸Ð½Ð°]"
         )
         return
 
@@ -1605,7 +1612,7 @@ async def reject(
     reason = (
         parts[2]
         if len(parts) > 2
-        else "Отклонено администратором"
+        else "ÐÑÐºÐ»Ð¾Ð½ÐµÐ½Ð¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑÑÐ°ÑÐ¾ÑÐ¾Ð¼"
     )
 
     ok, text, gift = await reject_gift_record(
@@ -1633,7 +1640,7 @@ async def restore(
         or not parts[1].isdigit()
     ):
         await message.answer(
-            "Формат: /restore ID"
+            "Ð¤Ð¾ÑÐ¼Ð°Ñ: /restore ID"
         )
         return
 
@@ -1649,7 +1656,7 @@ async def restore(
         ))
 
     await message.answer(
-        f"♻️ Gift #{gift_id} возвращён в профиль"
+        f"â»ï¸ Gift #{gift_id} Ð²Ð¾Ð·Ð²ÑÐ°ÑÑÐ½ Ð² Ð¿ÑÐ¾ÑÐ¸Ð»Ñ"
     )
 
 
@@ -1674,7 +1681,7 @@ async def approve_pay(
         or not parts[1].isdigit()
     ):
         await message.answer(
-            "Формат: /approvepay ID"
+            "Ð¤Ð¾ÑÐ¼Ð°Ñ: /approvepay ID"
         )
         return
 
@@ -1697,13 +1704,13 @@ async def approve_pay(
 
         if not payment:
             await message.answer(
-                "Заявка не найдена"
+                "ÐÐ°ÑÐ²ÐºÐ° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°"
             )
             return
 
         if payment["status"] != "pending":
             await message.answer(
-                "Эта заявка уже обработана"
+                "Ð­ÑÐ° Ð·Ð°ÑÐ²ÐºÐ° ÑÐ¶Ðµ Ð¾Ð±ÑÐ°Ð±Ð¾ÑÐ°Ð½Ð°"
             )
             return
 
@@ -1731,7 +1738,7 @@ async def approve_pay(
     )
 
     await message.answer(
-        f"✅ Заявка #{request_id} подтверждена\n"
+        f"â ÐÐ°ÑÐ²ÐºÐ° #{request_id} Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÐµÐ½Ð°\n"
         f"{amount_text} {payment['currency']}"
     )
 
@@ -1739,7 +1746,7 @@ async def approve_pay(
         await bot.send_message(
             payment["user_id"],
             f"""
-✅ Пополнение подтверждено
+â ÐÐ¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÐµÐ½Ð¾
 
 {amount_text} {payment["currency"]}
 """
@@ -1767,7 +1774,7 @@ async def reject_pay(
         or not parts[1].isdigit()
     ):
         await message.answer(
-            "Формат: /rejectpay ID [причина]"
+            "Ð¤Ð¾ÑÐ¼Ð°Ñ: /rejectpay ID [Ð¿ÑÐ¸ÑÐ¸Ð½Ð°]"
         )
         return
 
@@ -1776,7 +1783,7 @@ async def reject_pay(
     reason = (
         parts[2]
         if len(parts) > 2
-        else "Не подтверждено"
+        else "ÐÐµ Ð¿Ð¾Ð´ÑÐ²ÐµÑÐ¶Ð´ÐµÐ½Ð¾"
     )
 
     with db() as conn:
@@ -1793,13 +1800,13 @@ async def reject_pay(
 
         if not payment:
             await message.answer(
-                "Заявка не найдена"
+                "ÐÐ°ÑÐ²ÐºÐ° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°"
             )
             return
 
         if payment["status"] != "pending":
             await message.answer(
-                "Заявка уже обработана"
+                "ÐÐ°ÑÐ²ÐºÐ° ÑÐ¶Ðµ Ð¾Ð±ÑÐ°Ð±Ð¾ÑÐ°Ð½Ð°"
             )
             return
 
@@ -1816,7 +1823,7 @@ async def reject_pay(
         ))
 
     await message.answer(
-        f"❌ Заявка #{request_id} отклонена"
+        f"â ÐÐ°ÑÐ²ÐºÐ° #{request_id} Ð¾ÑÐºÐ»Ð¾Ð½ÐµÐ½Ð°"
     )
 
 
