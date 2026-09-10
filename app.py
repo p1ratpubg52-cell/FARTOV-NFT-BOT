@@ -44,6 +44,10 @@ DEPOSIT_USERNAME = os.getenv(
     "fart2_backpack"
 ).lstrip("@")
 
+# Если @fart2_backpack — обычный пользователь, а не канал,
+# можно указать его числовой Telegram ID в переменной окружения DEPOSIT_USER_ID.
+DEPOSIT_USER_ID = int(os.getenv("DEPOSIT_USER_ID", "0") or 0)
+
 
 TON_DEPOSIT_ADDRESS = os.getenv(
     "TON_DEPOSIT_ADDRESS",
@@ -593,6 +597,175 @@ def fetch_gift_meta(url):
 
 
 # =========================================================
+# TELEGRAM BOT API HELPERS FOR UPGRADE CATALOG
+# =========================================================
+
+def telegram_api_call(method, payload):
+
+    url = (
+        "https://api.telegram.org/bot"
+        + BOT_TOKEN
+        + "/"
+        + method
+    )
+
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(
+            request,
+            timeout=15
+        ) as response:
+            data = json.loads(
+                response.read().decode("utf-8")
+            )
+    except Exception as error:
+        raise RuntimeError(
+            f"Telegram API error: {error}"
+        )
+
+    if not data.get("ok"):
+        raise RuntimeError(
+            data.get("description")
+            or "Telegram API returned an error"
+        )
+
+    return data.get("result") or {}
+
+
+def normalize_owned_gift_for_catalog(owned):
+
+    if not isinstance(owned, dict):
+        return None
+
+    if owned.get("type") != "unique":
+        return None
+
+    gift = owned.get("gift") or {}
+
+    slug = str(
+        gift.get("name") or ""
+    ).strip()
+
+    if not slug:
+        return None
+
+    base_name = str(
+        gift.get("base_name")
+        or "Telegram Gift"
+    ).strip()
+
+    number = gift.get("number")
+
+    display_name = (
+        f"{base_name} #{number}"
+        if number is not None
+        else slug
+    )
+
+    return {
+        "id": slug,
+        "name": display_name,
+        "gift_url": f"https://t.me/nft/{slug}",
+        "image_url": "",
+        "price_ton": 0
+    }
+
+
+async def load_backpack_catalog():
+
+    # Сначала пробуем @fart2_backpack как канал/чат.
+    try:
+
+        result = await asyncio.to_thread(
+            telegram_api_call,
+            "getChatGifts",
+            {
+                "chat_id": "@" + DEPOSIT_USERNAME,
+                "exclude_unlimited": True,
+                "exclude_limited_upgradable": True,
+                "exclude_limited_non_upgradable": True,
+                "exclude_from_blockchain": False,
+                "exclude_unique": False,
+                "sort_by_price": True,
+                "offset": "",
+                "limit": 100
+            }
+        )
+
+        items = []
+
+        for owned in result.get("gifts", []):
+            item = normalize_owned_gift_for_catalog(
+                owned
+            )
+            if item:
+                items.append(item)
+
+        return items, ""
+
+    except Exception as channel_error:
+
+        # Если это обычный пользователь, Telegram Bot API требует numeric user_id.
+        if DEPOSIT_USER_ID:
+
+            try:
+
+                result = await asyncio.to_thread(
+                    telegram_api_call,
+                    "getUserGifts",
+                    {
+                        "user_id": DEPOSIT_USER_ID,
+                        "exclude_unlimited": True,
+                        "exclude_limited_upgradable": True,
+                        "exclude_limited_non_upgradable": True,
+                        "exclude_from_blockchain": False,
+                        "exclude_unique": False,
+                        "sort_by_price": True,
+                        "offset": "",
+                        "limit": 100
+                    }
+                )
+
+                items = []
+
+                for owned in result.get("gifts", []):
+                    item = normalize_owned_gift_for_catalog(
+                        owned
+                    )
+                    if item:
+                        items.append(item)
+
+                return items, ""
+
+            except Exception as user_error:
+                return [], (
+                    "Не удалось получить каталог @"
+                    + DEPOSIT_USERNAME
+                    + ". getChatGifts: "
+                    + str(channel_error)
+                    + "; getUserGifts: "
+                    + str(user_error)
+                )
+
+        return [], (
+            "Не удалось получить каталог @"
+            + DEPOSIT_USERNAME
+            + " как канал. Если это обычный пользователь, "
+            + "добавь его числовой ID в переменную DEPOSIT_USER_ID. "
+            + "Ошибка: "
+            + str(channel_error)
+        )
+
+
+# =========================================================
 # API MODELS
 # =========================================================
 
@@ -647,7 +820,6 @@ async def inventory_page():
     )
 
 
-# UPGRADE NFT
 @app.get("/upgrade")
 async def upgrade_page():
     return FileResponse(
@@ -655,7 +827,6 @@ async def upgrade_page():
     )
 
 
-# Поддержка текущего адреса из index.html
 @app.get("/static/upgrade.html")
 async def upgrade_static_page():
     return FileResponse(
@@ -741,6 +912,103 @@ async def me(payload: InitPayload):
 
         "deposits":
         gifts
+    }
+
+
+# =========================================================
+# UPGRADE API
+# =========================================================
+
+@app.post("/api/upgrade/inventory")
+async def upgrade_inventory(
+    payload: InitPayload
+):
+
+    user = validate_init_data(
+        payload.initData
+    )
+
+    save_user(user)
+
+    with db() as conn:
+
+        rows = conn.execute("""
+        SELECT
+            id,
+            gift_url,
+            gift_name,
+            gift_image
+        FROM deposits
+        WHERE user_id=?
+        AND status='approved'
+        AND hidden=0
+        ORDER BY id DESC
+        """, (
+            user["id"],
+        )).fetchall()
+
+    items = []
+
+    for row in rows:
+
+        name = row["gift_name"]
+        image = row["gift_image"]
+
+        if not name:
+
+            meta = await asyncio.to_thread(
+                fetch_gift_meta,
+                row["gift_url"]
+            )
+
+            name = meta["name"]
+            image = meta["image"]
+
+            with db() as conn:
+                conn.execute("""
+                UPDATE deposits
+                SET
+                    gift_name=?,
+                    gift_image=?
+                WHERE id=?
+                """, (
+                    name,
+                    image,
+                    row["id"]
+                ))
+
+        items.append({
+            "id": str(row["id"]),
+            "name": name or "Telegram Gift",
+            "image_url": image or "",
+            "gift_url": row["gift_url"],
+            "price_ton": 0
+        })
+
+    return {
+        "items": items
+    }
+
+
+@app.post("/api/upgrade/catalog")
+async def upgrade_catalog(
+    payload: InitPayload
+):
+
+    user = validate_init_data(
+        payload.initData
+    )
+
+    save_user(user)
+
+    items, warning = await load_backpack_catalog()
+
+    # Важно: даже если Telegram не дал каталог, возвращаем 200,
+    # чтобы Promise.all в upgrade.html не ломал загрузку инвентаря.
+    return {
+        "items": items,
+        "warning": warning,
+        "source": "@" + DEPOSIT_USERNAME
     }
 
 
