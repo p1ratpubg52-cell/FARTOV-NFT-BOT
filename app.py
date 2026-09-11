@@ -772,6 +772,17 @@ class ManualPayPayload(BaseModel):
     currency: str
     amount: str
     tx_ref: str
+    class UpgradeQuotePayload(BaseModel):
+    initData: str
+    source_id: str
+    target_id: str
+
+
+class UpgradePlayPayload(BaseModel):
+    initData: str
+    source_id: str
+    target_id: str
+    quote_id: str = ""
 
 
 # =========================================================
