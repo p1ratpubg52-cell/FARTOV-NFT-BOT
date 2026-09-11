@@ -138,15 +138,18 @@
       letter-spacing:-1.2px
     }
 
-    .balance-value .diamond{
-      font-size:31px
-    }
-
     .balance-value .unit{
       color:#a8afba;
       font-size:16px;
       font-weight:800;
       letter-spacing:0
+    }
+
+    .balance-gem{
+      width:34px;
+      height:34px;
+      object-fit:contain;
+      display:block
     }
 
     .deposit-main{
@@ -186,8 +189,17 @@
     }
 
     .mini-value{
+      display:flex;
+      align-items:center;
+      gap:7px;
       font-size:17px;
       font-weight:850
+    }
+
+    .mini-icon{
+      width:23px;
+      height:23px;
+      object-fit:contain
     }
 
     .section-row{
@@ -219,19 +231,34 @@
       border-radius:20px;
       background:linear-gradient(180deg,#141a23,#0e131a);
       color:#fff;
-      min-height:104px;
+      min-height:150px;
       padding:14px 10px;
       text-align:left;
-      cursor:pointer
+      cursor:pointer;
+      overflow:hidden
     }
 
     .quick-btn:active{
       transform:scale(.97)
     }
 
-    .quick-icon{
-      font-size:28px;
-      margin-bottom:15px
+    .quick-image-wrap{
+      width:100%;
+      height:84px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:8px
+    }
+
+    .quick-image{
+      max-width:88px;
+      max-height:82px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))
     }
 
     .quick-label{
@@ -244,7 +271,8 @@
       display:block;
       color:#727b88;
       font-size:11px;
-      margin-top:3px
+      margin-top:3px;
+      line-height:1.25
     }
 
     .feature-card{
@@ -271,22 +299,10 @@
         linear-gradient(135deg,#315dff,#784dff 70%,#9d4df4)
     }
 
-    .gift-card{
-      background:
-        radial-gradient(circle at 88% 20%,rgba(255,201,89,.17),transparent 28%),
-        linear-gradient(145deg,#151a22,#10141a)
-    }
-
-    .inventory-card{
-      background:
-        radial-gradient(circle at 88% 20%,rgba(44,225,166,.14),transparent 27%),
-        linear-gradient(145deg,#151a22,#10141a)
-    }
-
+    .gift-card,
+    .inventory-card,
     .wallet-card{
-      background:
-        radial-gradient(circle at 88% 20%,rgba(156,77,255,.18),transparent 27%),
-        linear-gradient(145deg,#151a22,#10141a)
+      background:linear-gradient(145deg,#151a22,#10141a)
     }
 
     .badge{
@@ -298,8 +314,7 @@
       font-size:12px;
       font-weight:900;
       background:rgba(255,255,255,.13);
-      border:1px solid rgba(255,255,255,.12);
-      backdrop-filter:blur(10px)
+      border:1px solid rgba(255,255,255,.12)
     }
 
     .feature-title{
@@ -414,10 +429,7 @@
       overflow-y:auto;
       background:#11161e;
       border-radius:30px 30px 0 0;
-      padding:
-        24px
-        18px
-        calc(26px + env(safe-area-inset-bottom));
+      padding:24px 18px calc(26px + env(safe-area-inset-bottom));
       border:1px solid #282f3a
     }
 
@@ -456,10 +468,6 @@
       padding:17px 18px;
       color:#fff;
       cursor:pointer
-    }
-
-    .payment-btn:active{
-      transform:scale(.985)
     }
 
     .payment-left{
@@ -554,10 +562,6 @@
       margin-top:2px
     }
 
-    .primary-btn:active{
-      transform:scale(.985)
-    }
-
     .secondary-btn{
       width:100%;
       border:1px solid #343b46;
@@ -573,8 +577,7 @@
 
     .primary-btn:disabled,
     .secondary-btn:disabled{
-      opacity:.55;
-      cursor:default
+      opacity:.55
     }
 
     .hint{
@@ -640,7 +643,7 @@
       }
 
       .quick-btn{
-        min-height:96px
+        min-height:145px
       }
     }
   </style>
@@ -680,7 +683,11 @@
         </div>
 
         <div class="balance-value">
-          <span class="diamond">💎</span>
+          <img
+            src="/static/nft-crystal.png"
+            class="balance-gem"
+            alt=""
+          >
           <span id="topTonBalance">0</span>
           <span class="unit">TON</span>
         </div>
@@ -703,7 +710,12 @@
           Telegram Stars
         </div>
         <div class="mini-value">
-          ⭐ <span id="starsBalanceTop">0</span>
+          <img
+            src="/static/nft-heart.png"
+            class="mini-icon"
+            alt=""
+          >
+          <span id="starsBalanceTop">0</span>
         </div>
       </div>
 
@@ -712,7 +724,12 @@
           TON
         </div>
         <div class="mini-value">
-          💎 <span id="tonBalanceTop">0</span>
+          <img
+            src="/static/nft-crystal.png"
+            class="mini-icon"
+            alt=""
+          >
+          <span id="tonBalanceTop">0</span>
         </div>
       </div>
 
@@ -738,29 +755,67 @@
       type="button"
       data-section="gift"
     >
-      <div class="quick-icon">🎁</div>
-      <span class="quick-label">Внести NFT</span>
-      <span class="quick-desc">Добавить подарок</span>
+      <div class="quick-image-wrap">
+        <img
+          src="/static/nft-crystal.png"
+          class="quick-image"
+          alt=""
+        >
+      </div>
+
+      <span class="quick-label">
+        Внести NFT
+      </span>
+
+      <span class="quick-desc">
+        Добавить подарок
+      </span>
     </button>
+
 
     <button
       class="quick-btn"
       type="button"
       data-section="stars"
     >
-      <div class="quick-icon">⭐</div>
-      <span class="quick-label">Stars</span>
-      <span class="quick-desc">Пополнить баланс</span>
+      <div class="quick-image-wrap">
+        <img
+          src="/static/nft-heart.png"
+          class="quick-image"
+          alt=""
+        >
+      </div>
+
+      <span class="quick-label">
+        Stars
+      </span>
+
+      <span class="quick-desc">
+        Пополнить баланс
+      </span>
     </button>
+
 
     <button
       class="quick-btn"
       type="button"
       data-section="live"
     >
-      <div class="quick-icon">🔥</div>
-      <span class="quick-label">Live</span>
-      <span class="quick-desc">Статус сервиса</span>
+      <div class="quick-image-wrap">
+        <img
+          src="/static/nft-bag.png"
+          class="quick-image"
+          alt=""
+        >
+      </div>
+
+      <span class="quick-label">
+        Live
+      </span>
+
+      <span class="quick-desc">
+        Статус сервиса
+      </span>
     </button>
 
   </div>
@@ -802,7 +857,7 @@
     data-section="gift"
   >
     <span class="badge">
-      🎁 DEPOSIT
+      NFT
     </span>
 
     <div class="feature-title">
@@ -825,7 +880,7 @@
     data-section="inventory"
   >
     <span class="badge">
-      🎒 INVENTORY
+      INVENTORY
     </span>
 
     <div class="feature-title">
@@ -848,7 +903,7 @@
     data-section="wallet"
   >
     <span class="badge">
-      💎 WALLET
+      WALLET
     </span>
 
     <div class="feature-title">
@@ -943,6 +998,7 @@
 
         <div class="payment-name">
           Telegram Stars
+
           <span class="payment-description">
             Оплата через Telegram Stars
           </span>
@@ -967,6 +1023,7 @@
 
         <div class="payment-name">
           TON
+
           <span class="payment-description">
             Перевод TON на кошелёк проекта
           </span>
@@ -1193,455 +1250,235 @@
     "";
 
   try {
-
     tg?.ready();
-
     tg?.expand();
-
-    tg?.setHeaderColor(
-      "#06080d"
-    );
-
-    tg?.setBackgroundColor(
-      "#06080d"
-    );
-
+    tg?.setHeaderColor("#06080d");
+    tg?.setBackgroundColor("#06080d");
   } catch (error) {
-
-    console.error(
-      "Telegram init:",
-      error
-    );
-
+    console.error("Telegram init:", error);
   }
 
+  function showToast(message, timeout = 3200) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
 
-  function showToast(
-    message,
-    timeout = 3200
-  ) {
+    clearTimeout(window.toastTimer);
 
-    const toast =
-      document.getElementById(
-        "toast"
-      );
-
-    toast.textContent =
-      message;
-
-    toast.classList.add(
-      "show"
-    );
-
-    clearTimeout(
-      window.toastTimer
-    );
-
-    window.toastTimer =
-      setTimeout(() => {
-
-        toast.classList.remove(
-          "show"
-        );
-
-      }, timeout);
-
+    window.toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, timeout);
   }
-
 
   function haptic() {
-
     try {
-
-      tg
-        ?.HapticFeedback
-        ?.impactOccurred(
-          "light"
-        );
-
+      tg?.HapticFeedback?.impactOccurred("light");
     } catch (_) {}
-
   }
-
 
   function openModal(id) {
-
-    document
-      .getElementById(id)
-      ?.classList
-      .add("active");
-
+    document.getElementById(id)?.classList.add("active");
     haptic();
-
   }
-
 
   function closeModal(id) {
-
-    document
-      .getElementById(id)
-      ?.classList
-      .remove("active");
-
+    document.getElementById(id)?.classList.remove("active");
   }
 
-
   function requireTelegram() {
-
     if (!tg?.initData) {
-
       throw new Error(
         "Откройте мини-приложение именно внутри Telegram"
       );
-
     }
 
     return tg.initData;
-
   }
 
-
-  async function api(
-    url,
-    body
-  ) {
-
-    const response =
-      await fetch(
-        url,
-        {
-          method:
-            "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(
-              body
-            )
-        }
-      );
+  async function api(url, body) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
 
     let data = {};
 
     try {
-
-      data =
-        await response.json();
-
+      data = await response.json();
     } catch (_) {}
 
     if (!response.ok) {
-
       throw new Error(
         data?.detail ||
         data?.error ||
         data?.message ||
         `Ошибка сервера ${response.status}`
       );
-
     }
 
     return data;
-
   }
 
-
   async function loadBalance() {
-
     try {
+      const initData = requireTelegram();
 
-      const initData =
-        requireTelegram();
+      const data = await api(
+        "/api/balances",
+        { initData }
+      );
 
-      const data =
-        await api(
-          "/api/balances",
-          {
-            initData
-          }
-        );
+      const balances = data?.balances || {};
 
-      const balances =
-        data?.balances ||
-        {};
+      const stars = balances.XTR ?? "0";
+      const ton = balances.TON ?? "0";
 
-      const stars =
-        balances.XTR ??
-        "0";
+      document.getElementById("starsBalance").textContent = stars;
+      document.getElementById("tonBalance").textContent = ton;
+      document.getElementById("topTonBalance").textContent = ton;
+      document.getElementById("starsBalanceTop").textContent = stars;
+      document.getElementById("tonBalanceTop").textContent = ton;
 
-      const ton =
-        balances.TON ??
-        "0";
+      tonDepositAddress = String(
+        data?.addresses?.TON || ""
+      ).trim();
 
-      document.getElementById(
-        "starsBalance"
-      ).textContent =
-        stars;
-
-      document.getElementById(
-        "tonBalance"
-      ).textContent =
-        ton;
-
-      document.getElementById(
-        "topTonBalance"
-      ).textContent =
-        ton;
-
-      document.getElementById(
-        "starsBalanceTop"
-      ).textContent =
-        stars;
-
-      document.getElementById(
-        "tonBalanceTop"
-      ).textContent =
-        ton;
-
-      tonDepositAddress =
-        String(
-          data?.addresses?.TON ||
-          ""
-        ).trim();
-
-      document.getElementById(
-        "tonAddress"
-      ).textContent =
+      document.getElementById("tonAddress").textContent =
         tonDepositAddress ||
         "TON-адрес пока не указан на сервере";
 
       return data;
 
     } catch (error) {
-
-      console.error(
-        "Balance error:",
-        error
-      );
-
+      console.error("Balance error:", error);
       return null;
-
     }
-
   }
 
-
   function tonToNano(value) {
+    const normalized = String(value)
+      .trim()
+      .replace(",", ".");
 
-    const normalized =
-      String(value)
-        .trim()
-        .replace(",", ".");
-
-    if (
-      !/^\d+(\.\d{1,9})?$/.test(
-        normalized
-      )
-    ) {
-
+    if (!/^\d+(\.\d{1,9})?$/.test(normalized)) {
       throw new Error(
         "Введите корректную сумму TON. Например: 1 или 0.1"
       );
-
     }
 
-    const parts =
-      normalized.split(".");
-
-    const whole =
-      parts[0];
-
-    const fraction =
-      parts[1] || "";
-
-    const paddedFraction =
-      fraction.padEnd(
-        9,
-        "0"
-      );
+    const parts = normalized.split(".");
+    const whole = parts[0];
+    const fraction = parts[1] || "";
+    const paddedFraction = fraction.padEnd(9, "0");
 
     const nanoTon =
-      BigInt(whole) *
-      1000000000n +
-      BigInt(
-        paddedFraction
-      );
+      BigInt(whole) * 1000000000n +
+      BigInt(paddedFraction);
 
-    if (
-      nanoTon <= 0n
-    ) {
-
+    if (nanoTon <= 0n) {
       throw new Error(
         "Сумма TON должна быть больше нуля"
       );
-
     }
 
     return nanoTon;
-
   }
 
-
   async function startStarsPayment() {
+    const button = document.getElementById("payStars");
 
-    const button =
-      document.getElementById(
-        "payStars"
-      );
-
-    const amount =
-      Number(
-        document.getElementById(
-          "starsAmount"
-        ).value
-      );
+    const amount = Number(
+      document.getElementById("starsAmount").value
+    );
 
     if (
       !Number.isInteger(amount) ||
       amount < 1 ||
       amount > 10000
     ) {
-
       showToast(
         "Введите целое количество Stars от 1 до 10000"
       );
-
       return;
-
     }
 
-    button.disabled =
-      true;
+    button.disabled = true;
 
-    const oldText =
-      button.textContent;
-
-    button.textContent =
-      "Создаём счёт…";
+    const oldText = button.textContent;
+    button.textContent = "Создаём счёт…";
 
     try {
+      const initData = requireTelegram();
 
-      const initData =
-        requireTelegram();
+      const data = await api(
+        "/api/stars-invoice",
+        {
+          initData,
+          amount
+        }
+      );
 
-      const data =
-        await api(
-          "/api/stars-invoice",
-          {
-            initData,
-            amount
-          }
-        );
-
-      const invoiceUrl =
-        data?.invoice_url;
+      const invoiceUrl = data?.invoice_url;
 
       if (!invoiceUrl) {
-
         throw new Error(
           "Сервер не вернул ссылку на счёт"
         );
-
       }
 
       if (
         !tg ||
-        typeof tg.openInvoice !==
-          "function"
+        typeof tg.openInvoice !== "function"
       ) {
-
         throw new Error(
           "Telegram openInvoice недоступен"
         );
-
       }
 
-      closeModal(
-        "starsModal"
-      );
+      closeModal("starsModal");
 
       tg.openInvoice(
         invoiceUrl,
         status => {
-
-          if (
-            status ===
-            "paid"
-          ) {
-
+          if (status === "paid") {
             showToast(
               "✅ Оплата прошла. Обновляю баланс…"
             );
 
-            setTimeout(
-              loadBalance,
-              1200
-            );
-
-            setTimeout(
-              loadBalance,
-              3000
-            );
-
+            setTimeout(loadBalance, 1200);
+            setTimeout(loadBalance, 3000);
           }
 
-          else if (
-            status ===
-            "cancelled"
-          ) {
-
-            showToast(
-              "Оплата отменена"
-            );
-
+          else if (status === "cancelled") {
+            showToast("Оплата отменена");
           }
 
-          else if (
-            status ===
-            "failed"
-          ) {
-
+          else if (status === "failed") {
             showToast(
               "Не удалось провести оплату"
             );
-
           }
-
         }
       );
 
     } catch (error) {
-
-      console.error(
-        "Stars error:",
-        error
-      );
+      console.error("Stars error:", error);
 
       showToast(
-        "Ошибка: " +
-        error.message,
+        "Ошибка: " + error.message,
         5000
       );
 
     } finally {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        oldText;
-
+      button.disabled = false;
+      button.textContent = oldText;
     }
-
   }
 
-
   async function openTonPayment() {
-
     const button =
       document.getElementById(
         "openTonWallet"
@@ -1655,46 +1492,32 @@
       .trim();
 
     if (!amountText) {
-
       showToast(
         "Введите количество TON"
       );
-
       return;
-
     }
 
-    button.disabled =
-      true;
+    button.disabled = true;
 
-    const oldText =
-      button.textContent;
-
-    button.textContent =
-      "Открываем кошелёк…";
+    const oldText = button.textContent;
+    button.textContent = "Открываем кошелёк…";
 
     try {
-
       requireTelegram();
 
       if (!tonDepositAddress) {
-
         await loadBalance();
-
       }
 
       if (!tonDepositAddress) {
-
         throw new Error(
           "TON-адрес пополнения не настроен на сервере"
         );
-
       }
 
       const nanoTon =
-        tonToNano(
-          amountText
-        );
+        tonToNano(amountText);
 
       const comment =
         "FARTOV2 deposit";
@@ -1707,31 +1530,21 @@
         "?amount=" +
         nanoTon.toString() +
         "&text=" +
-        encodeURIComponent(
-          comment
-        );
+        encodeURIComponent(comment);
 
       document
         .getElementById(
           "tonConfirmBlock"
         )
         .classList
-        .remove(
-          "hidden"
-        );
+        .remove("hidden");
 
       if (
         tg &&
-        typeof tg.openLink ===
-          "function"
+        typeof tg.openLink === "function"
       ) {
-
-        tg.openLink(
-          walletUrl
-        );
-
+        tg.openLink(walletUrl);
         return;
-
       }
 
       const newWindow =
@@ -1741,40 +1554,25 @@
         );
 
       if (!newWindow) {
-
         window.location.href =
           walletUrl;
-
       }
 
     } catch (error) {
-
-      console.error(
-        "TON error:",
-        error
-      );
+      console.error("TON error:", error);
 
       showToast(
-        "Ошибка: " +
-        error.message,
+        "Ошибка: " + error.message,
         5000
       );
 
     } finally {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        oldText;
-
+      button.disabled = false;
+      button.textContent = oldText;
     }
-
   }
 
-
   async function submitTonForReview() {
-
     const button =
       document.getElementById(
         "submitTon"
@@ -1794,54 +1592,30 @@
       .value
       .trim();
 
-    let normalizedAmount =
-      "";
+    let normalizedAmount = "";
 
     try {
-
-      tonToNano(
-        amountRaw
-      );
-
+      tonToNano(amountRaw);
       normalizedAmount =
-        amountRaw.replace(
-          ",",
-          "."
-        );
-
+        amountRaw.replace(",", ".");
     } catch (error) {
-
-      showToast(
-        error.message
-      );
-
+      showToast(error.message);
       return;
-
     }
 
-    if (
-      txRef.length < 6
-    ) {
-
+    if (txRef.length < 6) {
       showToast(
         "Вставьте hash или ссылку транзакции"
       );
-
       return;
-
     }
 
-    button.disabled =
-      true;
+    button.disabled = true;
 
-    const oldText =
-      button.textContent;
-
-    button.textContent =
-      "Отправляем…";
+    const oldText = button.textContent;
+    button.textContent = "Отправляем…";
 
     try {
-
       const initData =
         requireTelegram();
 
@@ -1849,12 +1623,9 @@
         "/api/manual-deposit",
         {
           initData,
-          currency:
-            "TON",
-          amount:
-            normalizedAmount,
-          tx_ref:
-            txRef
+          currency: "TON",
+          amount: normalizedAmount,
+          tx_ref: txRef
         }
       );
 
@@ -1864,12 +1635,9 @@
 
       document.getElementById(
         "tonTxRef"
-      ).value =
-        "";
+      ).value = "";
 
-      closeModal(
-        "tonModal"
-      );
+      closeModal("tonModal");
 
       setTimeout(
         loadBalance,
@@ -1877,30 +1645,21 @@
       );
 
     } catch (error) {
-
       console.error(
         "TON submit error:",
         error
       );
 
       showToast(
-        "Ошибка: " +
-        error.message,
+        "Ошибка: " + error.message,
         5000
       );
 
     } finally {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        oldText;
-
+      button.disabled = false;
+      button.textContent = oldText;
     }
-
   }
-
 
   document
     .getElementById(
@@ -1909,16 +1668,12 @@
     .addEventListener(
       "click",
       event => {
-
         event.preventDefault();
-
         openModal(
           "depositModal"
         );
-
       }
     );
-
 
   document
     .querySelectorAll(
@@ -1926,11 +1681,9 @@
     )
     .forEach(
       button => {
-
         button.addEventListener(
           "click",
           async event => {
-
             event.preventDefault();
 
             const currency =
@@ -1944,32 +1697,25 @@
               currency ===
               "stars"
             ) {
-
               openModal(
                 "starsModal"
               );
-
             }
 
             else if (
               currency ===
               "ton"
             ) {
-
               openModal(
                 "tonModal"
               );
 
               await loadBalance();
-
             }
-
           }
         );
-
       }
     );
-
 
   document
     .getElementById(
@@ -1980,7 +1726,6 @@
       startStarsPayment
     );
 
-
   document
     .getElementById(
       "openTonWallet"
@@ -1989,7 +1734,6 @@
       "click",
       openTonPayment
     );
-
 
   document
     .getElementById(
@@ -2000,30 +1744,24 @@
       submitTonForReview
     );
 
-
   document
     .querySelectorAll(
       "[data-close]"
     )
     .forEach(
       button => {
-
         button.addEventListener(
           "click",
           event => {
-
             event.preventDefault();
 
             closeModal(
               button.dataset.close
             );
-
           }
         );
-
       }
     );
-
 
   document
     .querySelectorAll(
@@ -2031,28 +1769,21 @@
     )
     .forEach(
       modal => {
-
         modal.addEventListener(
           "click",
           event => {
-
             if (
               event.target ===
               modal
             ) {
-
               closeModal(
                 modal.id
               );
-
             }
-
           }
         );
-
       }
     );
-
 
   document
     .querySelectorAll(
@@ -2060,11 +1791,9 @@
     )
     .forEach(
       button => {
-
         button.addEventListener(
           "click",
           async event => {
-
             event.preventDefault();
 
             const section =
@@ -2076,83 +1805,66 @@
               section ===
               "home"
             ) {
-
               window.location.href =
                 "/";
-
             }
 
             else if (
               section ===
               "wallet"
             ) {
-
               openModal(
                 "walletModal"
               );
 
               await loadBalance();
-
             }
 
             else if (
               section ===
               "stars"
             ) {
-
               openModal(
                 "depositModal"
               );
-
             }
 
             else if (
               section ===
               "gift"
             ) {
-
               window.location.href =
                 "/deposit";
-
             }
 
             else if (
               section ===
               "inventory"
             ) {
-
               window.location.href =
                 "/inventory";
-
             }
 
             else if (
               section ===
               "upgrade"
             ) {
-
               window.location.href =
                 "/static/upgrade.html";
-
             }
 
             else if (
               section ===
               "live"
             ) {
-
               showToast(
                 "Сервис работает"
               );
-
             }
-
           }
         );
-
       }
     );
-
 
   loadBalance();
 
