@@ -248,9 +248,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      margin-bottom:8px;
-      overflow:hidden;
-      border-radius:14px;
+      margin-bottom:8px
     }
 
     .quick-image{
@@ -264,12 +262,15 @@
     }
 
     .gift-image{
-      width:88px;
+      width:92px;
       height:82px;
       max-width:none;
       max-height:none;
-      object-fit:cover;
-      border-radius:12px;
+      object-fit:contain;
+      display:block;
+      filter:
+        drop-shadow(0 8px 14px rgba(90,70,255,.35))
+        drop-shadow(0 0 12px rgba(178,81,255,.18));
     }
 
     .quick-label{
@@ -787,13 +788,11 @@
     >
 
       <div class="quick-image-wrap">
-
         <img
-          src="/static/a_clean_app_ui_icon_illustration_on_a_dark_neon.png"
+          src="/static/nft-gift.png"
           class="quick-image gift-image"
           alt="Подарок"
         >
-
       </div>
 
       <span class="quick-label">
@@ -1213,4 +1212,797 @@
       type="text"
       inputmode="decimal"
       autocomplete="off"
-      placeholder="Например, 1 или
+      placeholder="Например, 1 или 0.1"
+    >
+
+    <button
+      id="openTonWallet"
+      class="primary-btn"
+      type="button"
+    >
+      💎 Открыть TON-кошелёк
+    </button>
+
+    <div
+      id="tonConfirmBlock"
+      class="hidden"
+    >
+
+      <div class="hint">
+        После отправки TON вернитесь сюда и вставьте hash или ссылку транзакции.
+      </div>
+
+      <div
+        class="field-label"
+        style="margin-top:14px"
+      >
+        Hash / ссылка транзакции
+      </div>
+
+      <input
+        id="tonTxRef"
+        class="field"
+        type="text"
+        autocomplete="off"
+        placeholder="Вставьте hash или ссылку"
+      >
+
+      <button
+        id="submitTon"
+        class="secondary-btn"
+        type="button"
+      >
+        Отправить на проверку
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="walletModal" class="modal">
+
+  <div class="sheet">
+
+    <div class="sheet-header">
+
+      <div class="sheet-title">
+        Ваш баланс
+      </div>
+
+      <button
+        class="close-btn"
+        type="button"
+        data-close="walletModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div class="balances">
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          ⭐ Stars
+        </div>
+
+        <div
+          id="starsBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+      <div class="balance-row">
+
+        <div class="balance-left">
+          💎 TON
+        </div>
+
+        <div
+          id="tonBalance"
+          class="balance-number"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+(() => {
+
+  const tg =
+    window.Telegram?.WebApp ||
+    null;
+
+  let tonDepositAddress = "";
+
+  try {
+    tg?.ready();
+    tg?.expand();
+    tg?.setHeaderColor("#06080d");
+    tg?.setBackgroundColor("#06080d");
+  } catch (error) {
+    console.error("Telegram init:", error);
+  }
+
+
+  function showToast(message, timeout = 3200) {
+
+    const toast =
+      document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer =
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, timeout);
+  }
+
+
+  function haptic() {
+    try {
+      tg?.HapticFeedback?.impactOccurred("light");
+    } catch (_) {}
+  }
+
+
+  function openModal(id) {
+    document
+      .getElementById(id)
+      ?.classList
+      .add("active");
+
+    haptic();
+  }
+
+
+  function closeModal(id) {
+    document
+      .getElementById(id)
+      ?.classList
+      .remove("active");
+  }
+
+
+  function requireTelegram() {
+
+    if (!tg?.initData) {
+      throw new Error(
+        "Откройте мини-приложение именно внутри Telegram"
+      );
+    }
+
+    return tg.initData;
+  }
+
+
+  async function api(url, body) {
+
+    const response =
+      await fetch(url, {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(body)
+      });
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok) {
+      throw new Error(
+        data?.detail ||
+        data?.error ||
+        data?.message ||
+        `Ошибка сервера ${response.status}`
+      );
+    }
+
+    return data;
+  }
+
+
+  async function loadBalance() {
+
+    try {
+
+      const initData =
+        requireTelegram();
+
+      const data =
+        await api(
+          "/api/balances",
+          {initData}
+        );
+
+      const balances =
+        data?.balances || {};
+
+      const stars =
+        balances.XTR ?? "0";
+
+      const ton =
+        balances.TON ?? "0";
+
+      document.getElementById("starsBalance").textContent = stars;
+      document.getElementById("tonBalance").textContent = ton;
+      document.getElementById("topTonBalance").textContent = ton;
+      document.getElementById("starsBalanceTop").textContent = stars;
+      document.getElementById("tonBalanceTop").textContent = ton;
+
+      tonDepositAddress =
+        String(
+          data?.addresses?.TON || ""
+        ).trim();
+
+      document.getElementById("tonAddress").textContent =
+        tonDepositAddress ||
+        "TON-адрес пока не указан на сервере";
+
+      return data;
+
+    } catch (error) {
+
+      console.error(
+        "Balance error:",
+        error
+      );
+
+      return null;
+    }
+  }
+
+
+  function tonToNano(value) {
+
+    const normalized =
+      String(value)
+        .trim()
+        .replace(",", ".");
+
+    if (!/^\d+(\.\d{1,9})?$/.test(normalized)) {
+      throw new Error(
+        "Введите корректную сумму TON. Например: 1 или 0.1"
+      );
+    }
+
+    const parts =
+      normalized.split(".");
+
+    const whole =
+      parts[0];
+
+    const fraction =
+      parts[1] || "";
+
+    const paddedFraction =
+      fraction.padEnd(9, "0");
+
+    const nanoTon =
+      BigInt(whole) * 1000000000n +
+      BigInt(paddedFraction);
+
+    if (nanoTon <= 0n) {
+      throw new Error(
+        "Сумма TON должна быть больше нуля"
+      );
+    }
+
+    return nanoTon;
+  }
+
+
+  async function startStarsPayment() {
+
+    const button =
+      document.getElementById("payStars");
+
+    const amount =
+      Number(
+        document.getElementById("starsAmount").value
+      );
+
+    if (
+      !Number.isInteger(amount) ||
+      amount < 1 ||
+      amount > 10000
+    ) {
+      showToast(
+        "Введите целое количество Stars от 1 до 10000"
+      );
+      return;
+    }
+
+    button.disabled = true;
+
+    const oldText =
+      button.textContent;
+
+    button.textContent =
+      "Создаём счёт…";
+
+    try {
+
+      const initData =
+        requireTelegram();
+
+      const data =
+        await api(
+          "/api/stars-invoice",
+          {
+            initData,
+            amount
+          }
+        );
+
+      const invoiceUrl =
+        data?.invoice_url;
+
+      if (!invoiceUrl) {
+        throw new Error(
+          "Сервер не вернул ссылку на счёт"
+        );
+      }
+
+      if (
+        !tg ||
+        typeof tg.openInvoice !== "function"
+      ) {
+        throw new Error(
+          "Telegram openInvoice недоступен"
+        );
+      }
+
+      closeModal("starsModal");
+
+      tg.openInvoice(
+        invoiceUrl,
+        status => {
+
+          if (status === "paid") {
+
+            showToast(
+              "✅ Оплата прошла. Обновляю баланс…"
+            );
+
+            setTimeout(loadBalance, 1200);
+            setTimeout(loadBalance, 3000);
+
+          } else if (status === "cancelled") {
+
+            showToast(
+              "Оплата отменена"
+            );
+
+          } else if (status === "failed") {
+
+            showToast(
+              "Не удалось провести оплату"
+            );
+          }
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Stars error:",
+        error
+      );
+
+      showToast(
+        "Ошибка: " + error.message,
+        5000
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = oldText;
+    }
+  }
+
+
+  async function openTonPayment() {
+
+    const button =
+      document.getElementById(
+        "openTonWallet"
+      );
+
+    const amountText =
+      document
+        .getElementById("tonAmount")
+        .value
+        .trim();
+
+    if (!amountText) {
+      showToast(
+        "Введите количество TON"
+      );
+      return;
+    }
+
+    button.disabled = true;
+
+    const oldText =
+      button.textContent;
+
+    button.textContent =
+      "Открываем кошелёк…";
+
+    try {
+
+      requireTelegram();
+
+      if (!tonDepositAddress) {
+        await loadBalance();
+      }
+
+      if (!tonDepositAddress) {
+        throw new Error(
+          "TON-адрес пополнения не настроен на сервере"
+        );
+      }
+
+      const nanoTon =
+        tonToNano(amountText);
+
+      const comment =
+        "FARTOV2 deposit";
+
+      const walletUrl =
+        "https://app.tonkeeper.com/transfer/" +
+        encodeURIComponent(tonDepositAddress) +
+        "?amount=" +
+        nanoTon.toString() +
+        "&text=" +
+        encodeURIComponent(comment);
+
+      document
+        .getElementById("tonConfirmBlock")
+        .classList
+        .remove("hidden");
+
+      if (
+        tg &&
+        typeof tg.openLink === "function"
+      ) {
+        tg.openLink(walletUrl);
+        return;
+      }
+
+      const newWindow =
+        window.open(
+          walletUrl,
+          "_blank"
+        );
+
+      if (!newWindow) {
+        window.location.href =
+          walletUrl;
+      }
+
+    } catch (error) {
+
+      console.error(
+        "TON error:",
+        error
+      );
+
+      showToast(
+        "Ошибка: " + error.message,
+        5000
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = oldText;
+    }
+  }
+
+
+  async function submitTonForReview() {
+
+    const button =
+      document.getElementById(
+        "submitTon"
+      );
+
+    const amountRaw =
+      document
+        .getElementById("tonAmount")
+        .value
+        .trim();
+
+    const txRef =
+      document
+        .getElementById("tonTxRef")
+        .value
+        .trim();
+
+    let normalizedAmount = "";
+
+    try {
+
+      tonToNano(amountRaw);
+
+      normalizedAmount =
+        amountRaw.replace(",", ".");
+
+    } catch (error) {
+
+      showToast(error.message);
+      return;
+    }
+
+    if (txRef.length < 6) {
+
+      showToast(
+        "Вставьте hash или ссылку транзакции"
+      );
+
+      return;
+    }
+
+    button.disabled = true;
+
+    const oldText =
+      button.textContent;
+
+    button.textContent =
+      "Отправляем…";
+
+    try {
+
+      const initData =
+        requireTelegram();
+
+      await api(
+        "/api/manual-deposit",
+        {
+          initData,
+          currency:"TON",
+          amount:normalizedAmount,
+          tx_ref:txRef
+        }
+      );
+
+      showToast(
+        "✅ Заявка отправлена на проверку"
+      );
+
+      document
+        .getElementById("tonTxRef")
+        .value = "";
+
+      closeModal("tonModal");
+
+      setTimeout(
+        loadBalance,
+        1000
+      );
+
+    } catch (error) {
+
+      console.error(
+        "TON submit error:",
+        error
+      );
+
+      showToast(
+        "Ошибка: " + error.message,
+        5000
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = oldText;
+    }
+  }
+
+
+  document
+    .getElementById("openDeposit")
+    .addEventListener(
+      "click",
+      event => {
+
+        event.preventDefault();
+
+        openModal(
+          "depositModal"
+        );
+      }
+    );
+
+
+  document
+    .querySelectorAll("[data-deposit]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        async event => {
+
+          event.preventDefault();
+
+          const currency =
+            button.dataset.deposit;
+
+          closeModal(
+            "depositModal"
+          );
+
+          if (currency === "stars") {
+
+            openModal(
+              "starsModal"
+            );
+
+          } else if (currency === "ton") {
+
+            openModal(
+              "tonModal"
+            );
+
+            await loadBalance();
+          }
+        }
+      );
+    });
+
+
+  document
+    .getElementById("payStars")
+    .addEventListener(
+      "click",
+      startStarsPayment
+    );
+
+
+  document
+    .getElementById("openTonWallet")
+    .addEventListener(
+      "click",
+      openTonPayment
+    );
+
+
+  document
+    .getElementById("submitTon")
+    .addEventListener(
+      "click",
+      submitTonForReview
+    );
+
+
+  document
+    .querySelectorAll("[data-close]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        event => {
+
+          event.preventDefault();
+
+          closeModal(
+            button.dataset.close
+          );
+        }
+      );
+    });
+
+
+  document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+
+      modal.addEventListener(
+        "click",
+        event => {
+
+          if (event.target === modal) {
+            closeModal(
+              modal.id
+            );
+          }
+        }
+      );
+    });
+
+
+  document
+    .querySelectorAll("[data-section]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        async event => {
+
+          event.preventDefault();
+
+          const section =
+            button.dataset.section;
+
+          haptic();
+
+          if (section === "home") {
+
+            window.location.href = "/";
+
+          } else if (section === "wallet") {
+
+            openModal(
+              "walletModal"
+            );
+
+            await loadBalance();
+
+          } else if (section === "stars") {
+
+            openModal(
+              "depositModal"
+            );
+
+          } else if (section === "gift") {
+
+            window.location.href =
+              "/deposit";
+
+          } else if (section === "inventory") {
+
+            window.location.href =
+              "/inventory";
+
+          } else if (section === "upgrade") {
+
+            window.location.href =
+              "/static/upgrade.html";
+
+          } else if (section === "live") {
+
+            showToast(
+              "Сервис работает"
+            );
+          }
+        }
+      );
+    });
+
+
+  loadBalance();
+
+})();
+
+</script>
+
+</body>
+</html>
