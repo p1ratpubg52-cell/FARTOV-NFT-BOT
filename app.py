@@ -743,8 +743,6 @@ async def load_backpack_catalog():
             + "). Ошибка Telegram: "
             + str(error)
         )
-
-
 # =========================================================
 # API MODELS
 # =========================================================
@@ -773,7 +771,9 @@ class ManualPayPayload(BaseModel):
     currency: str
     amount: str
     tx_ref: str
-    class UpgradeQuotePayload(BaseModel):
+
+
+class UpgradeQuotePayload(BaseModel):
     initData: str
     source_id: str
     target_id: str
@@ -784,12 +784,9 @@ class UpgradePlayPayload(BaseModel):
     source_id: str
     target_id: str
     quote_id: str = ""
-
-
 # =========================================================
 # WEB
 # =========================================================
-
 @app.get("/")
 async def index():
     return FileResponse(
