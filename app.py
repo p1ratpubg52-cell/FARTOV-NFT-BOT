@@ -1010,10 +1010,162 @@ async def upgrade_catalog(
         "items": items,
         "warning": warning,
         "source": "@" + DEPOSIT_USERNAME
+    }# =========================================================
+# UPGRADE QUOTE
+# =========================================================
+
+@app.post("/api/upgrade/quote")
+async def upgrade_quote(
+    payload: UpgradeQuotePayload
+):
+
+    user = validate_init_data(payload.initData)
+    save_user(user)
+
+    try:
+        source_id = int(payload.source_id)
+    except Exception:
+        raise HTTPException(400, "Неверный source_id")
+
+    with db() as conn:
+        source = conn.execute("""
+        SELECT id
+        FROM deposits
+        WHERE id=?
+        AND user_id=?
+        AND status='approved'
+        AND hidden=0
+        """, (
+            source_id,
+            user["id"]
+        )).fetchone()
+
+    if not source:
+        raise HTTPException(
+            404,
+            "NFT не найден в инвентаре"
+        )
+
+    catalog, warning = await load_backpack_catalog()
+
+    target = next(
+        (
+            item for item in catalog
+            if str(item["id"]) == str(payload.target_id)
+        ),
+        None
+    )
+
+    if not target:
+        raise HTTPException(
+            404,
+            "Цель не найдена"
+        )
+
+    # Пока тестовый шанс
+    chance = 50.0
+
+    quote_id = secrets.token_hex(16)
+
+    return {
+        "ok": True,
+        "quote_id": quote_id,
+        "chance_percent": chance
+    }
+
+
+# =========================================================
+# UPGRADE PLAY — ТЕСТОВЫЙ РЕЖИМ
+# =========================================================
+
+@app.post("/api/upgrade/play")
+async def upgrade_play(
+    payload: UpgradePlayPayload
+):
+
+    user = validate_init_data(payload.initData)
+    save_user(user)
+
+    try:
+        source_id = int(payload.source_id)
+    except Exception:
+        raise HTTPException(
+            400,
+            "Неверный source_id"
+        )
+
+    with db() as conn:
+        source = conn.execute("""
+        SELECT id
+        FROM deposits
+        WHERE id=?
+        AND user_id=?
+        AND status='approved'
+        AND hidden=0
+        """, (
+            source_id,
+            user["id"]
+        )).fetchone()
+
+    if not source:
+        raise HTTPException(
+            404,
+            "NFT не найден"
+        )
+
+    catalog, warning = await load_backpack_catalog()
+
+    target = next(
+        (
+            item for item in catalog
+            if str(item["id"]) == str(payload.target_id)
+        ),
+        None
+    )
+
+    if not target:
+        raise HTTPException(
+            404,
+            "Цель не найдена"
+        )
+
+    chance = 50.0
+
+    roll = secrets.randbelow(1_000_000) / 10_000
+
+    won = roll < chance
+
+    with db() as conn:
+        conn.execute("""
+        INSERT INTO upgrade_attempts(
+            user_id,
+            source_id,
+            target_id,
+            chance_percent,
+            roll_percent,
+            won
+        )
+        VALUES(?,?,?,?,?,?)
+        """, (
+            user["id"],
+            source_id,
+            str(payload.target_id),
+            chance,
+            roll,
+            1 if won else 0
+        ))
+
+    return {
+        "ok": True,
+        "won": won,
+        "success": won,
+        "chance_percent": chance,
+        "roll_percent": roll
     }
 
 
 @app.post("/api/balances")
+
 async def balances(payload: InitPayload):
 
     user = validate_init_data(
