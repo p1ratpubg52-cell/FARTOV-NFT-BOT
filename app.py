@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import html
 import json
-import os 
+import os
 import secrets
 import re
 import sqlite3
@@ -30,6 +30,7 @@ from aiogram.types import (
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 
@@ -45,8 +46,6 @@ DEPOSIT_USERNAME = os.getenv(
     "fart2_backpack"
 ).lstrip("@")
 
-# @fart2_backpack — обычный пользователь.
-# Его числовой Telegram ID:
 DEPOSIT_USER_ID = 8853704536
 
 
@@ -76,6 +75,12 @@ if not BOT_TOKEN:
 DB = "fartov.db"
 
 app = FastAPI()
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
+)
 
 bot = Bot(BOT_TOKEN)
 
@@ -199,7 +204,19 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         """)
-        
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS upgrade_attempts(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            source_id INTEGER NOT NULL,
+            target_id TEXT NOT NULL,
+            chance_percent REAL NOT NULL,
+            roll_percent REAL NOT NULL,
+            won INTEGER NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
 
 
 # =========================================================
@@ -683,8 +700,6 @@ def normalize_owned_gift_for_catalog(owned):
 
 async def load_backpack_catalog():
 
-    # @fart2_backpack — обычный пользователь, поэтому сразу
-    # получаем подарки через getUserGifts по числовому user_id.
     try:
 
         result = await asyncio.to_thread(
@@ -712,8 +727,6 @@ async def load_backpack_catalog():
             if item:
                 items.append(item)
 
-        # Подтягиваем название/картинку с публичной NFT-страницы.
-        # Даже если мета не загрузится, сам NFT всё равно останется в каталоге.
         async def enrich(item):
             meta = await asyncio.to_thread(
                 fetch_gift_meta,
@@ -743,6 +756,8 @@ async def load_backpack_catalog():
             + "). Ошибка Telegram: "
             + str(error)
         )
+
+
 # =========================================================
 # API MODELS
 # =========================================================
@@ -784,9 +799,12 @@ class UpgradePlayPayload(BaseModel):
     source_id: str
     target_id: str
     quote_id: str = ""
+
+
 # =========================================================
 # WEB
 # =========================================================
+
 @app.get("/")
 async def index():
     return FileResponse(
@@ -810,13 +828,6 @@ async def inventory_page():
 
 @app.get("/upgrade")
 async def upgrade_page():
-    return FileResponse(
-        "static/upgrade.html"
-    )
-
-
-@app.get("/static/upgrade.html")
-async def upgrade_static_page():
     return FileResponse(
         "static/upgrade.html"
     )
@@ -894,12 +905,8 @@ async def me(payload: InitPayload):
             "first_name": user.get("first_name", ""),
             "username": user.get("username", "")
         },
-
-        "deposit_username":
-        "@" + DEPOSIT_USERNAME,
-
-        "deposits":
-        gifts
+        "deposit_username": "@" + DEPOSIT_USERNAME,
+        "deposits": gifts
     }
 
 
@@ -995,9 +1002,8 @@ async def upgrade_catalog(
         "items": items,
         "warning": warning,
         "source": "@" + DEPOSIT_USERNAME
-    }# =========================================================
-# UPGRADE QUOTE
-# =========================================================
+    }
+
 
 @app.post("/api/upgrade/quote")
 async def upgrade_quote(
@@ -1047,7 +1053,6 @@ async def upgrade_quote(
             "Цель не найдена"
         )
 
-    # Пока тестовый шанс
     chance = 50.0
 
     quote_id = secrets.token_hex(16)
@@ -1058,10 +1063,6 @@ async def upgrade_quote(
         "chance_percent": chance
     }
 
-
-# =========================================================
-# UPGRADE PLAY — ТЕСТОВЫЙ РЕЖИМ
-# =========================================================
 
 @app.post("/api/upgrade/play")
 async def upgrade_play(
@@ -1150,7 +1151,6 @@ async def upgrade_play(
 
 
 @app.post("/api/balances")
-
 async def balances(payload: InitPayload):
 
     user = validate_init_data(
@@ -1193,8 +1193,7 @@ async def balances(payload: InitPayload):
         )).fetchall()
 
     return {
-        "balances":
-        get_balances(
+        "balances": get_balances(
             user["id"]
         ),
 
