@@ -261,16 +261,14 @@
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))
     }
 
-    .gift-image{
+    .gift-image,
+    .stars-image{
       width:92px;
       height:82px;
       max-width:none;
       max-height:none;
       object-fit:contain;
       display:block;
-      filter:
-        drop-shadow(0 8px 14px rgba(90,70,255,.35))
-        drop-shadow(0 0 12px rgba(178,81,255,.18));
     }
 
     .quick-label{
@@ -690,6 +688,7 @@
       <div class="brand">
         <span>FART2</span> NFT BOT
       </div>
+
       <div class="brand-sub">
         Telegram NFT Upgrade Platform
       </div>
@@ -717,6 +716,7 @@
             class="balance-gem"
             alt=""
           >
+
           <span id="topTonBalance">0</span>
           <span class="unit">TON</span>
         </div>
@@ -732,24 +732,30 @@
 
     </div>
 
+
     <div class="mini-balances">
 
       <div class="mini-balance">
+
         <div class="mini-name">
           Telegram Stars
         </div>
 
         <div class="mini-value">
           <img
-            src="/static/nft-heart.png"
+            src="/static/nft-stars.png"
             class="mini-icon"
             alt=""
           >
+
           <span id="starsBalanceTop">0</span>
         </div>
+
       </div>
 
+
       <div class="mini-balance">
+
         <div class="mini-name">
           TON
         </div>
@@ -760,11 +766,14 @@
             class="mini-icon"
             alt=""
           >
+
           <span id="tonBalanceTop">0</span>
         </div>
+
       </div>
 
     </div>
+
   </section>
 
 
@@ -786,7 +795,6 @@
       type="button"
       data-section="gift"
     >
-
       <div class="quick-image-wrap">
         <img
           src="/static/nft-gift.png"
@@ -802,7 +810,6 @@
       <span class="quick-desc">
         Добавить подарок
       </span>
-
     </button>
 
 
@@ -811,12 +818,11 @@
       type="button"
       data-section="stars"
     >
-
       <div class="quick-image-wrap">
         <img
-          src="/static/nft-heart.png"
-          class="quick-image"
-          alt=""
+          src="/static/nft-stars.png"
+          class="quick-image stars-image"
+          alt="Stars"
         >
       </div>
 
@@ -827,7 +833,6 @@
       <span class="quick-desc">
         Пополнить баланс
       </span>
-
     </button>
 
 
@@ -836,7 +841,6 @@
       type="button"
       data-section="live"
     >
-
       <div class="quick-image-wrap">
         <img
           src="/static/nft-bag.png"
@@ -852,7 +856,6 @@
       <span class="quick-desc">
         Статус сервиса
       </span>
-
     </button>
 
   </div>
@@ -1064,7 +1067,6 @@
       type="button"
       data-deposit="stars"
     >
-
       <div class="payment-left">
 
         <div class="payment-icon">
@@ -1084,7 +1086,6 @@
       <div class="arrow">
         ›
       </div>
-
     </button>
 
 
@@ -1093,7 +1094,6 @@
       type="button"
       data-deposit="ton"
     >
-
       <div class="payment-left">
 
         <div class="payment-icon">
@@ -1113,7 +1113,6 @@
       <div class="arrow">
         ›
       </div>
-
     </button>
 
   </div>
@@ -1140,9 +1139,11 @@
 
     </div>
 
+
     <div class="field-label">
       Количество Stars
     </div>
+
 
     <input
       id="starsAmount"
@@ -1155,6 +1156,7 @@
       placeholder="Например, 100"
     >
 
+
     <button
       id="payStars"
       class="primary-btn"
@@ -1162,6 +1164,7 @@
     >
       ⭐ Оплатить Stars
     </button>
+
 
     <div class="hint">
       После нажатия откроется официальный платёжный экран Telegram.
@@ -1191,9 +1194,11 @@
 
     </div>
 
+
     <div class="field-label">
       Адрес для пополнения
     </div>
+
 
     <div
       id="tonAddress"
@@ -1202,9 +1207,11 @@
       Загрузка…
     </div>
 
+
     <div class="field-label">
       Количество TON
     </div>
+
 
     <input
       id="tonAmount"
@@ -1215,6 +1222,7 @@
       placeholder="Например, 1 или 0.1"
     >
 
+
     <button
       id="openTonWallet"
       class="primary-btn"
@@ -1222,6 +1230,7 @@
     >
       💎 Открыть TON-кошелёк
     </button>
+
 
     <div
       id="tonConfirmBlock"
@@ -1232,12 +1241,14 @@
         После отправки TON вернитесь сюда и вставьте hash или ссылку транзакции.
       </div>
 
+
       <div
         class="field-label"
         style="margin-top:14px"
       >
         Hash / ссылка транзакции
       </div>
+
 
       <input
         id="tonTxRef"
@@ -1246,6 +1257,7 @@
         autocomplete="off"
         placeholder="Вставьте hash или ссылку"
       >
+
 
       <button
         id="submitTon"
@@ -1281,6 +1293,7 @@
 
     </div>
 
+
     <div class="balances">
 
       <div class="balance-row">
@@ -1297,6 +1310,7 @@
         </div>
 
       </div>
+
 
       <div class="balance-row">
 
