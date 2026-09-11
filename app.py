@@ -199,7 +199,7 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         """)
-                conn.execute("""
+       conn.execute("""
         CREATE TABLE IF NOT EXISTS upgrade_attempts(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
