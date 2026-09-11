@@ -616,7 +616,7 @@ def fetch_gift_meta(url):
 
 
 # =========================================================
-# TELEGRAM BOT API HELPERS FOR UPGRADE CATALOG
+# TELEGRAM API HELPERS
 # =========================================================
 
 def telegram_api_call(method, payload):
@@ -910,14 +910,8 @@ async def me(payload: InitPayload):
     }
 
 
-# =========================================================
-# UPGRADE API
-# =========================================================
-
 @app.post("/api/upgrade/inventory")
-async def upgrade_inventory(
-    payload: InitPayload
-):
+async def upgrade_inventory(payload: InitPayload):
 
     user = validate_init_data(
         payload.initData
@@ -926,7 +920,6 @@ async def upgrade_inventory(
     save_user(user)
 
     with db() as conn:
-
         rows = conn.execute("""
         SELECT
             id,
@@ -950,7 +943,6 @@ async def upgrade_inventory(
         image = row["gift_image"]
 
         if not name:
-
             meta = await asyncio.to_thread(
                 fetch_gift_meta,
                 row["gift_url"]
@@ -986,9 +978,7 @@ async def upgrade_inventory(
 
 
 @app.post("/api/upgrade/catalog")
-async def upgrade_catalog(
-    payload: InitPayload
-):
+async def upgrade_catalog(payload: InitPayload):
 
     user = validate_init_data(
         payload.initData
@@ -1010,13 +1000,21 @@ async def upgrade_quote(
     payload: UpgradeQuotePayload
 ):
 
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     try:
-        source_id = int(payload.source_id)
+        source_id = int(
+            payload.source_id
+        )
     except Exception:
-        raise HTTPException(400, "Неверный source_id")
+        raise HTTPException(
+            400,
+            "Неверный source_id"
+        )
 
     with db() as conn:
         source = conn.execute("""
@@ -1069,11 +1067,16 @@ async def upgrade_play(
     payload: UpgradePlayPayload
 ):
 
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     try:
-        source_id = int(payload.source_id)
+        source_id = int(
+            payload.source_id
+        )
     except Exception:
         raise HTTPException(
             400,
@@ -1117,7 +1120,10 @@ async def upgrade_play(
 
     chance = 50.0
 
-    roll = secrets.randbelow(1_000_000) / 10_000
+    roll = (
+        secrets.randbelow(1_000_000)
+        / 10_000
+    )
 
     won = roll < chance
 
@@ -1245,7 +1251,9 @@ async def stars_invoice(
 
     save_user(user)
 
-    amount = int(payload.amount)
+    amount = int(
+        payload.amount
+    )
 
     if amount < 1:
         raise HTTPException(
@@ -1356,53 +1364,11 @@ async def manual_deposit(
             "Эта транзакция уже зарегистрирована"
         )
 
-    if ADMIN_ID:
-
-        try:
-            await bot.send_message(
-                ADMIN_ID,
-                f"""
-💰 Новое пополнение
-
-ID: {request_id}
-
-User:
-{user["id"]}
-
-@{user.get("username","")}
-
-Валюта:
-{currency}
-
-Сумма:
-{format_units(currency, amount_units)}
-
-TX:
-{tx_ref}
-
-После ручной проверки:
-
-/approvepay {request_id}
-
-/rejectpay {request_id}
-"""
-            )
-
-        except Exception as error:
-            print(
-                "ADMIN PAYMENT MESSAGE ERROR:",
-                repr(error)
-            )
-
     return {
         "ok": True,
         "request_id": request_id
     }
 
-
-# =========================================================
-# NFT DEPOSIT
-# =========================================================
 
 @app.post("/api/deposit")
 async def create_deposit(
@@ -1455,251 +1421,11 @@ async def create_deposit(
             "Этот подарок уже зарегистрирован"
         )
 
-    if ADMIN_ID:
-
-        try:
-
-            keyboard = InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [
-                        InlineKeyboardButton(
-                            text="✅ Подтвердить",
-                            callback_data=f"gift_approve:{deposit_id}"
-                        ),
-                        InlineKeyboardButton(
-                            text="❌ Отклонить",
-                            callback_data=f"gift_reject:{deposit_id}"
-                        )
-                    ]
-                ]
-            )
-
-            await bot.send_message(
-                ADMIN_ID,
-                f"""
-🎁 Новый NFT депозит
-
-ID: {deposit_id}
-
-Название:
-{meta["name"]}
-
-User:
-{user["id"]}
-
-Username:
-@{user.get("username","")}
-
-Gift:
-{gift_url}
-""",
-                reply_markup=keyboard
-            )
-
-        except Exception as error:
-            print(
-                "ADMIN GIFT MESSAGE ERROR:",
-                repr(error)
-            )
-
     return {
         "ok": True,
         "deposit_id": deposit_id,
         "gift": meta
     }
-
-
-@app.post("/api/hide-gift")
-async def hide_gift(
-    payload: HideGiftPayload
-):
-
-    user = validate_init_data(
-        payload.initData
-    )
-
-    with db() as conn:
-
-        gift = conn.execute("""
-        SELECT
-            id,
-            status,
-            hidden
-        FROM deposits
-        WHERE id=?
-        AND user_id=?
-        """, (
-            payload.deposit_id,
-            user["id"]
-        )).fetchone()
-
-        if not gift:
-            raise HTTPException(
-                404,
-                "Подарок не найден"
-            )
-
-        if gift["status"] != "approved":
-            raise HTTPException(
-                400,
-                "Подарок не подтвержден"
-            )
-
-        conn.execute("""
-        UPDATE deposits
-        SET hidden=1
-        WHERE id=?
-        AND user_id=?
-        """, (
-            payload.deposit_id,
-            user["id"]
-        ))
-
-    return {
-        "ok": True
-    }
-
-
-# =========================================================
-# NFT ADMIN HELPERS
-# =========================================================
-
-def get_gift(gift_id):
-
-    with db() as conn:
-        return conn.execute("""
-        SELECT
-            id,
-            user_id,
-            gift_name,
-            gift_url,
-            status
-        FROM deposits
-        WHERE id=?
-        """, (
-            gift_id,
-        )).fetchone()
-
-
-async def approve_gift_record(gift_id):
-
-    with db() as conn:
-
-        gift = conn.execute("""
-        SELECT
-            id,
-            user_id,
-            gift_name,
-            gift_url,
-            status
-        FROM deposits
-        WHERE id=?
-        """, (
-            gift_id,
-        )).fetchone()
-
-        if not gift:
-            return False, "Подарок не найден", None
-
-        if gift["status"] != "pending":
-            return (
-                False,
-                f"Заявка уже обработана: {gift['status']}",
-                gift
-            )
-
-        conn.execute("""
-        UPDATE deposits
-        SET
-            status='approved',
-            hidden=0,
-            admin_note=NULL,
-            reviewed_at=CURRENT_TIMESTAMP
-        WHERE id=?
-        """, (
-            gift_id,
-        ))
-
-    try:
-        await bot.send_message(
-            gift["user_id"],
-            f"""
-✅ Подарок подтверждён
-
-{gift["gift_name"] or "Telegram Gift"}
-
-Подарок добавлен в ваш инвентарь.
-"""
-        )
-    except Exception as error:
-        print(
-            "USER APPROVE MESSAGE ERROR:",
-            repr(error)
-        )
-
-    return True, f"✅ Gift #{gift_id} подтверждён", gift
-
-
-async def reject_gift_record(
-    gift_id,
-    reason="Отклонено администратором"
-):
-
-    with db() as conn:
-
-        gift = conn.execute("""
-        SELECT
-            id,
-            user_id,
-            gift_name,
-            gift_url,
-            status
-        FROM deposits
-        WHERE id=?
-        """, (
-            gift_id,
-        )).fetchone()
-
-        if not gift:
-            return False, "Подарок не найден", None
-
-        if gift["status"] != "pending":
-            return (
-                False,
-                f"Заявка уже обработана: {gift['status']}",
-                gift
-            )
-
-        conn.execute("""
-        UPDATE deposits
-        SET
-            status='rejected',
-            admin_note=?,
-            reviewed_at=CURRENT_TIMESTAMP
-        WHERE id=?
-        """, (
-            reason,
-            gift_id
-        ))
-
-    try:
-        await bot.send_message(
-            gift["user_id"],
-            f"""
-❌ Подарок отклонён
-
-{gift["gift_name"] or "Telegram Gift"}
-
-Если это ошибка, отправьте заявку ещё раз после проверки ссылки.
-"""
-        )
-    except Exception as error:
-        print(
-            "USER REJECT MESSAGE ERROR:",
-            repr(error)
-        )
-
-    return True, f"❌ Gift #{gift_id} отклонён", gift
 
 
 # =========================================================
@@ -1850,409 +1576,6 @@ async def start(
         )
     )
 
-
-def is_admin(message):
-    return (
-        ADMIN_ID
-        and message.from_user.id == ADMIN_ID
-    )
-
-
-def is_admin_callback(callback):
-    return (
-        ADMIN_ID
-        and callback.from_user.id == ADMIN_ID
-    )
-
-
-# =========================================================
-# NFT ADMIN CALLBACK BUTTONS
-# =========================================================
-
-@router.callback_query(
-    F.data.startswith("gift_approve:")
-)
-async def gift_approve_callback(
-    callback: CallbackQuery
-):
-
-    if not is_admin_callback(callback):
-        await callback.answer(
-            "Нет доступа",
-            show_alert=True
-        )
-        return
-
-    try:
-        gift_id = int(
-            callback.data.split(":", 1)[1]
-        )
-    except Exception:
-        await callback.answer(
-            "Неверный ID",
-            show_alert=True
-        )
-        return
-
-    ok, text, gift = await approve_gift_record(
-        gift_id
-    )
-
-    await callback.answer(
-        text,
-        show_alert=not ok
-    )
-
-    if callback.message:
-
-        try:
-            await callback.message.edit_reply_markup(
-                reply_markup=None
-            )
-        except Exception:
-            pass
-
-        if ok:
-            try:
-                await callback.message.answer(
-                    f"✅ Заявка #{gift_id} подтверждена"
-                )
-            except Exception:
-                pass
-
-
-@router.callback_query(
-    F.data.startswith("gift_reject:")
-)
-async def gift_reject_callback(
-    callback: CallbackQuery
-):
-
-    if not is_admin_callback(callback):
-        await callback.answer(
-            "Нет доступа",
-            show_alert=True
-        )
-        return
-
-    try:
-        gift_id = int(
-            callback.data.split(":", 1)[1]
-        )
-    except Exception:
-        await callback.answer(
-            "Неверный ID",
-            show_alert=True
-        )
-        return
-
-    ok, text, gift = await reject_gift_record(
-        gift_id
-    )
-
-    await callback.answer(
-        text,
-        show_alert=not ok
-    )
-
-    if callback.message:
-
-        try:
-            await callback.message.edit_reply_markup(
-                reply_markup=None
-            )
-        except Exception:
-            pass
-
-        if ok:
-            try:
-                await callback.message.answer(
-                    f"❌ Заявка #{gift_id} отклонена"
-                )
-            except Exception:
-                pass
-
-
-# =========================================================
-# NFT ADMIN COMMANDS
-# =========================================================
-
-@router.message(
-    Command("approve")
-)
-async def approve(
-    message: Message
-):
-
-    if not is_admin(message):
-        return
-
-    parts = message.text.split()
-
-    if (
-        len(parts) != 2
-        or not parts[1].isdigit()
-    ):
-        await message.answer(
-            "Формат: /approve ID"
-        )
-        return
-
-    gift_id = int(parts[1])
-
-    ok, text, gift = await approve_gift_record(
-        gift_id
-    )
-
-    await message.answer(text)
-
-
-@router.message(
-    Command("reject")
-)
-async def reject(
-    message: Message
-):
-
-    if not is_admin(message):
-        return
-
-    parts = message.text.split(
-        maxsplit=2
-    )
-
-    if (
-        len(parts) < 2
-        or not parts[1].isdigit()
-    ):
-        await message.answer(
-            "Формат: /reject ID [причина]"
-        )
-        return
-
-    gift_id = int(parts[1])
-
-    reason = (
-        parts[2]
-        if len(parts) > 2
-        else "Отклонено администратором"
-    )
-
-    ok, text, gift = await reject_gift_record(
-        gift_id,
-        reason
-    )
-
-    await message.answer(text)
-
-
-@router.message(
-    Command("restore")
-)
-async def restore(
-    message: Message
-):
-
-    if not is_admin(message):
-        return
-
-    parts = message.text.split()
-
-    if (
-        len(parts) != 2
-        or not parts[1].isdigit()
-    ):
-        await message.answer(
-            "Формат: /restore ID"
-        )
-        return
-
-    gift_id = int(parts[1])
-
-    with db() as conn:
-        conn.execute("""
-        UPDATE deposits
-        SET hidden=0
-        WHERE id=?
-        """, (
-            gift_id,
-        ))
-
-    await message.answer(
-        f"♻️ Gift #{gift_id} возвращён в профиль"
-    )
-
-
-# =========================================================
-# MONEY ADMIN
-# =========================================================
-
-@router.message(
-    Command("approvepay")
-)
-async def approve_pay(
-    message: Message
-):
-
-    if not is_admin(message):
-        return
-
-    parts = message.text.split()
-
-    if (
-        len(parts) != 2
-        or not parts[1].isdigit()
-    ):
-        await message.answer(
-            "Формат: /approvepay ID"
-        )
-        return
-
-    request_id = int(parts[1])
-
-    with db() as conn:
-
-        payment = conn.execute("""
-        SELECT
-            user_id,
-            currency,
-            amount_units,
-            tx_ref,
-            status
-        FROM payment_requests
-        WHERE id=?
-        """, (
-            request_id,
-        )).fetchone()
-
-        if not payment:
-            await message.answer(
-                "Заявка не найдена"
-            )
-            return
-
-        if payment["status"] != "pending":
-            await message.answer(
-                "Эта заявка уже обработана"
-            )
-            return
-
-        conn.execute("""
-        UPDATE payment_requests
-        SET
-            status='approved',
-            reviewed_at=CURRENT_TIMESTAMP
-        WHERE id=?
-        """, (
-            request_id,
-        ))
-
-    credit_balance(
-        payment["user_id"],
-        payment["currency"],
-        payment["amount_units"],
-        "manual_deposit",
-        f"payment_request:{request_id}"
-    )
-
-    amount_text = format_units(
-        payment["currency"],
-        payment["amount_units"]
-    )
-
-    await message.answer(
-        f"✅ Заявка #{request_id} подтверждена\n"
-        f"{amount_text} {payment['currency']}"
-    )
-
-    try:
-        await bot.send_message(
-            payment["user_id"],
-            f"""
-✅ Пополнение подтверждено
-
-{amount_text} {payment["currency"]}
-"""
-        )
-    except Exception:
-        pass
-
-
-@router.message(
-    Command("rejectpay")
-)
-async def reject_pay(
-    message: Message
-):
-
-    if not is_admin(message):
-        return
-
-    parts = message.text.split(
-        maxsplit=2
-    )
-
-    if (
-        len(parts) < 2
-        or not parts[1].isdigit()
-    ):
-        await message.answer(
-            "Формат: /rejectpay ID [причина]"
-        )
-        return
-
-    request_id = int(parts[1])
-
-    reason = (
-        parts[2]
-        if len(parts) > 2
-        else "Не подтверждено"
-    )
-
-    with db() as conn:
-
-        payment = conn.execute("""
-        SELECT
-            user_id,
-            status
-        FROM payment_requests
-        WHERE id=?
-        """, (
-            request_id,
-        )).fetchone()
-
-        if not payment:
-            await message.answer(
-                "Заявка не найдена"
-            )
-            return
-
-        if payment["status"] != "pending":
-            await message.answer(
-                "Заявка уже обработана"
-            )
-            return
-
-        conn.execute("""
-        UPDATE payment_requests
-        SET
-            status='rejected',
-            admin_note=?,
-            reviewed_at=CURRENT_TIMESTAMP
-        WHERE id=?
-        """, (
-            reason,
-            request_id
-        ))
-
-    await message.answer(
-        f"❌ Заявка #{request_id} отклонена"
-    )
-
-
-# =========================================================
-# RUN
-# =========================================================
 
 async def run_bot():
     await dp.start_polling(
