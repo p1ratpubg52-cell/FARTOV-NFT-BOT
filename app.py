@@ -199,19 +199,7 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         """)
-        conn.execute("""
-        CREATE TABLE IF NOT EXISTS upgrade_attempts(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            source_id INTEGER NOT NULL,
-            target_id TEXT NOT NULL,
-            chance_percent REAL NOT NULL,
-            roll_percent REAL NOT NULL,
-            won INTEGER NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, source_id)
-        )
-        """)
+        
 
 
 # =========================================================
