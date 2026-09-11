@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <title>Кейсы — FART2 NFT BOT</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent
+    }
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:#07090e;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+      overflow-x:hidden
+    }
+
+    body{
+      padding-bottom:env(safe-area-inset-bottom)
+    }
+
+    button{
+      font-family:inherit;
+      touch-action:manipulation
+    }
+
+    .app{
+      width:100%;
+      max-width:720px;
+      margin:0 auto;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        16px
+        36px
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px
+    }
+
+    .back-btn{
+      border:1px solid #2b3340;
+      background:#141922;
+      color:#fff;
+      border-radius:15px;
+      padding:12px 14px;
+      font-size:14px;
+      font-weight:850;
+      cursor:pointer
+    }
+
+    .title-wrap{
+      flex:1;
+      min-width:0
+    }
+
+    .title{
+      font-size:30px;
+      font-weight:950;
+      letter-spacing:-.8px
+    }
+
+    .subtitle{
+      color:#7f8794;
+      font-size:13px;
+      margin-top:4px
+    }
+
+    .balances{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:18px
+    }
+
+    .balance-card{
+      background:linear-gradient(145deg,#171c25,#10141a);
+      border:1px solid #2c3440;
+      border-radius:18px;
+      padding:14px
+    }
+
+    .balance-label{
+      color:#8a92a0;
+      font-size:12px;
+      margin-bottom:5px
+    }
+
+    .balance-value{
+      font-size:22px;
+      font-weight:900
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border-radius:26px;
+      border:1px solid #343c49;
+      padding:18px;
+      margin-bottom:22px;
+      background:
+        radial-gradient(circle at 85% 20%,rgba(166,79,255,.24),transparent 30%),
+        linear-gradient(145deg,#1c2029,#11151b)
+    }
+
+    .hero-title{
+      font-size:21px;
+      font-weight:900;
+      margin-bottom:12px
+    }
+
+    .roulette{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      border-radius:20px;
+      background:#252932;
+      border:1px solid rgba(255,255,255,.06);
+      padding:12px;
+      overflow:hidden
+    }
+
+    .roulette:before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width:3px;
+      transform:translateX(-50%);
+      background:#8b6fff;
+      z-index:3;
+      box-shadow:0 0 16px rgba(139,111,255,.65)
+    }
+
+    .slot{
+      aspect-ratio:1/1;
+      min-width:0;
+      border-radius:15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      background:linear-gradient(180deg,#ffd242,#e49d08)
+    }
+
+    .slot.purple{
+      background:linear-gradient(180deg,#d865ff,#8e59ff)
+    }
+
+    .deposit-btn{
+      width:100%;
+      margin-top:14px;
+      border:0;
+      border-radius:18px;
+      padding:16px;
+      color:#fff;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      background:linear-gradient(135deg,#675cff,#a34dff)
+    }
+
+    .section-title{
+      font-size:20px;
+      font-weight:900;
+      margin:0 2px 12px
+    }
+
+    .cases{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px
+    }
+
+    .case{
+      border-radius:24px;
+      border:1px solid #313946;
+      background:linear-gradient(145deg,#171c24,#11151b);
+      padding:12px;
+      overflow:hidden
+    }
+
+    .case-art{
+      position:relative;
+      height:150px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:2px solid rgba(227,176,50,.72);
+      background:
+        radial-gradient(circle at 50% 35%,rgba(255,255,255,.12),transparent 18%),
+        linear-gradient(180deg,#30343c,#23262c)
+    }
+
+    .price-pill{
+      position:absolute;
+      top:9px;
+      right:9px;
+      padding:7px 10px;
+      border-radius:12px;
+      background:#111318;
+      color:#fff;
+      font-weight:900;
+      font-size:12px;
+      z-index:5
+    }
+
+    .chest{
+      position:relative;
+      width:92px;
+      height:70px;
+      filter:drop-shadow(0 12px 22px rgba(0,0,0,.35))
+    }
+
+    .lid{
+      position:absolute;
+      top:0;
+      left:9px;
+      width:74px;
+      height:27px;
+      border-radius:15px 15px 9px 9px;
+      background:linear-gradient(180deg,#ffe06f,#f2a626);
+      border:2px solid #efba46
+    }
+
+    .body{
+      position:absolute;
+      bottom:0;
+      left:0;
+      width:92px;
+      height:48px;
+      border-radius:15px;
+      background:linear-gradient(180deg,#905cff,#5c35f3);
+      border:2px solid #8a70ff;
+      box-shadow:0 0 18px rgba(101,72,255,.28)
+    }
+
+    .band-v{
+      position:absolute;
+      top:4px;
+      left:40px;
+      width:12px;
+      height:57px;
+      border-radius:8px;
+      background:linear-gradient(180deg,#fff0ad,#e9b341);
+      z-index:3
+    }
+
+    .band-h{
+      position:absolute;
+      top:25px;
+      left:9px;
+      width:74px;
+      height:10px;
+      border-radius:8px;
+      background:linear-gradient(90deg,#fff0ad,#e9b341);
+      z-index:3
+    }
+
+    .lock{
+      position:absolute;
+      top:29px;
+      left:38px;
+      width:16px;
+      height:18px;
+      border-radius:5px;
+      background:#fff6cc;
+      border:2px solid #e3b541;
+      z-index:4
+    }
+
+    .case-name{
+      font-size:18px;
+      font-weight:900;
+      margin-bottom:6px
+    }
+
+    .case-price{
+      color:#9aa2ae;
+      font-size:13px;
+      line-height:1.4;
+      min-height:38px;
+      margin-bottom:10px
+    }
+
+    .case-btn{
+      width:100%;
+      border:0;
+      border-radius:16px;
+      padding:13px 10px;
+      font-size:13px;
+      font-weight:900;
+      color:#fff;
+      cursor:pointer;
+      background:linear-gradient(135deg,#675cff,#a34dff)
+    }
+
+    .case-btn.low{
+      background:linear-gradient(135deg,#ff7b17,#ff4a4a)
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:30px;
+      transform:translateX(-50%);
+      max-width:90%;
+      width:max-content;
+      padding:12px 16px;
+      border-radius:14px;
+      background:#242a34;
+      color:#fff;
+      font-size:13px;
+      font-weight:700;
+      text-align:center;
+      display:none;
+      z-index:99999
+    }
+
+    .toast.show{
+      display:block
+    }
+
+    @media(max-width:390px){
+      .cases{
+        gap:9px
+      }
+
+      .case{
+        padding:10px
+      }
+
+      .case-art{
+        height:135px
+      }
+
+      .case-name{
+        font-size:16px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+
+    <button
+      id="backBtn"
+      class="back-btn"
+      type="button"
+    >
+      ← Назад
+    </button>
+
+    <div class="title-wrap">
+
+      <div class="title">
+        Кейсы
+      </div>
+
+      <div class="subtitle">
+        Подарочные кейсы FART2
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="balances">
+
+    <div class="balance-card">
+
+      <div class="balance-label">
+        Telegram Stars
+      </div>
+
+      <div
+        id="starsBalance"
+        class="balance-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="balance-card">
+
+      <div class="balance-label">
+        TON
+      </div>
+
+      <div
+        id="tonBalance"
+        class="balance-value"
+      >
+        0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="hero">
+
+    <div class="hero-title">
+      Подарки внутри кейсов
+    </div>
+
+    <div class="roulette">
+
+      <div class="slot">
+        🎬
+      </div>
+
+      <div class="slot">
+        🏆
+      </div>
+
+      <div class="slot">
+        💍
+      </div>
+
+      <div class="slot purple">
+        🎀
+      </div>
+
+      <div class="slot">
+        🎁
+      </div>
+
+    </div>
+
+
+    <button
+      id="depositBtn"
+      class="deposit-btn"
+      type="button"
+    >
+      + Пополнить баланс
+    </button>
+
+  </div>
+
+
+  <div class="section-title">
+    Выбери кейс
+  </div>
+
+
+  <div
+    id="cases"
+    class="cases"
+  ></div>
+
+</div>
+
+
+<div
+  id="toast"
+  class="toast"
+></div>
+
+
+<script>
+(() => {
+
+  const tg =
+    window.Telegram?.WebApp ||
+    null;
+
+
+  const CASES = [
+
+    {
+      id:1,
+      name:"Кейс №1",
+      stars:25,
+      ton:0.25
+    },
+
+    {
+      id:2,
+      name:"Кейс №2",
+      stars:50,
+      ton:0.50
+    },
+
+    {
+      id:3,
+      name:"Кейс №3",
+      stars:100,
+      ton:1.00
+    },
+
+    {
+      id:4,
+      name:"Кейс №4",
+      stars:250,
+      ton:2.50
+    }
+
+  ];
+
+
+  let balance = {
+    stars:0,
+    ton:0
+  };
+
+
+  try {
+
+    tg?.ready();
+
+    tg?.expand();
+
+    tg?.setHeaderColor(
+      "#07090e"
+    );
+
+    tg?.setBackgroundColor(
+      "#07090e"
+    );
+
+  } catch (_) {}
+
+
+  function showToast(
+    message,
+    timeout = 3500
+  ) {
+
+    const el =
+      document.getElementById(
+        "toast"
+      );
+
+    el.textContent =
+      message;
+
+    el.classList.add(
+      "show"
+    );
+
+    clearTimeout(
+      window.toastTimer
+    );
+
+    window.toastTimer =
+      setTimeout(
+        () => {
+
+          el.classList.remove(
+            "show"
+          );
+
+        },
+        timeout
+      );
+
+  }
+
+
+  function parseNumber(value) {
+
+    const n =
+      Number(
+        String(
+          value ?? 0
+        )
+        .replace(
+          ",",
+          "."
+        )
+      );
+
+    return Number.isFinite(n)
+      ? n
+      : 0;
+
+  }
+
+
+  function hasEnough(item) {
+
+    return (
+      balance.stars >= item.stars ||
+      balance.ton >= item.ton
+    );
+
+  }
+
+
+  function renderCases() {
+
+    const wrap =
+      document.getElementById(
+        "cases"
+      );
+
+
+    wrap.innerHTML =
+      CASES
+        .map(
+          item => {
+
+            const enough =
+              hasEnough(item);
+
+
+            return `
+              <div class="case">
+
+                <div class="case-art">
+
+                  <div class="price-pill">
+                    ${item.stars} ⭐
+                  </div>
+
+
+                  <div class="chest">
+
+                    <div class="lid"></div>
+
+                    <div class="body"></div>
+
+                    <div class="band-v"></div>
+
+                    <div class="band-h"></div>
+
+                    <div class="lock"></div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="case-name">
+                  ${item.name}
+                </div>
+
+
+                <div class="case-price">
+                  ${item.stars} Stars /
+                  ${item.ton.toFixed(2)} TON
+                </div>
+
+
+                <button
+                  class="case-btn ${enough ? "" : "low"}"
+                  type="button"
+                  data-case="${item.id}"
+                >
+
+                  ${
+                    enough
+                      ? `Крутить за ${item.stars}`
+                      : "Пополнить баланс"
+                  }
+
+                </button>
+
+              </div>
+            `;
+
+          }
+        )
+        .join("");
+
+
+    document
+      .querySelectorAll(
+        "[data-case]"
+      )
+      .forEach(
+        btn => {
+
+          btn.addEventListener(
+            "click",
+            () => {
+
+              const item =
+                CASES.find(
+                  x =>
+                    x.id ===
+                    Number(
+                      btn.dataset.case
+                    )
+                );
+
+
+              if (!item) {
+                return;
+              }
+
+
+              if (
+                !hasEnough(item)
+              ) {
+
+                window.location.href =
+                  "/?openDeposit=1";
+
+                return;
+
+              }
+
+
+              showToast(
+                "Баланс достаточный. Реальное списание и выдачу подарка нужно подключать на сервере."
+              );
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  async function loadBalance() {
+
+    try {
+
+      if (!tg?.initData) {
+
+        renderCases();
+
+        return;
+
+      }
+
+
+      const response =
+        await fetch(
+          "/api/balances",
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+                initData:
+                  tg.initData
+              })
+          }
+        );
+
+
+      if (!response.ok) {
+
+        renderCases();
+
+        return;
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      const balances =
+        data?.balances || {};
+
+
+      balance.stars =
+        parseNumber(
+          balances.XTR
+        );
+
+
+      balance.ton =
+        parseNumber(
+          balances.TON
+        );
+
+
+      document
+        .getElementById(
+          "starsBalance"
+        )
+        .textContent =
+          balance.stars;
+
+
+      document
+        .getElementById(
+          "tonBalance"
+        )
+        .textContent =
+          balance.ton;
+
+
+      renderCases();
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+      renderCases();
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "backBtn"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/";
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      "depositBtn"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          "/?openDeposit=1";
+
+      }
+    );
+
+
+  renderCases();
+
+  loadBalance();
+
+})();
+</script>
+
+</body>
+</html>
