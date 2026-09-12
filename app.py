@@ -1354,9 +1354,19 @@ async def safe_market_price(
     gift_url
 ):
     try:
-        return await get_official_market_stars(
+        return await asyncio.wait_for(
+            get_official_market_stars(
+                gift_url
+            ),
+            timeout=8
+        )
+
+    except asyncio.TimeoutError:
+        print(
+            "MARKET PRICE TIMEOUT:",
             gift_url
         )
+        return 0
 
     except Exception as error:
         print(
@@ -1595,18 +1605,6 @@ async def me(
             or 0
         )
 
-        market_sell_stars = 0
-
-        if (
-            fixed_sell_stars <= 0
-            and gift_url
-        ):
-            market_sell_stars = (
-                await safe_market_price(
-                    gift_url
-                )
-            )
-
         gifts.append({
             "id": f"case:{row['id']}",
             "case_win_id": row["id"],
@@ -1622,13 +1620,9 @@ async def me(
                 or ""
             ),
             "source": "case",
-            "sell_stars": (
-                fixed_sell_stars
-                if fixed_sell_stars > 0
-                else market_sell_stars
-            ),
-            "market_sell_stars":
-                market_sell_stars
+            "sell_stars":
+                fixed_sell_stars,
+            "market_sell_stars": 0
         })
 
     return {
@@ -1892,6 +1886,87 @@ async def cases_open(
             ),
         "warning":
             warning
+    }
+
+
+@app.post("/api/cases/quote")
+async def cases_quote(
+    payload: CaseWinPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
+    save_user(user)
+
+    with db() as conn:
+        row = conn.execute("""
+        SELECT *
+        FROM case_wins
+        WHERE id=?
+        AND user_id=?
+        """, (
+            payload.win_id,
+            user["id"]
+        )).fetchone()
+
+    if not row:
+        raise HTTPException(
+            404,
+            "Выигрыш не найден"
+        )
+
+    if row["status"] != "owned":
+        raise HTTPException(
+            409,
+            "Этот приз уже обработан"
+        )
+
+    fixed_sell_stars = int(
+        row["sell_stars"]
+        or 0
+    )
+
+    if fixed_sell_stars > 0:
+        return {
+            "ok": True,
+            "sell_stars":
+                fixed_sell_stars,
+            "price_source":
+                "fixed"
+        }
+
+    gift_url = (
+        row["prize_gift_url"]
+        or ""
+    )
+
+    if not gift_url:
+        return {
+            "ok": True,
+            "sell_stars": 0,
+            "price_source":
+                "unavailable"
+        }
+
+    market_sell_stars = (
+        await safe_market_price(
+            gift_url
+        )
+    )
+
+    return {
+        "ok": True,
+        "sell_stars":
+            int(
+                market_sell_stars
+                or 0
+            ),
+        "price_source": (
+            "telegram_market_floor"
+            if market_sell_stars > 0
+            else "unavailable"
+        )
     }
 
 
