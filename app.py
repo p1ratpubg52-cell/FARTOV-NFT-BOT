@@ -131,9 +131,11 @@ CASE_CONFIGS = [
 ]
 
 # Две карточки «Неудача» в каждом кейсе.
-# 15% суммарно = по 7.5% на каждую карточку.
-FAILURE_TOTAL_CHANCE = 15.0
+# 25% суммарно = по 12.5% на каждую карточку.
+FAILURE_TOTAL_CHANCE = 25.0
 FAILURE_CARD_COUNT = 2
+REGULAR_NFT_CHANCE = 5.0
+MAX_REGULAR_NFTS_PER_CASE = 5
 
 CASE1_SPECIAL_PRIZES = [
     {
@@ -144,7 +146,7 @@ CASE1_SPECIAL_PRIZES = [
         "sell_stars": 15,
         "withdrawable": True,
         "special": True,
-        "fixed_chance": 15.0,
+        "fixed_chance": 25.0,
     },
     {
         "id": "special:heart15",
@@ -154,7 +156,7 @@ CASE1_SPECIAL_PRIZES = [
         "sell_stars": 15,
         "withdrawable": True,
         "special": True,
-        "fixed_chance": 15.0,
+        "fixed_chance": 25.0,
     },
 ]
 
@@ -1017,6 +1019,7 @@ def build_failure_items(case_id):
 
 
 def build_case_catalog(backpack_items):
+    # Раскладываем NFT из @fart2_backpack по 4 кейсам.
     buckets = [[], [], [], []]
 
     for index, item in enumerate(backpack_items):
@@ -1024,54 +1027,50 @@ def build_case_catalog(backpack_items):
 
     prepared = []
 
-    # Кейс №1: два специальных приза по 15%,
-    # две «Неудачи» суммарно 15%, остальное — NFT из каталога.
-    case1_regular = buckets[0]
-    case1 = []
+    # Во ВСЕХ кейсах одинаковая базовая математика:
+    # Мишка — 25%
+    # Сердце — 25%
+    # Неудача — 25% суммарно (2 карточки по 12.5%)
+    # Обычные NFT — по 5% каждый, максимум 5 NFT на кейс.
+    # Итого при 5 обычных NFT: 25 + 25 + 25 + 5*5 = 100%.
+    for case_id, bucket in enumerate(buckets, start=1):
+        items = []
 
-    special_total = 0.0
-    for special in CASE1_SPECIAL_PRIZES:
-        item = dict(special)
-        chance = float(item.pop("fixed_chance"))
-        item["chance_percent"] = chance
-        special_total += chance
-        case1.append(item)
+        # Специальные призы добавляются в каждый кейс.
+        for special in CASE1_SPECIAL_PRIZES:
+            item = dict(special)
+            chance = float(item.pop("fixed_chance"))
+            item["chance_percent"] = chance
+            items.append(item)
 
-    case1.extend(build_failure_items(1))
+        # Две карточки «Неудача» по 12.5% каждая.
+        items.extend(build_failure_items(case_id))
 
-    regular_budget = max(
-        0.0,
-        100.0 - FAILURE_TOTAL_CHANCE - special_total
-    )
+        # Только первые 5 обычных NFT в конкретном кейсе,
+        # каждый строго по 5%.
+        regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
 
-    if case1_regular:
-        case1.extend(
-            assign_equal_chances(
-                case1_regular,
-                regular_budget
-            )
-        )
-    else:
-        # Если каталог временно пуст, специальные призы
-        # получают весь оставшийся шанс, чтобы сумма была 100%.
-        special_budget = 100.0 - FAILURE_TOTAL_CHANCE
-        specials = [x for x in case1 if not x.get("is_failure")]
-        failures = [x for x in case1 if x.get("is_failure")]
-        case1 = assign_equal_chances(specials, special_budget) + failures
+        for regular in regular_items:
+            item = dict(regular)
+            item["chance_percent"] = REGULAR_NFT_CHANCE
+            items.append(item)
 
-    prepared.append(case1)
+        # Если в конкретном кейсе временно меньше 5 обычных NFT,
+        # недостающий процент добавляем к двум специальным призам
+        # поровну, чтобы общая сумма всегда оставалась ровно 100%.
+        missing_slots = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
+        if missing_slots > 0:
+            missing_chance = missing_slots * REGULAR_NFT_CHANCE
+            bonus_each = missing_chance / 2.0
 
-    # Кейсы №2–4: 15% «Неудача», 85% распределяется
-    # между реальными NFT выбранного кейса.
-    for case_id, bucket in enumerate(buckets[1:], start=2):
-        prize_budget = 100.0 - FAILURE_TOTAL_CHANCE
-        prizes = assign_equal_chances(bucket, prize_budget)
-        failures = build_failure_items(case_id)
+            for item in items:
+                if item.get("special"):
+                    item["chance_percent"] = round(
+                        float(item["chance_percent"]) + bonus_each,
+                        4,
+                    )
 
-        if not prizes:
-            failures = assign_equal_chances(failures, 100.0)
-
-        prepared.append(prizes + failures)
+        prepared.append(items)
 
     cases = []
 
