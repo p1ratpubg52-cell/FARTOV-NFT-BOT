@@ -64,10 +64,29 @@ PORT = int(os.getenv("PORT", "8080"))
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN is missing")
 
-DB = "fartov.db"
+
+# =========================================================
+# APP / DATABASE PATH
+# =========================================================
+
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DB = os.getenv(
+    "DB_PATH",
+    os.path.join(APP_DIR, "fartov.db")
+).strip()
+
+print("DATABASE PATH:", DB)
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
+app.mount(
+    "/static",
+    StaticFiles(
+        directory=os.path.join(APP_DIR, "static")
+    ),
+    name="static"
+)
 
 bot = Bot(BOT_TOKEN)
 router = Router()
@@ -115,13 +134,26 @@ CASE1_SPECIAL_PRIZES = [
 # =========================================================
 
 def db():
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(
+        DB,
+        timeout=30
+    )
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout=30000")
+    conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
 
 def init_db():
+    os.makedirs(
+        os.path.dirname(DB) or ".",
+        exist_ok=True
+    )
+
     with db() as conn:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+
         conn.execute("""
         CREATE TABLE IF NOT EXISTS users(
             user_id INTEGER PRIMARY KEY,
@@ -259,6 +291,8 @@ def init_db():
         )
         """)
 
+        conn.commit()
+
 
 # =========================================================
 # BALANCES
@@ -330,7 +364,12 @@ def ensure_balances(user_id):
                 amount_units
             )
             VALUES(?,?,0)
-            """, (user_id, currency))
+            """, (
+                user_id,
+                currency
+            ))
+
+        conn.commit()
 
 
 def get_balance_units(user_id, currency):
@@ -342,7 +381,10 @@ def get_balance_units(user_id, currency):
         FROM balances
         WHERE user_id=?
         AND currency=?
-        """, (user_id, currency)).fetchone()
+        """, (
+            user_id,
+            currency
+        )).fetchone()
 
     return int(row["amount_units"]) if row else 0
 
@@ -355,6 +397,8 @@ def credit_balance(
     reference=""
 ):
     with db() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+
         conn.execute("""
         INSERT OR IGNORE INTO balances(
             user_id,
@@ -362,14 +406,21 @@ def credit_balance(
             amount_units
         )
         VALUES(?,?,0)
-        """, (user_id, currency))
+        """, (
+            user_id,
+            currency
+        ))
 
         conn.execute("""
         UPDATE balances
         SET amount_units = amount_units + ?
         WHERE user_id=?
         AND currency=?
-        """, (amount_units, user_id, currency))
+        """, (
+            amount_units,
+            user_id,
+            currency
+        ))
 
         conn.execute("""
         INSERT INTO ledger(
@@ -387,6 +438,8 @@ def credit_balance(
             kind,
             reference
         ))
+
+        conn.commit()
 
 
 def debit_balance(
@@ -406,16 +459,24 @@ def debit_balance(
             amount_units
         )
         VALUES(?,?,0)
-        """, (user_id, currency))
+        """, (
+            user_id,
+            currency
+        ))
 
         row = conn.execute("""
         SELECT amount_units
         FROM balances
         WHERE user_id=?
         AND currency=?
-        """, (user_id, currency)).fetchone()
+        """, (
+            user_id,
+            currency
+        )).fetchone()
 
-        current = int(row["amount_units"]) if row else 0
+        current = int(
+            row["amount_units"]
+        ) if row else 0
 
         if current < amount_units:
             conn.rollback()
@@ -426,7 +487,11 @@ def debit_balance(
         SET amount_units = amount_units - ?
         WHERE user_id=?
         AND currency=?
-        """, (amount_units, user_id, currency))
+        """, (
+            amount_units,
+            user_id,
+            currency
+        ))
 
         conn.execute("""
         INSERT INTO ledger(
@@ -454,10 +519,14 @@ def get_balances(user_id):
 
     with db() as conn:
         rows = conn.execute("""
-        SELECT currency, amount_units
+        SELECT
+            currency,
+            amount_units
         FROM balances
         WHERE user_id=?
-        """, (user_id,)).fetchall()
+        """, (
+            user_id,
+        )).fetchall()
 
     result = {
         currency: "0"
@@ -465,7 +534,9 @@ def get_balances(user_id):
     }
 
     for row in rows:
-        result[row["currency"]] = format_units(
+        result[
+            row["currency"]
+        ] = format_units(
             row["currency"],
             row["amount_units"]
         )
@@ -479,7 +550,10 @@ def get_balances(user_id):
 
 def validate_init_data(init_data):
     if not init_data:
-        raise HTTPException(401, "Missing Telegram initData")
+        raise HTTPException(
+            401,
+            "Missing Telegram initData"
+        )
 
     pairs = dict(
         parse_qsl(
@@ -488,22 +562,42 @@ def validate_init_data(init_data):
         )
     )
 
-    received_hash = pairs.pop("hash", None)
+    received_hash = pairs.pop(
+        "hash",
+        None
+    )
 
     if not received_hash:
-        raise HTTPException(401, "Missing hash")
+        raise HTTPException(
+            401,
+            "Missing hash"
+        )
 
-    auth_date = int(pairs.get("auth_date", "0"))
+    auth_date = int(
+        pairs.get(
+            "auth_date",
+            "0"
+        )
+    )
 
     if (
         not auth_date
-        or abs(int(time.time()) - auth_date) > 86400
+        or abs(
+            int(time.time())
+            - auth_date
+        ) > 86400
     ):
-        raise HTTPException(401, "Expired initData")
+        raise HTTPException(
+            401,
+            "Expired initData"
+        )
 
     check_string = "\n".join(
         f"{key}={value}"
-        for key, value in sorted(pairs.items())
+        for key, value
+        in sorted(
+            pairs.items()
+        )
     )
 
     secret_key = hmac.new(
@@ -522,12 +616,20 @@ def validate_init_data(init_data):
         calculated_hash,
         received_hash
     ):
-        raise HTTPException(401, "Invalid initData")
+        raise HTTPException(
+            401,
+            "Invalid initData"
+        )
 
     try:
-        return json.loads(pairs["user"])
+        return json.loads(
+            pairs["user"]
+        )
     except Exception:
-        raise HTTPException(401, "Missing user")
+        raise HTTPException(
+            401,
+            "Missing user"
+        )
 
 
 def save_user(user):
@@ -549,7 +651,11 @@ def save_user(user):
             user.get("first_name", "")
         ))
 
-    ensure_balances(user["id"])
+        conn.commit()
+
+    ensure_balances(
+        user["id"]
+    )
 
 
 # =========================================================
@@ -566,8 +672,13 @@ def normalize_gift_url(url):
 
     if (
         parsed.scheme != "https"
-        or parsed.netloc not in {"t.me", "www.t.me"}
-        or not parsed.path.startswith("/nft/")
+        or parsed.netloc not in {
+            "t.me",
+            "www.t.me"
+        }
+        or not parsed.path.startswith(
+            "/nft/"
+        )
     ):
         raise HTTPException(
             400,
@@ -624,8 +735,15 @@ def fetch_gift_meta(url):
                 "ignore"
             )
 
-        title = get_meta_value(page, "og:title")
-        image = get_meta_value(page, "og:image")
+        title = get_meta_value(
+            page,
+            "og:title"
+        )
+
+        image = get_meta_value(
+            page,
+            "og:image"
+        )
 
         title = re.sub(
             r"\s*[–—|-]\s*Telegram\s*$",
@@ -660,7 +778,11 @@ def telegram_api_call(method, payload):
 
     request = urllib.request.Request(
         url,
-        data=json.dumps(payload).encode("utf-8"),
+        data=json.dumps(
+            payload
+        ).encode(
+            "utf-8"
+        ),
         headers={
             "Content-Type": "application/json"
         },
@@ -673,7 +795,9 @@ def telegram_api_call(method, payload):
             timeout=15
         ) as response:
             data = json.loads(
-                response.read().decode("utf-8")
+                response.read().decode(
+                    "utf-8"
+                )
             )
     except Exception as error:
         raise RuntimeError(
@@ -690,7 +814,10 @@ def telegram_api_call(method, payload):
 
 
 def normalize_owned_gift_for_catalog(owned):
-    if not isinstance(owned, dict):
+    if not isinstance(
+        owned,
+        dict
+    ):
         return None
 
     if owned.get("type") != "unique":
@@ -721,7 +848,8 @@ def normalize_owned_gift_for_catalog(owned):
     return {
         "id": slug,
         "name": display_name,
-        "gift_url": f"https://t.me/nft/{slug}",
+        "gift_url":
+            f"https://t.me/nft/{slug}",
         "image_url": "",
         "sell_stars": 0,
         "withdrawable": True,
@@ -749,10 +877,20 @@ async def load_backpack_catalog():
 
         items = []
 
-        for owned in result.get("gifts", []):
-            item = normalize_owned_gift_for_catalog(owned)
+        for owned in result.get(
+            "gifts",
+            []
+        ):
+            item = (
+                normalize_owned_gift_for_catalog(
+                    owned
+                )
+            )
+
             if item:
-                items.append(item)
+                items.append(
+                    item
+                )
 
         async def enrich(item):
             meta = await asyncio.to_thread(
@@ -771,7 +909,10 @@ async def load_backpack_catalog():
         if items:
             items = list(
                 await asyncio.gather(
-                    *(enrich(item) for item in items)
+                    *(
+                        enrich(item)
+                        for item in items
+                    )
                 )
             )
 
@@ -797,7 +938,10 @@ def assign_equal_chances(items):
         return []
 
     count = len(items)
-    base = round(100.0 / count, 4)
+    base = round(
+        100.0 / count,
+        4
+    )
     result = []
     running = 0.0
 
@@ -805,7 +949,10 @@ def assign_equal_chances(items):
         copy = dict(item)
 
         if index == count - 1:
-            chance = round(100.0 - running, 4)
+            chance = round(
+                100.0 - running,
+                4
+            )
         else:
             chance = base
             running += chance
@@ -819,10 +966,15 @@ def assign_equal_chances(items):
 def build_case_catalog(backpack_items):
     buckets = [[], [], [], []]
 
-    for index, item in enumerate(backpack_items):
-        buckets[index % 4].append(dict(item))
+    for index, item in enumerate(
+        backpack_items
+    ):
+        buckets[
+            index % 4
+        ].append(
+            dict(item)
+        )
 
-    # Кейс №1: Мишка + Сердце по 15%, остальные NFT делят 70%.
     case1_regular = buckets[0]
     case1 = []
 
@@ -836,14 +988,21 @@ def build_case_catalog(backpack_items):
     remaining = 70.0
 
     if case1_regular:
-        regular_share = remaining / len(case1_regular)
+        regular_share = (
+            remaining
+            / len(case1_regular)
+        )
 
         running = 0.0
 
-        for index, item in enumerate(case1_regular):
+        for index, item in enumerate(
+            case1_regular
+        ):
             copy = dict(item)
 
-            if index == len(case1_regular) - 1:
+            if index == len(
+                case1_regular
+            ) - 1:
                 chance = round(
                     remaining - running,
                     4
@@ -859,13 +1018,18 @@ def build_case_catalog(backpack_items):
             case1.append(copy)
 
     else:
-        # Если у backpack временно нет NFT, два специальных приза делят 100%.
         case1[0]["chance_percent"] = 50.0
         case1[1]["chance_percent"] = 50.0
 
-    case2 = assign_equal_chances(buckets[1])
-    case3 = assign_equal_chances(buckets[2])
-    case4 = assign_equal_chances(buckets[3])
+    case2 = assign_equal_chances(
+        buckets[1]
+    )
+    case3 = assign_equal_chances(
+        buckets[2]
+    )
+    case4 = assign_equal_chances(
+        buckets[3]
+    )
 
     prepared = [
         case1,
@@ -876,7 +1040,9 @@ def build_case_catalog(backpack_items):
 
     cases = []
 
-    for index, config in enumerate(CASE_CONFIGS):
+    for index, config in enumerate(
+        CASE_CONFIGS
+    ):
         cases.append({
             **config,
             "items": prepared[index]
@@ -885,9 +1051,14 @@ def build_case_catalog(backpack_items):
     return cases
 
 
-def get_case_from_catalog(cases, case_id):
+def get_case_from_catalog(
+    cases,
+    case_id
+):
     for item in cases:
-        if int(item["id"]) == int(case_id):
+        if int(item["id"]) == int(
+            case_id
+        ):
             return item
 
     return None
@@ -905,7 +1076,12 @@ def choose_prize(items):
 
     for item in items:
         chance = Decimal(
-            str(item.get("chance_percent", 0))
+            str(
+                item.get(
+                    "chance_percent",
+                    0
+                )
+            )
         )
 
         weight = max(
@@ -922,9 +1098,14 @@ def choose_prize(items):
         )
 
         total += weight
-        weighted.append((item, weight))
+        weighted.append(
+            (item, weight)
+        )
 
-    roll = secrets.randbelow(total)
+    roll = secrets.randbelow(
+        total
+    )
+
     cursor = 0
 
     for item, weight in weighted:
@@ -937,8 +1118,14 @@ def choose_prize(items):
 
 
 async def get_cases_for_user():
-    items, warning = await load_backpack_catalog()
-    return build_case_catalog(items), warning
+    items, warning = (
+        await load_backpack_catalog()
+    )
+
+    return (
+        build_case_catalog(items),
+        warning
+    )
 
 
 # =========================================================
@@ -995,32 +1182,65 @@ class CaseWinPayload(BaseModel):
 
 @app.get("/")
 async def index():
-    return FileResponse("static/index.html")
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "index.html"
+        )
+    )
 
 
 @app.get("/deposit")
 async def deposit_page():
-    return FileResponse("static/deposit.html")
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "deposit.html"
+        )
+    )
 
 
 @app.get("/inventory")
 async def inventory_page():
-    return FileResponse("static/inventory.html")
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "inventory.html"
+        )
+    )
 
 
 @app.get("/upgrade")
 async def upgrade_page():
-    return FileResponse("static/upgrade.html")
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "upgrade.html"
+        )
+    )
 
 
 @app.get("/cases")
 async def cases_page():
-    return FileResponse("static/cases.html")
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "cases.html"
+        )
+    )
 
 
 @app.get("/health")
 async def health():
-    return {"ok": True}
+    return {
+        "ok": True,
+        "db_path": DB
+    }
 
 
 # =========================================================
@@ -1028,8 +1248,13 @@ async def health():
 # =========================================================
 
 @app.post("/api/me")
-async def me(payload: InitPayload):
-    user = validate_init_data(payload.initData)
+async def me(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     with db() as conn:
@@ -1044,7 +1269,9 @@ async def me(payload: InitPayload):
         FROM deposits
         WHERE user_id=?
         ORDER BY id DESC
-        """, (user["id"],)).fetchall()
+        """, (
+            user["id"],
+        )).fetchall()
 
     gifts = []
 
@@ -1053,7 +1280,9 @@ async def me(payload: InitPayload):
 
         if (
             item["status"] == "approved"
-            and not item.get("gift_name")
+            and not item.get(
+                "gift_name"
+            )
         ):
             meta = await asyncio.to_thread(
                 fetch_gift_meta,
@@ -1063,7 +1292,9 @@ async def me(payload: InitPayload):
             with db() as conn:
                 conn.execute("""
                 UPDATE deposits
-                SET gift_name=?, gift_image=?
+                SET
+                    gift_name=?,
+                    gift_image=?
                 WHERE id=?
                 """, (
                     meta["name"],
@@ -1071,18 +1302,34 @@ async def me(payload: InitPayload):
                     item["id"]
                 ))
 
-            item["gift_name"] = meta["name"]
-            item["gift_image"] = meta["image"]
+                conn.commit()
+
+            item["gift_name"] = (
+                meta["name"]
+            )
+            item["gift_image"] = (
+                meta["image"]
+            )
 
         gifts.append(item)
 
     return {
         "user": {
             "id": user["id"],
-            "first_name": user.get("first_name", ""),
-            "username": user.get("username", "")
+            "first_name":
+                user.get(
+                    "first_name",
+                    ""
+                ),
+            "username":
+                user.get(
+                    "username",
+                    ""
+                )
         },
-        "deposit_username": "@" + DEPOSIT_USERNAME,
+        "deposit_username":
+            "@"
+            + DEPOSIT_USERNAME,
         "deposits": gifts
     }
 
@@ -1092,26 +1339,43 @@ async def me(payload: InitPayload):
 # =========================================================
 
 @app.post("/api/cases/catalog")
-async def cases_catalog(payload: InitPayload):
-    user = validate_init_data(payload.initData)
+async def cases_catalog(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
-    cases, warning = await get_cases_for_user()
+    cases, warning = (
+        await get_cases_for_user()
+    )
 
     return {
         "ok": True,
-        "source": "@" + DEPOSIT_USERNAME,
+        "source":
+            "@"
+            + DEPOSIT_USERNAME,
         "cases": cases,
         "warning": warning
     }
 
 
 @app.post("/api/cases/open")
-async def cases_open(payload: CaseOpenPayload):
-    user = validate_init_data(payload.initData)
+async def cases_open(
+    payload: CaseOpenPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
-    cases, warning = await get_cases_for_user()
+    cases, warning = (
+        await get_cases_for_user()
+    )
+
     case = get_case_from_catalog(
         cases,
         payload.case_id
@@ -1123,7 +1387,10 @@ async def cases_open(payload: CaseOpenPayload):
             "Кейс не найден"
         )
 
-    stars_price = int(case["stars"])
+    stars_price = int(
+        case["stars"]
+    )
+
     ton_price_units = parse_amount(
         "TON",
         case["ton"]
@@ -1198,18 +1465,50 @@ async def cases_open(payload: CaseOpenPayload):
             """, (
                 user["id"],
                 int(case["id"]),
-                str(prize.get("id", "")),
-                str(prize.get("name", "Приз")),
-                str(prize.get("image_url", "")),
-                str(prize.get("gift_url", "")),
-                int(prize.get("sell_stars", 0) or 0),
-                1 if prize.get("withdrawable", True) else 0,
+                str(
+                    prize.get(
+                        "id",
+                        ""
+                    )
+                ),
+                str(
+                    prize.get(
+                        "name",
+                        "Приз"
+                    )
+                ),
+                str(
+                    prize.get(
+                        "image_url",
+                        ""
+                    )
+                ),
+                str(
+                    prize.get(
+                        "gift_url",
+                        ""
+                    )
+                ),
+                int(
+                    prize.get(
+                        "sell_stars",
+                        0
+                    ) or 0
+                ),
+                1 if prize.get(
+                    "withdrawable",
+                    True
+                ) else 0,
                 "owned",
                 paid_currency,
                 paid_units
             ))
 
-            win_id = cursor.lastrowid
+            win_id = (
+                cursor.lastrowid
+            )
+
+            conn.commit()
 
     except Exception:
         credit_balance(
@@ -1224,36 +1523,74 @@ async def cases_open(payload: CaseOpenPayload):
     return {
         "ok": True,
         "win_id": win_id,
-        "case_id": int(case["id"]),
-        "paid_currency": paid_currency,
-        "paid_amount": format_units(
+        "case_id":
+            int(case["id"]),
+        "paid_currency":
             paid_currency,
-            paid_units
-        ),
-        "prize": {
-            "id": prize.get("id", ""),
-            "name": prize.get("name", "Приз"),
-            "image_url": prize.get("image_url", ""),
-            "gift_url": prize.get("gift_url", ""),
-            "sell_stars": int(
-                prize.get("sell_stars", 0) or 0
+        "paid_amount":
+            format_units(
+                paid_currency,
+                paid_units
             ),
-            "withdrawable": bool(
-                prize.get("withdrawable", True)
-            )
+        "prize": {
+            "id":
+                prize.get(
+                    "id",
+                    ""
+                ),
+            "name":
+                prize.get(
+                    "name",
+                    "Приз"
+                ),
+            "image_url":
+                prize.get(
+                    "image_url",
+                    ""
+                ),
+            "gift_url":
+                prize.get(
+                    "gift_url",
+                    ""
+                ),
+            "sell_stars":
+                int(
+                    prize.get(
+                        "sell_stars",
+                        0
+                    ) or 0
+                ),
+            "withdrawable":
+                bool(
+                    prize.get(
+                        "withdrawable",
+                        True
+                    )
+                )
         },
-        "balances": get_balances(user["id"]),
-        "warning": warning
+        "balances":
+            get_balances(
+                user["id"]
+            ),
+        "warning":
+            warning
     }
 
 
 @app.post("/api/cases/sell")
-async def cases_sell(payload: CaseWinPayload):
-    user = validate_init_data(payload.initData)
+async def cases_sell(
+    payload: CaseWinPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     with db() as conn:
-        conn.execute("BEGIN IMMEDIATE")
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
 
         row = conn.execute("""
         SELECT *
@@ -1313,7 +1650,8 @@ async def cases_sell(payload: CaseWinPayload):
 
         conn.execute("""
         UPDATE balances
-        SET amount_units = amount_units + ?
+        SET amount_units =
+            amount_units + ?
         WHERE user_id=?
         AND currency='XTR'
         """, (
@@ -1329,7 +1667,13 @@ async def cases_sell(payload: CaseWinPayload):
             kind,
             reference
         )
-        VALUES(?, 'XTR', ?, 'case_sell', ?)
+        VALUES(
+            ?,
+            'XTR',
+            ?,
+            'case_sell',
+            ?
+        )
         """, (
             user["id"],
             sell_stars,
@@ -1340,8 +1684,12 @@ async def cases_sell(payload: CaseWinPayload):
 
     return {
         "ok": True,
-        "credited_stars": sell_stars,
-        "balances": get_balances(user["id"])
+        "credited_stars":
+            sell_stars,
+        "balances":
+            get_balances(
+                user["id"]
+            )
     }
 
 
@@ -1349,11 +1697,16 @@ async def cases_sell(payload: CaseWinPayload):
 async def cases_withdraw(
     payload: CaseWinPayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     with db() as conn:
-        conn.execute("BEGIN IMMEDIATE")
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
 
         row = conn.execute("""
         SELECT *
@@ -1379,7 +1732,9 @@ async def cases_withdraw(
                 "Этот приз уже обработан"
             )
 
-        if not int(row["withdrawable"] or 0):
+        if not int(
+            row["withdrawable"] or 0
+        ):
             conn.rollback()
             raise HTTPException(
                 400,
@@ -1393,13 +1748,19 @@ async def cases_withdraw(
                 win_id,
                 status
             )
-            VALUES(?,?, 'pending')
+            VALUES(
+                ?,
+                ?,
+                'pending'
+            )
             """, (
                 user["id"],
                 payload.win_id
             ))
 
-            request_id = cursor.lastrowid
+            request_id = (
+                cursor.lastrowid
+            )
 
         except sqlite3.IntegrityError:
             conn.rollback()
@@ -1422,14 +1783,23 @@ async def cases_withdraw(
 
     if ADMIN_ID:
         try:
-            username = user.get("username") or ""
+            username = (
+                user.get("username")
+                or ""
+            )
+
             user_text = (
                 f"@{username}"
                 if username
-                else str(user["id"])
+                else str(
+                    user["id"]
+                )
             )
 
-            gift_url = row["prize_gift_url"] or "—"
+            gift_url = (
+                row["prize_gift_url"]
+                or "—"
+            )
 
             await bot.send_message(
                 ADMIN_ID,
@@ -1443,6 +1813,7 @@ async def cases_withdraw(
                     f"NFT: {gift_url}"
                 )
             )
+
         except Exception as error:
             print(
                 "Admin withdraw notification error:",
@@ -1451,12 +1822,15 @@ async def cases_withdraw(
 
     return {
         "ok": True,
-        "request_id": request_id,
-        "status": "withdraw_pending",
-        "message": (
-            "Заявка на вывод отправлена. "
-            "Подарок будет обработан администратором."
-        )
+        "request_id":
+            request_id,
+        "status":
+            "withdraw_pending",
+        "message":
+            (
+                "Заявка на вывод отправлена. "
+                "Подарок будет обработан администратором."
+            )
     }
 
 
@@ -1465,8 +1839,13 @@ async def cases_withdraw(
 # =========================================================
 
 @app.post("/api/upgrade/inventory")
-async def upgrade_inventory(payload: InitPayload):
-    user = validate_init_data(payload.initData)
+async def upgrade_inventory(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     with db() as conn:
@@ -1481,13 +1860,20 @@ async def upgrade_inventory(payload: InitPayload):
         AND status='approved'
         AND hidden=0
         ORDER BY id DESC
-        """, (user["id"],)).fetchall()
+        """, (
+            user["id"],
+        )).fetchall()
 
     items = []
 
     for row in rows:
-        name = row["gift_name"]
-        image = row["gift_image"]
+        name = row[
+            "gift_name"
+        ]
+
+        image = row[
+            "gift_image"
+        ]
 
         if not name:
             meta = await asyncio.to_thread(
@@ -1501,7 +1887,9 @@ async def upgrade_inventory(payload: InitPayload):
             with db() as conn:
                 conn.execute("""
                 UPDATE deposits
-                SET gift_name=?, gift_image=?
+                SET
+                    gift_name=?,
+                    gift_image=?
                 WHERE id=?
                 """, (
                     name,
@@ -1509,28 +1897,48 @@ async def upgrade_inventory(payload: InitPayload):
                     row["id"]
                 ))
 
+                conn.commit()
+
         items.append({
-            "id": str(row["id"]),
-            "name": name or "Telegram Gift",
-            "image_url": image or "",
-            "gift_url": row["gift_url"],
-            "price_ton": 0
+            "id":
+                str(row["id"]),
+            "name":
+                name
+                or "Telegram Gift",
+            "image_url":
+                image
+                or "",
+            "gift_url":
+                row["gift_url"],
+            "price_ton":
+                0
         })
 
-    return {"items": items}
+    return {
+        "items": items
+    }
 
 
 @app.post("/api/upgrade/catalog")
-async def upgrade_catalog(payload: InitPayload):
-    user = validate_init_data(payload.initData)
+async def upgrade_catalog(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
-    items, warning = await load_backpack_catalog()
+    items, warning = (
+        await load_backpack_catalog()
+    )
 
     return {
         "items": items,
         "warning": warning,
-        "source": "@" + DEPOSIT_USERNAME
+        "source":
+            "@"
+            + DEPOSIT_USERNAME
     }
 
 
@@ -1538,11 +1946,16 @@ async def upgrade_catalog(payload: InitPayload):
 async def upgrade_quote(
     payload: UpgradeQuotePayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     try:
-        source_id = int(payload.source_id)
+        source_id = int(
+            payload.source_id
+        )
     except Exception:
         raise HTTPException(
             400,
@@ -1568,13 +1981,17 @@ async def upgrade_quote(
             "NFT не найден в инвентаре"
         )
 
-    catalog, _ = await load_backpack_catalog()
+    catalog, _ = (
+        await load_backpack_catalog()
+    )
 
     target = next(
         (
             item
             for item in catalog
-            if str(item["id"]) == str(
+            if str(
+                item["id"]
+            ) == str(
                 payload.target_id
             )
         ),
@@ -1588,7 +2005,12 @@ async def upgrade_quote(
         )
 
     chance = 50.0
-    quote_id = secrets.token_hex(16)
+
+    quote_id = (
+        secrets.token_hex(
+            16
+        )
+    )
 
     return {
         "ok": True,
@@ -1601,11 +2023,16 @@ async def upgrade_quote(
 async def upgrade_play(
     payload: UpgradePlayPayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     try:
-        source_id = int(payload.source_id)
+        source_id = int(
+            payload.source_id
+        )
     except Exception:
         raise HTTPException(
             400,
@@ -1631,13 +2058,17 @@ async def upgrade_play(
             "NFT не найден"
         )
 
-    catalog, _ = await load_backpack_catalog()
+    catalog, _ = (
+        await load_backpack_catalog()
+    )
 
     target = next(
         (
             item
             for item in catalog
-            if str(item["id"]) == str(
+            if str(
+                item["id"]
+            ) == str(
                 payload.target_id
             )
         ),
@@ -1651,7 +2082,14 @@ async def upgrade_play(
         )
 
     chance = 50.0
-    roll = secrets.randbelow(1_000_000) / 10_000
+
+    roll = (
+        secrets.randbelow(
+            1_000_000
+        )
+        / 10_000
+    )
+
     won = roll < chance
 
     with db() as conn:
@@ -1668,18 +2106,24 @@ async def upgrade_play(
         """, (
             user["id"],
             source_id,
-            str(payload.target_id),
+            str(
+                payload.target_id
+            ),
             chance,
             roll,
             1 if won else 0
         ))
 
+        conn.commit()
+
     return {
         "ok": True,
         "won": won,
         "success": won,
-        "chance_percent": chance,
-        "roll_percent": roll
+        "chance_percent":
+            chance,
+        "roll_percent":
+            roll
     }
 
 
@@ -1688,9 +2132,26 @@ async def upgrade_play(
 # =========================================================
 
 @app.post("/api/balances")
-async def balances(payload: InitPayload):
-    user = validate_init_data(payload.initData)
+async def balances(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
+
+    current_balances = (
+        get_balances(
+            user["id"]
+        )
+    )
+
+    print(
+        "BALANCE READ:",
+        user["id"],
+        current_balances
+    )
 
     with db() as conn:
         history = conn.execute("""
@@ -1704,7 +2165,9 @@ async def balances(payload: InitPayload):
         WHERE user_id=?
         ORDER BY id DESC
         LIMIT 30
-        """, (user["id"],)).fetchall()
+        """, (
+            user["id"],
+        )).fetchall()
 
         requests = conn.execute("""
         SELECT
@@ -1718,41 +2181,56 @@ async def balances(payload: InitPayload):
         WHERE user_id=?
         ORDER BY id DESC
         LIMIT 20
-        """, (user["id"],)).fetchall()
+        """, (
+            user["id"],
+        )).fetchall()
 
     return {
-        "balances": get_balances(
-            user["id"]
-        ),
+        "balances":
+            current_balances,
         "addresses": {
-            "TON": TON_DEPOSIT_ADDRESS,
-            "USDT": USDT_DEPOSIT_ADDRESS,
-            "GRAM": GRAM_DEPOSIT_ADDRESS
+            "TON":
+                TON_DEPOSIT_ADDRESS,
+            "USDT":
+                USDT_DEPOSIT_ADDRESS,
+            "GRAM":
+                GRAM_DEPOSIT_ADDRESS
         },
         "history": [
             {
-                "currency": row["currency"],
-                "amount": format_units(
+                "currency":
                     row["currency"],
-                    row["delta_units"]
-                ),
-                "kind": row["kind"],
-                "reference": row["reference"],
-                "created_at": row["created_at"]
+                "amount":
+                    format_units(
+                        row["currency"],
+                        row["delta_units"]
+                    ),
+                "kind":
+                    row["kind"],
+                "reference":
+                    row["reference"],
+                "created_at":
+                    row["created_at"]
             }
             for row in history
         ],
         "requests": [
             {
-                "id": row["id"],
-                "currency": row["currency"],
-                "amount": format_units(
+                "id":
+                    row["id"],
+                "currency":
                     row["currency"],
-                    row["amount_units"]
-                ),
-                "tx_ref": row["tx_ref"],
-                "status": row["status"],
-                "created_at": row["created_at"]
+                "amount":
+                    format_units(
+                        row["currency"],
+                        row["amount_units"]
+                    ),
+                "tx_ref":
+                    row["tx_ref"],
+                "status":
+                    row["status"],
+                "created_at":
+                    row["created_at"]
             }
             for row in requests
         ]
@@ -1763,10 +2241,15 @@ async def balances(payload: InitPayload):
 async def stars_invoice(
     payload: StarsInvoicePayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
-    amount = int(payload.amount)
+    amount = int(
+        payload.amount
+    )
 
     if amount < 1:
         raise HTTPException(
@@ -1796,7 +2279,8 @@ async def stars_invoice(
         currency="XTR",
         prices=[
             LabeledPrice(
-                label=f"{amount} Stars",
+                label=
+                    f"{amount} Stars",
                 amount=amount
             )
         ],
@@ -1813,10 +2297,17 @@ async def stars_invoice(
 async def manual_deposit(
     payload: ManualPayPayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
-    currency = payload.currency.upper().strip()
+    currency = (
+        payload.currency
+        .upper()
+        .strip()
+    )
 
     if currency not in {
         "TON",
@@ -1828,7 +2319,10 @@ async def manual_deposit(
             "Можно внести TON, USDT или GRAM"
         )
 
-    tx_ref = payload.tx_ref.strip()
+    tx_ref = (
+        payload.tx_ref
+        .strip()
+    )
 
     if len(tx_ref) < 6:
         raise HTTPException(
@@ -1858,7 +2352,11 @@ async def manual_deposit(
                 tx_ref
             ))
 
-            request_id = cursor.lastrowid
+            request_id = (
+                cursor.lastrowid
+            )
+
+            conn.commit()
 
     except sqlite3.IntegrityError:
         raise HTTPException(
@@ -1868,7 +2366,8 @@ async def manual_deposit(
 
     return {
         "ok": True,
-        "request_id": request_id
+        "request_id":
+            request_id
     }
 
 
@@ -1876,7 +2375,10 @@ async def manual_deposit(
 async def create_deposit(
     payload: DepositPayload
 ):
-    user = validate_init_data(payload.initData)
+    user = validate_init_data(
+        payload.initData
+    )
+
     save_user(user)
 
     gift_url = normalize_gift_url(
@@ -1905,7 +2407,11 @@ async def create_deposit(
                 meta["image"]
             ))
 
-            deposit_id = cursor.lastrowid
+            deposit_id = (
+                cursor.lastrowid
+            )
+
+            conn.commit()
 
     except sqlite3.IntegrityError:
         raise HTTPException(
@@ -1915,8 +2421,10 @@ async def create_deposit(
 
     return {
         "ok": True,
-        "deposit_id": deposit_id,
-        "gift": meta
+        "deposit_id":
+            deposit_id,
+        "gift":
+            meta
     }
 
 
@@ -1942,18 +2450,25 @@ async def pre_checkout(
     ):
         await query.answer(
             ok=False,
-            error_message="Неверный платеж"
+            error_message=
+                "Неверный платеж"
         )
         return
 
-    await query.answer(ok=True)
+    await query.answer(
+        ok=True
+    )
 
 
-@router.message(F.successful_payment)
+@router.message(
+    F.successful_payment
+)
 async def successful_payment(
     message: Message
 ):
-    payment = message.successful_payment
+    payment = (
+        message.successful_payment
+    )
 
     if not payment:
         return
@@ -1979,9 +2494,15 @@ async def successful_payment(
         SELECT telegram_charge_id
         FROM star_payments
         WHERE telegram_charge_id=?
-        """, (charge_id,)).fetchone()
+        """, (
+            charge_id,
+        )).fetchone()
 
         if exists:
+            print(
+                "STARS PAYMENT ALREADY PROCESSED:",
+                charge_id
+            )
             return
 
         conn.execute("""
@@ -1997,12 +2518,27 @@ async def successful_payment(
             amount
         ))
 
+        conn.commit()
+
     credit_balance(
         message.from_user.id,
         "XTR",
         amount,
         "stars_payment",
         charge_id
+    )
+
+    credited_balances = (
+        get_balances(
+            message.from_user.id
+        )
+    )
+
+    print(
+        "STARS CREDITED:",
+        message.from_user.id,
+        amount,
+        credited_balances
     )
 
     await message.answer(
@@ -2014,24 +2550,37 @@ async def successful_payment(
 # BOT START
 # =========================================================
 
-@router.message(CommandStart())
-async def start(message: Message):
+@router.message(
+    CommandStart()
+)
+async def start(
+    message: Message
+):
     buttons = []
 
-    if WEBAPP_URL.startswith("https://"):
+    if WEBAPP_URL.startswith(
+        "https://"
+    ):
         buttons.append([
             InlineKeyboardButton(
-                text="🎮 OPEN MINI APP",
-                web_app=WebAppInfo(
-                    url=WEBAPP_URL
-                )
+                text=
+                    "🎮 OPEN MINI APP",
+                web_app=
+                    WebAppInfo(
+                        url=
+                            WEBAPP_URL
+                    )
             )
         ])
 
     buttons.append([
         InlineKeyboardButton(
-            text="🎁 @" + DEPOSIT_USERNAME,
-            url="https://t.me/" + DEPOSIT_USERNAME
+            text=
+                "🎁 @"
+                + DEPOSIT_USERNAME,
+            url=
+                "https://t.me/"
+                + DEPOSIT_USERNAME
         )
     ])
 
@@ -2043,9 +2592,11 @@ async def start(message: Message):
     await message.answer(
         text,
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=buttons
-        )
+        reply_markup=
+            InlineKeyboardMarkup(
+                inline_keyboard=
+                    buttons
+            )
     )
 
 
@@ -2054,7 +2605,9 @@ async def start(message: Message):
 # =========================================================
 
 async def run_bot():
-    await dp.start_polling(bot)
+    await dp.start_polling(
+        bot
+    )
 
 
 async def run_web():
