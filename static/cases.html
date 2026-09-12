@@ -2,12 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   >
-
   <title>Кейсы — FART2 NFT BOT</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -42,10 +40,7 @@
       width:100%;
       max-width:720px;
       margin:0 auto;
-      padding:
-        calc(18px + env(safe-area-inset-top))
-        16px
-        40px;
+      padding:calc(18px + env(safe-area-inset-top)) 16px 40px
     }
 
     .topbar{
@@ -62,8 +57,7 @@
       border-radius:16px;
       padding:13px 15px;
       font-size:14px;
-      font-weight:850;
-      cursor:pointer
+      font-weight:850
     }
 
     .page-title{
@@ -125,16 +119,8 @@
       margin-bottom:24px;
       border:1px solid #353d49;
       background:
-        radial-gradient(
-          circle at 85% 10%,
-          rgba(149,80,255,.26),
-          transparent 33%
-        ),
-        linear-gradient(
-          145deg,
-          #1d212a,
-          #12161c
-        )
+        radial-gradient(circle at 85% 10%,rgba(149,80,255,.26),transparent 33%),
+        linear-gradient(145deg,#1d212a,#12161c)
     }
 
     .hero-title{
@@ -163,16 +149,13 @@
       border-radius:16px;
       overflow:hidden;
       background:#161a22;
-      border:1px solid #3b4350;
-      display:flex;
-      align-items:center;
-      justify-content:center
+      border:1px solid #3b4350
     }
 
     .preview-item img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit:contain;
       display:block
     }
 
@@ -197,8 +180,7 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      background:linear-gradient(135deg,#675cff,#a34dff);
-      cursor:pointer
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
     .section-title{
@@ -218,7 +200,6 @@
       border:1px solid #313946;
       background:linear-gradient(145deg,#171c24,#11151b);
       padding:12px;
-      cursor:pointer;
       overflow:hidden
     }
 
@@ -237,11 +218,7 @@
       overflow:hidden;
       border:2px solid rgba(220,169,46,.75);
       background:
-        radial-gradient(
-          circle at 50% 35%,
-          rgba(255,255,255,.13),
-          transparent 25%
-        ),
+        radial-gradient(circle at 50% 35%,rgba(255,255,255,.13),transparent 25%),
         linear-gradient(180deg,#30343d,#23262e)
     }
 
@@ -265,7 +242,7 @@
     .case-thumb img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit:contain;
       display:block
     }
 
@@ -321,8 +298,7 @@
       font-size:13px;
       font-weight:900;
       color:#fff;
-      background:linear-gradient(135deg,#675cff,#a34dff);
-      cursor:pointer
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
     .case-btn.low{
@@ -340,8 +316,6 @@
       line-height:1.45;
       text-align:center
     }
-
-    /* MODAL */
 
     .modal{
       position:fixed;
@@ -367,10 +341,7 @@
       background:#11161e;
       border-radius:30px 30px 0 0;
       border:1px solid #303846;
-      padding:
-        19px
-        16px
-        calc(25px + env(safe-area-inset-bottom))
+      padding:19px 16px calc(25px + env(safe-area-inset-bottom))
     }
 
     .sheet-head{
@@ -393,9 +364,7 @@
       border-radius:50%;
       background:#292f39;
       color:#fff;
-      font-size:20px;
-      cursor:pointer;
-      flex:0 0 auto
+      font-size:20px
     }
 
     .sheet-price{
@@ -437,7 +406,7 @@
     .drop-image img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit:contain;
       display:block
     }
 
@@ -470,7 +439,6 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      cursor:pointer;
       background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
@@ -478,11 +446,89 @@
       background:linear-gradient(135deg,#ff7918,#ff4b4b)
     }
 
-    .loading{
-      grid-column:1/-1;
-      text-align:center;
-      padding:28px 15px;
-      color:#929aa7
+    .result{
+      display:none;
+      text-align:center
+    }
+
+    .result.show{
+      display:block
+    }
+
+    .result-image{
+      width:190px;
+      height:190px;
+      margin:10px auto 16px;
+      border-radius:24px;
+      overflow:hidden;
+      background:#20252d;
+      border:1px solid #3a4350
+    }
+
+    .result-image img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block
+    }
+
+    .result-label{
+      color:#8f97a4;
+      font-size:13px;
+      margin-bottom:5px
+    }
+
+    .result-name{
+      font-size:27px;
+      font-weight:950;
+      margin-bottom:18px
+    }
+
+    .win-actions{
+      display:grid;
+      gap:10px;
+      margin-top:14px
+    }
+
+    .withdraw-btn,
+    .sell-btn,
+    .again-btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:16px;
+      color:#fff;
+      font-size:16px;
+      font-weight:900
+    }
+
+    .withdraw-btn{
+      background:linear-gradient(135deg,#675cff,#a34dff)
+    }
+
+    .sell-btn{
+      background:linear-gradient(135deg,#f4a11a,#ffcf3d);
+      color:#211500
+    }
+
+    .again-btn{
+      background:#252c36;
+      border:1px solid #353e4b
+    }
+
+    .status-box{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      background:#202630;
+      color:#b7bec8;
+      font-size:13px;
+      line-height:1.4;
+      display:none
+    }
+
+    .status-box.show{
+      display:block
     }
 
     .toast{
@@ -508,7 +554,6 @@
     }
 
     @media(max-width:390px){
-
       .cases{
         gap:9px
       }
@@ -524,7 +569,6 @@
       .case-name{
         font-size:16px
       }
-
     }
   </style>
 </head>
@@ -534,69 +578,41 @@
 <div class="app">
 
   <div class="topbar">
-
-    <button
-      id="backBtn"
-      class="back-btn"
-      type="button"
-    >
+    <button id="backBtn" class="back-btn" type="button">
       ← Назад
     </button>
 
     <div>
-      <div class="page-title">
-        Кейсы
-      </div>
-
+      <div class="page-title">Кейсы</div>
       <div class="page-subtitle">
         NFT из @fart2_backpack
       </div>
     </div>
-
   </div>
 
-
-  <div
-    id="catalogWarning"
-    class="warning"
-  ></div>
-
+  <div id="catalogWarning" class="warning"></div>
 
   <div class="balances">
 
     <div class="balance-card">
-
       <div class="balance-label">
         Telegram Stars
       </div>
-
-      <div
-        id="starsBalance"
-        class="balance-value"
-      >
+      <div id="starsBalance" class="balance-value">
         0
       </div>
-
     </div>
 
-
     <div class="balance-card">
-
       <div class="balance-label">
         TON
       </div>
-
-      <div
-        id="tonBalance"
-        class="balance-value"
-      >
+      <div id="tonBalance" class="balance-value">
         0
       </div>
-
     </div>
 
   </div>
-
 
   <div class="hero">
 
@@ -604,10 +620,7 @@
       Подарки внутри кейсов
     </div>
 
-    <div
-      id="previewStrip"
-      class="preview-strip"
-    >
+    <div id="previewStrip" class="preview-strip">
       <div class="preview-line"></div>
     </div>
 
@@ -621,75 +634,140 @@
 
   </div>
 
-
   <div class="section-title">
     Выбери кейс
   </div>
 
-
-  <div
-    id="cases"
-    class="cases"
-  >
-    <div class="loading">
-      Загружаем NFT...
-    </div>
-  </div>
+  <div id="cases" class="cases"></div>
 
 </div>
 
 
-<div
-  id="caseModal"
-  class="modal"
->
+<div id="caseModal" class="modal">
 
   <div class="sheet">
 
-    <div class="sheet-head">
+    <div id="caseContent">
 
-      <div
-        id="modalTitle"
-        class="sheet-title"
-      >
-        Кейс
+      <div class="sheet-head">
+
+        <div
+          id="modalTitle"
+          class="sheet-title"
+        >
+          Кейс
+        </div>
+
+        <button
+          id="closeModal"
+          class="close-btn"
+          type="button"
+        >
+          ✕
+        </button>
+
       </div>
 
+      <div
+        id="modalPrice"
+        class="sheet-price"
+      ></div>
+
+      <div class="drop-heading">
+        Что может выпасть
+      </div>
+
+      <div
+        id="drops"
+        class="drops"
+      ></div>
+
       <button
-        id="closeModal"
-        class="close-btn"
+        id="modalAction"
+        class="modal-action"
         type="button"
       >
-        ✕
+        Пополнить баланс
       </button>
 
     </div>
 
 
     <div
-      id="modalPrice"
-      class="sheet-price"
-    ></div>
-
-
-    <div class="drop-heading">
-      Что может выпасть
-    </div>
-
-
-    <div
-      id="drops"
-      class="drops"
-    ></div>
-
-
-    <button
-      id="modalAction"
-      class="modal-action"
-      type="button"
+      id="winResult"
+      class="result"
     >
-      Пополнить баланс
-    </button>
+
+      <div class="sheet-head">
+
+        <div class="sheet-title">
+          Выпало!
+        </div>
+
+        <button
+          id="closeResult"
+          class="close-btn"
+          type="button"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <div class="result-image">
+
+        <img
+          id="resultImage"
+          src=""
+          alt=""
+        >
+
+      </div>
+
+      <div class="result-label">
+        Ваш приз
+      </div>
+
+      <div
+        id="resultName"
+        class="result-name"
+      ></div>
+
+      <div
+        id="resultStatus"
+        class="status-box"
+      ></div>
+
+      <div class="win-actions">
+
+        <button
+          id="withdrawPrize"
+          class="withdraw-btn"
+          type="button"
+        >
+          Вывести
+        </button>
+
+        <button
+          id="sellPrize"
+          class="sell-btn"
+          type="button"
+          style="display:none"
+        >
+          ⭐ Продать за 15 Stars
+        </button>
+
+        <button
+          id="playAgain"
+          class="again-btn"
+          type="button"
+        >
+          Вернуться к кейсу
+        </button>
+
+      </div>
+
+    </div>
 
   </div>
 
@@ -703,39 +781,26 @@
 
 
 <script>
-
 (() => {
 
   const tg =
     window.Telegram?.WebApp ||
     null;
 
-
   let userBalance = {
     stars:0,
     ton:0
   };
 
-
   let CASES = [];
-
   let selectedCase = null;
-
+  let currentWin = null;
 
   try {
-
     tg?.ready();
-
     tg?.expand();
-
-    tg?.setHeaderColor(
-      "#07090e"
-    );
-
-    tg?.setBackgroundColor(
-      "#07090e"
-    );
-
+    tg?.setHeaderColor("#07090e");
+    tg?.setBackgroundColor("#07090e");
   } catch (_) {}
 
 
@@ -749,20 +814,16 @@
         "toast"
       );
 
-
     el.textContent =
       message;
-
 
     el.classList.add(
       "show"
     );
 
-
     clearTimeout(
       window.toastTimer
     );
-
 
     window.toastTimer =
       setTimeout(
@@ -791,7 +852,6 @@
         )
       );
 
-
     return Number.isFinite(n)
       ? n
       : 0;
@@ -808,6 +868,21 @@
       userBalance.ton >=
       Number(item.ton)
     );
+
+  }
+
+
+  function requireInitData() {
+
+    if (!tg?.initData) {
+
+      throw new Error(
+        "Откройте мини-приложение внутри Telegram"
+      );
+
+    }
+
+    return tg.initData;
 
   }
 
@@ -829,21 +904,18 @@
           },
 
           body:
-            JSON.stringify(body)
+            JSON.stringify(
+              body
+            )
         }
       );
 
-
     let data = {};
 
-
     try {
-
       data =
         await response.json();
-
     } catch (_) {}
-
 
     if (!response.ok) {
 
@@ -854,7 +926,6 @@
       );
 
     }
-
 
     return data;
 
@@ -876,11 +947,58 @@
     return String(
       value ?? ""
     )
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+  }
+
+
+  function setBalances(data) {
+
+    const balances =
+      data || {};
+
+    userBalance.stars =
+      parseNumber(
+        balances.XTR
+      );
+
+    userBalance.ton =
+      parseNumber(
+        balances.TON
+      );
+
+    document
+      .getElementById(
+        "starsBalance"
+      )
+      .textContent =
+        userBalance.stars;
+
+    document
+      .getElementById(
+        "tonBalance"
+      )
+      .textContent =
+        userBalance.ton;
 
   }
 
@@ -892,48 +1010,24 @@
         "previewStrip"
       );
 
-
     const allItems =
       CASES.flatMap(
         item =>
-          Array.isArray(item.items)
+          Array.isArray(
+            item.items
+          )
             ? item.items
             : []
       );
 
-
     preview.innerHTML =
       '<div class="preview-line"></div>';
 
-
-    if (!allItems.length) {
-
-      const box =
-        document.createElement(
-          "div"
-        );
-
-
-      box.className =
-        "preview-item";
-
-
-      box.innerHTML =
-        `<img src="/static/nft-gift.png" alt="">`;
-
-
-      preview.appendChild(
-        box
-      );
-
-
-      return;
-
-    }
-
-
     allItems
-      .slice(0,8)
+      .slice(
+        0,
+        8
+      )
       .forEach(
         item => {
 
@@ -942,43 +1036,37 @@
               "div"
             );
 
-
           box.className =
             "preview-item";
-
 
           const img =
             document.createElement(
               "img"
             );
 
-
           img.src =
             giftImage(
               item
             );
 
-
           img.alt =
-            item?.name ||
-            "Telegram NFT";
-
+            item.name ||
+            "Приз";
 
           img.onerror =
             () => {
 
-              img.onerror = null;
+              img.onerror =
+                null;
 
               img.src =
                 "/static/nft-gift.png";
 
             };
 
-
           box.appendChild(
             img
           );
-
 
           preview.appendChild(
             box
@@ -993,10 +1081,14 @@
   function casePreviewHtml(items) {
 
     const preview =
-      Array.isArray(items)
-        ? items.slice(0,3)
+      Array.isArray(
+        items
+      )
+        ? items.slice(
+            0,
+            3
+          )
         : [];
-
 
     if (!preview.length) {
 
@@ -1010,7 +1102,6 @@
       `;
 
     }
-
 
     return preview
       .map(
@@ -1040,20 +1131,18 @@
         "cases"
       );
 
-
     if (!CASES.length) {
 
       root.innerHTML =
         `
           <div class="empty">
-            NFT с @fart2_backpack пока не удалось получить.
+            В кейсах пока нет доступных призов.
           </div>
         `;
 
       return;
 
     }
-
 
     root.innerHTML =
       CASES
@@ -1064,7 +1153,6 @@
               hasEnough(
                 item
               );
-
 
             return `
 
@@ -1079,38 +1167,20 @@
                     ${item.stars} ⭐
                   </div>
 
-
                   <div class="case-thumbs">
-
-                    ${
-                      casePreviewHtml(
-                        item.items
-                      )
-                    }
-
+                    ${casePreviewHtml(item.items)}
                   </div>
 
                 </div>
 
-
                 <div class="case-name">
-
-                  ${
-                    safeText(
-                      item.name
-                    )
-                  }
-
+                  ${safeText(item.name)}
                 </div>
-
 
                 <div class="case-price">
-
                   ${item.stars} Stars /
                   ${Number(item.ton).toFixed(2)} TON
-
                 </div>
-
 
                 <button
                   type="button"
@@ -1134,7 +1204,6 @@
         )
         .join("");
 
-
     document
       .querySelectorAll(
         "[data-case]"
@@ -1154,546 +1223,16 @@
                 return;
               }
 
-
-              const id =
-                Number(
-                  card.dataset.case
-                );
-
-
               const item =
                 CASES.find(
                   x =>
-                    Number(x.id) === id
+                    Number(x.id) ===
+                    Number(
+                      card.dataset.case
+                    )
                 );
-
 
               if (item) {
-
                 openCase(
                   item
-                );
-
-              }
-
-            }
-          );
-
-        }
-      );
-
-
-    document
-      .querySelectorAll(
-        "[data-action]"
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "click",
-            event => {
-
-              event.stopPropagation();
-
-
-              const id =
-                Number(
-                  button.dataset.action
-                );
-
-
-              const item =
-                CASES.find(
-                  x =>
-                    Number(x.id) === id
-                );
-
-
-              if (!item) {
-                return;
-              }
-
-
-              if (
-                !hasEnough(
-                  item
-                )
-              ) {
-
-                window.location.href =
-                  "/?openDeposit=1";
-
-                return;
-
-              }
-
-
-              openCase(
-                item
-              );
-
-            }
-          );
-
-        }
-      );
-
-  }
-
-
-  function openCase(item) {
-
-    selectedCase =
-      item;
-
-
-    document
-      .getElementById(
-        "modalTitle"
-      )
-      .textContent =
-        item.name;
-
-
-    document
-      .getElementById(
-        "modalPrice"
-      )
-      .textContent =
-        `${item.stars} Stars / ${Number(item.ton).toFixed(2)} TON`;
-
-
-    const drops =
-      document.getElementById(
-        "drops"
-      );
-
-
-    if (
-      !Array.isArray(
-        item.items
-      )
-      ||
-      !item.items.length
-    ) {
-
-      drops.innerHTML =
-        `
-          <div class="empty">
-            В этом кейсе пока нет доступных NFT.
-          </div>
-        `;
-
-    } else {
-
-      drops.innerHTML =
-        item.items
-          .map(
-            gift => {
-
-              const chance =
-                Number(
-                  gift.chance_percent ||
-                  0
-                );
-
-
-              return `
-
-                <div class="drop">
-
-                  <div class="drop-image">
-
-                    <img
-                      src="${safeText(giftImage(gift))}"
-                      alt=""
-                      onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-                    >
-
-                  </div>
-
-
-                  <div class="drop-name">
-
-                    ${
-                      safeText(
-                        gift.name ||
-                        "Telegram NFT"
-                      )
-                    }
-
-                  </div>
-
-
-                  ${
-                    chance > 0
-                      ? `
-                        <div class="drop-chance">
-                          Шанс: ${chance}%
-                        </div>
-                      `
-                      : ""
-                  }
-
-
-                  ${
-                    gift.gift_url
-                      ? `
-                        <a
-                          class="drop-link"
-                          href="${safeText(gift.gift_url)}"
-                          target="_blank"
-                        >
-                          Посмотреть NFT
-                        </a>
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              `;
-
-            }
-          )
-          .join("");
-
-    }
-
-
-    const action =
-      document.getElementById(
-        "modalAction"
-      );
-
-
-    if (
-      hasEnough(
-        item
-      )
-    ) {
-
-      action.classList.remove(
-        "low"
-      );
-
-
-      action.textContent =
-        `Крутить за ${item.stars}`;
-
-    } else {
-
-      action.classList.add(
-        "low"
-      );
-
-
-      action.textContent =
-        "Пополнить баланс";
-
-    }
-
-
-    document
-      .getElementById(
-        "caseModal"
-      )
-      .classList
-      .add(
-        "active"
-      );
-
-  }
-
-
-  function closeModal() {
-
-    document
-      .getElementById(
-        "caseModal"
-      )
-      .classList
-      .remove(
-        "active"
-      );
-
-  }
-
-
-  async function loadBalances() {
-
-    if (!tg?.initData) {
-      return;
-    }
-
-
-    try {
-
-      const data =
-        await post(
-          "/api/balances",
-          {
-            initData:
-              tg.initData
-          }
-        );
-
-
-      const balances =
-        data?.balances ||
-        {};
-
-
-      userBalance.stars =
-        parseNumber(
-          balances.XTR
-        );
-
-
-      userBalance.ton =
-        parseNumber(
-          balances.TON
-        );
-
-
-      document
-        .getElementById(
-          "starsBalance"
-        )
-        .textContent =
-          userBalance.stars;
-
-
-      document
-        .getElementById(
-          "tonBalance"
-        )
-        .textContent =
-          userBalance.ton;
-
-
-    } catch (error) {
-
-      console.error(
-        "Balance error:",
-        error
-      );
-
-    }
-
-  }
-
-
-  async function loadCatalog() {
-
-    const warning =
-      document.getElementById(
-        "catalogWarning"
-      );
-
-
-    if (!tg?.initData) {
-
-      warning.textContent =
-        "Открой мини-приложение внутри Telegram.";
-
-      warning.classList.add(
-        "show"
-      );
-
-      return;
-
-    }
-
-
-    try {
-
-      const data =
-        await post(
-          "/api/cases/catalog",
-          {
-            initData:
-              tg.initData
-          }
-        );
-
-
-      CASES =
-        Array.isArray(
-          data?.cases
-        )
-          ? data.cases
-          : [];
-
-
-      if (
-        data?.warning
-      ) {
-
-        warning.textContent =
-          data.warning;
-
-
-        warning.classList.add(
-          "show"
-        );
-
-      } else {
-
-        warning.classList.remove(
-          "show"
-        );
-
-      }
-
-
-      renderPreview();
-
-      renderCases();
-
-
-    } catch (error) {
-
-      console.error(
-        "Catalog error:",
-        error
-      );
-
-
-      warning.textContent =
-        "Не удалось загрузить NFT: "
-        +
-        error.message;
-
-
-      warning.classList.add(
-        "show"
-      );
-
-
-      CASES = [];
-
-      renderPreview();
-
-      renderCases();
-
-    }
-
-  }
-
-
-  document
-    .getElementById(
-      "backBtn"
-    )
-    .addEventListener(
-      "click",
-      () => {
-
-        window.location.href =
-          "/";
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      "depositBtn"
-    )
-    .addEventListener(
-      "click",
-      () => {
-
-        window.location.href =
-          "/?openDeposit=1";
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      "closeModal"
-    )
-    .addEventListener(
-      "click",
-      closeModal
-    );
-
-
-  document
-    .getElementById(
-      "caseModal"
-    )
-    .addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target.id ===
-          "caseModal"
-        ) {
-
-          closeModal();
-
-        }
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      "modalAction"
-    )
-    .addEventListener(
-      "click",
-      () => {
-
-        if (
-          !selectedCase
-        ) {
-          return;
-        }
-
-
-        if (
-          !hasEnough(
-            selectedCase
-          )
-        ) {
-
-          window.location.href =
-            "/?openDeposit=1";
-
-          return;
-
-        }
-
-
-        showToast(
-          "Каталог NFT подключён. Само открытие кейса нужно подключать отдельным серверным действием."
-        );
-
-      }
-    );
-
-
-  async function init() {
-
-    await loadBalances();
-
-    await loadCatalog();
-
-  }
-
-
-  init();
-
-})();
-</script>
-
-</body>
-</html>
+               
