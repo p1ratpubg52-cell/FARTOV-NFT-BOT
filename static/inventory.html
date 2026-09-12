@@ -2,14 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   >
-
   <title>Инвентарь — FART2</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -20,8 +17,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       min-height: 100%;
       background: #07090e;
@@ -76,7 +72,6 @@
       padding: 25px 22px;
       background: linear-gradient(135deg, #25c58f, #147561);
       margin-bottom: 18px;
-      box-shadow: 0 16px 40px rgba(37, 197, 143, .14);
     }
 
     .hero-badge {
@@ -171,15 +166,10 @@
       margin-top: 9px;
       padding: 6px 9px;
       border-radius: 10px;
-      background: rgba(34, 201, 144, .12);
-      color: #42d9a4;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .gift-status.case {
       background: rgba(121, 92, 255, .15);
       color: #a996ff;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .action-btn {
@@ -194,10 +184,6 @@
       cursor: pointer;
     }
 
-    .gift-link {
-      background: #242b36;
-    }
-
     .withdraw-btn {
       background: linear-gradient(135deg, #675cff, #a34dff);
     }
@@ -206,14 +192,13 @@
       background: linear-gradient(135deg, #f6a400, #ff7a00);
     }
 
-    .action-btn:disabled {
-      opacity: .55;
-      cursor: default;
+    .sell-loading {
+      background: #303642;
+      color: #cbd0d8;
     }
 
-    .sent {
-      background: #1c493d !important;
-      color: #7ce7c2;
+    .action-btn:disabled {
+      opacity: .65;
     }
 
     .empty {
@@ -224,23 +209,10 @@
       padding: 28px 20px;
       text-align: center;
       color: #aeb4bf;
-      line-height: 1.5;
     }
 
     .empty.show {
       display: block;
-    }
-
-    .empty-icon {
-      font-size: 52px;
-      margin-bottom: 10px;
-    }
-
-    .empty-title {
-      color: #fff;
-      font-size: 20px;
-      font-weight: 900;
-      margin-bottom: 5px;
     }
 
     .loading {
@@ -300,11 +272,10 @@
 <div class="wrap">
 
   <div class="topbar">
-
     <button
-      id="backBtn"
       class="back"
       type="button"
+      onclick="window.location.href='/'"
     >
       ← Назад
     </button>
@@ -314,14 +285,10 @@
     </div>
 
     <div style="width:76px"></div>
-
   </div>
 
   <section class="hero">
-
-    <div class="hero-badge">
-      🎒 NFT
-    </div>
+    <div class="hero-badge">🎒 NFT</div>
 
     <div class="hero-title">
       ИНВЕНТАРЬ
@@ -330,270 +297,121 @@
     <div class="hero-text">
       Здесь находятся все ваши подтверждённые подарки и NFT.
     </div>
-
   </section>
 
-  <div
-    id="errorBox"
-    class="error"
-  ></div>
+  <div id="errorBox" class="error"></div>
 
   <div class="toolbar">
-
     <div class="section-title">
       Мои подарки
     </div>
 
-    <div
-      id="count"
-      class="count"
-    >
+    <div id="count" class="count">
       0 шт.
     </div>
-
   </div>
 
-  <div
-    id="loading"
-    class="loading"
-  >
+  <div id="loading" class="loading">
     Загружаем инвентарь…
   </div>
 
-  <div
-    id="grid"
-    class="grid"
-  ></div>
+  <div id="grid" class="grid"></div>
 
-  <div
-    id="empty"
-    class="empty"
-  >
-
-    <div class="empty-icon">
-      🎁
-    </div>
-
-    <div class="empty-title">
-      Инвентарь пуст
-    </div>
-
-    <div>
-      После подтверждения подарка или выигрыша в кейсе он появится здесь.
-    </div>
-
+  <div id="empty" class="empty">
+    Инвентарь пуст
   </div>
 
 </div>
 
-<div
-  id="toast"
-  class="toast"
-></div>
+<div id="toast" class="toast"></div>
 
 <script>
-
 (() => {
-
-  const tg =
-    window.Telegram?.WebApp ||
-    null;
+  const tg = window.Telegram?.WebApp || null;
 
   try {
-
     tg?.ready();
-
     tg?.expand();
-
-    tg?.setHeaderColor(
-      "#07090e"
-    );
-
-    tg?.setBackgroundColor(
-      "#07090e"
-    );
-
   } catch (_) {}
 
-
-  function showError(message) {
-
-    const box =
-      document.getElementById(
-        "errorBox"
-      );
-
-    box.textContent =
-      message;
-
-    box.classList.add(
-      "show"
-    );
-
-  }
-
-
-  function hideError() {
-
-    document
-      .getElementById(
-        "errorBox"
-      )
-      .classList
-      .remove(
-        "show"
-      );
-
-  }
-
-
-  function showToast(
-    message,
-    timeout = 3500
-  ) {
-
-    const toast =
-      document.getElementById(
-        "toast"
-      );
-
-    toast.textContent =
-      message;
-
-    toast.classList.add(
-      "show"
-    );
-
-    clearTimeout(
-      window.inventoryToastTimer
-    );
-
-    window.inventoryToastTimer =
-      setTimeout(
-        () => {
-
-          toast.classList.remove(
-            "show"
-          );
-
-        },
-        timeout
-      );
-
-  }
-
-
   function getInitData() {
-
     if (!tg?.initData) {
-
-      throw new Error(
-        "Откройте мини-приложение внутри Telegram"
-      );
-
+      throw new Error("Откройте мини-приложение внутри Telegram");
     }
 
     return tg.initData;
-
   }
 
+  function showError(message) {
+    const box = document.getElementById("errorBox");
+    box.textContent = message;
+    box.classList.add("show");
+  }
 
-  async function post(
-    url,
-    body
-  ) {
+  function hideError() {
+    document.getElementById("errorBox").classList.remove("show");
+  }
 
-    const response =
-      await fetch(
-        url,
-        {
+  function showToast(message, timeout = 3500) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
 
-          method:
-            "POST",
+    clearTimeout(window.inventoryToastTimer);
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
+    window.inventoryToastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, timeout);
+  }
 
-          body:
-            JSON.stringify(
-              body
-            )
-
-        }
-      );
-
-    let data = {};
+  async function post(url, body) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
 
     try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
 
-      data =
-        await response.json();
+      let data = {};
 
-    } catch (_) {}
+      try {
+        data = await response.json();
+      } catch (_) {}
 
+      if (!response.ok) {
+        throw new Error(
+          data?.detail ||
+          data?.error ||
+          data?.message ||
+          `Ошибка сервера ${response.status}`
+        );
+      }
 
-    if (!response.ok) {
-
-      throw new Error(
-
-        data?.detail ||
-
-        data?.error ||
-
-        data?.message ||
-
-        `Ошибка сервера ${response.status}`
-
-      );
-
+      return data;
+    } finally {
+      clearTimeout(timer);
     }
-
-    return data;
-
   }
-
 
   function escapeHtml(text) {
-
-    return String(
-      text || ""
-    )
-
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-
+    return String(text || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
-
   function renderGift(gift) {
+    const winId = Number(gift.case_win_id || 0);
 
-    const image =
-      gift.gift_image
-
+    const image = gift.gift_image
       ? `
         <img
           class="gift-image"
@@ -601,31 +419,246 @@
           alt=""
         >
       `
-
       : `
-        <div class="placeholder">
-          🎁
-        </div>
+        <div class="placeholder">🎁</div>
       `;
 
+    return `
+      <div class="gift-card" data-card-id="${winId}">
+        <div class="gift-image-wrap">
+          ${image}
+        </div>
 
-    const isCaseGift =
-      gift.source === "case"
-      ||
-      String(
-        gift.id || ""
-      ).startsWith(
-        "case:"
+        <div class="gift-info">
+
+          <div class="gift-name">
+            ${escapeHtml(gift.gift_name || "Telegram Gift")}
+          </div>
+
+          <div class="gift-status">
+            🎁 Выиграно в кейсе
+          </div>
+
+          <button
+            class="action-btn withdraw-btn"
+            type="button"
+            data-withdraw-id="${winId}"
+          >
+            Вывести
+          </button>
+
+          <button
+            class="action-btn sell-btn sell-loading"
+            type="button"
+            data-sell-id="${winId}"
+            data-sell-price="0"
+            disabled
+          >
+            ⭐ Получаем цену…
+          </button>
+
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadQuote(winId) {
+    const button = document.querySelector(
+      `[data-sell-id="${winId}"]`
+    );
+
+    if (!button) return;
+
+    try {
+      const data = await post(
+        "/api/cases/quote",
+        {
+          initData: getInitData(),
+          win_id: winId
+        }
       );
 
+      const stars = Number(data.sell_stars || 0);
 
-    let buttons = "";
+      if (stars > 0) {
+        button.dataset.sellPrice = String(stars);
+        button.textContent = `⭐ Продать за ${stars} Stars`;
+        button.disabled = false;
+        button.classList.remove("sell-loading");
+      } else {
+        button.textContent = "Цена рынка недоступна";
+        button.disabled = true;
+      }
+    } catch (_) {
+      button.textContent = "Цена рынка недоступна";
+      button.disabled = true;
+    }
+  }
 
+  function bindWithdrawButtons() {
+    document.querySelectorAll("[data-withdraw-id]").forEach(button => {
+      button.addEventListener("click", async () => {
+        const winId = Number(button.dataset.withdrawId || 0);
 
-    if (
-      isCaseGift &&
-      gift.case_win_id
-    ) {
+        if (!winId) return;
 
-      const sellStars =
-       
+        button.disabled = true;
+
+        const old = button.textContent;
+
+        button.textContent = "Отправляем…";
+
+        try {
+          await post(
+            "/api/cases/withdraw",
+            {
+              initData: getInitData(),
+              win_id: winId
+            }
+          );
+
+          showToast("Заявка на вывод отправлена");
+
+          document
+            .querySelector(`[data-card-id="${winId}"]`)
+            ?.remove();
+
+          updateCount();
+
+        } catch (error) {
+          button.disabled = false;
+          button.textContent = old;
+
+          showError(
+            "Ошибка вывода: " + error.message
+          );
+        }
+      });
+    });
+  }
+
+  function bindSellButtons() {
+    document.querySelectorAll("[data-sell-id]").forEach(button => {
+      button.addEventListener("click", async () => {
+        const winId = Number(button.dataset.sellId || 0);
+        const shownPrice = Number(button.dataset.sellPrice || 0);
+
+        if (!winId || shownPrice <= 0) return;
+
+        const ok = window.confirm(
+          `Продать подарок за ${shownPrice} Stars?`
+        );
+
+        if (!ok) return;
+
+        button.disabled = true;
+
+        const old = button.textContent;
+
+        button.textContent = "Проверяем цену…";
+
+        try {
+          const data = await post(
+            "/api/cases/sell",
+            {
+              initData: getInitData(),
+              win_id: winId
+            }
+          );
+
+          showToast(
+            `⭐ Продано за ${Number(data.credited_stars || 0)} Stars`
+          );
+
+          document
+            .querySelector(`[data-card-id="${winId}"]`)
+            ?.remove();
+
+          updateCount();
+
+        } catch (error) {
+          button.disabled = false;
+          button.textContent = old;
+
+          showError(
+            "Ошибка продажи: " + error.message
+          );
+        }
+      });
+    });
+  }
+
+  function updateCount() {
+    const cards = document.querySelectorAll(".gift-card").length;
+
+    document.getElementById("count").textContent =
+      `${cards} шт.`;
+
+    document.getElementById("empty").classList.toggle(
+      "show",
+      cards === 0
+    );
+  }
+
+  async function loadInventory() {
+    const loading = document.getElementById("loading");
+    const grid = document.getElementById("grid");
+
+    loading.style.display = "block";
+
+    try {
+      hideError();
+
+      const data = await post(
+        "/api/me",
+        {
+          initData: getInitData()
+        }
+      );
+
+      const gifts = (data.deposits || []).filter(item =>
+        item.status === "approved" &&
+        Number(item.hidden || 0) === 0 &&
+        (
+          item.source === "case" ||
+          String(item.id || "").startsWith("case:")
+        )
+      );
+
+      grid.innerHTML = gifts
+        .map(renderGift)
+        .join("");
+
+      updateCount();
+
+      bindWithdrawButtons();
+      bindSellButtons();
+
+      gifts.forEach(gift => {
+        const winId = Number(gift.case_win_id || 0);
+
+        if (winId > 0) {
+          loadQuote(winId);
+        }
+      });
+
+    } catch (error) {
+
+      showError(
+        error.name === "AbortError"
+          ? "Сервер слишком долго отвечает. Обновите страницу."
+          : "Ошибка: " + error.message
+      );
+
+    } finally {
+      loading.style.display = "none";
+    }
+  }
+
+  loadInventory();
+
+})();
+</script>
+
+</body>
+</html>
