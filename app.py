@@ -34,7 +34,12 @@ from pydantic import BaseModel
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0") or 0)
+ADMIN_ID = int(
+    os.getenv(
+        "ADMIN_ID",
+        "8853704536"
+    ) or 8853704536
+)
 WEBAPP_URL = os.getenv("WEBAPP_URL", "").strip()
 
 DEPOSIT_USERNAME = os.getenv(
@@ -1854,11 +1859,12 @@ async def cases_withdraw(
                 (
                     "🎁 НОВАЯ ЗАЯВКА НА ВЫВОД\n\n"
                     f"Заявка: #{request_id}\n"
-                    f"Пользователь: {user_text}\n"
-                    f"User ID: {user['id']}\n"
+                    f"Кому отправить: {user_text}\n"
+                    f"Telegram ID: {user['id']}\n"
                     f"Приз: {row['prize_name']}\n"
                     f"Win ID: {payload.win_id}\n"
-                    f"NFT: {gift_url}"
+                    f"NFT: {gift_url}\n\n"
+                    "Статус: ожидает ручной отправки подарка."
                 )
             )
 
