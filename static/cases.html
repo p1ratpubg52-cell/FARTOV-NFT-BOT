@@ -2,14 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   >
-
   <title>Кейсы — FART2 NFT BOT</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -17,43 +14,39 @@
       box-sizing:border-box;
       margin:0;
       padding:0;
-      -webkit-tap-highlight-color:transparent;
+      -webkit-tap-highlight-color:transparent
     }
 
-    html,
-    body{
+    html,body{
       width:100%;
       min-height:100%;
       background:#07090e;
       color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-      overflow-x:hidden;
+      overflow-x:hidden
     }
 
     body{
-      padding-bottom:env(safe-area-inset-bottom);
+      padding-bottom:env(safe-area-inset-bottom)
     }
 
     button{
       font-family:inherit;
-      touch-action:manipulation;
+      touch-action:manipulation
     }
 
     .app{
       width:100%;
       max-width:720px;
       margin:0 auto;
-      padding:
-        calc(18px + env(safe-area-inset-top))
-        16px
-        40px;
+      padding:calc(18px + env(safe-area-inset-top)) 16px 40px
     }
 
     .topbar{
       display:flex;
       align-items:center;
       gap:14px;
-      margin-bottom:20px;
+      margin-bottom:20px
     }
 
     .back-btn{
@@ -63,19 +56,19 @@
       border-radius:16px;
       padding:13px 15px;
       font-size:14px;
-      font-weight:850;
+      font-weight:850
     }
 
     .page-title{
       font-size:31px;
       font-weight:950;
-      letter-spacing:-.8px;
+      letter-spacing:-.8px
     }
 
     .page-subtitle{
       color:#7d8491;
       font-size:13px;
-      margin-top:3px;
+      margin-top:3px
     }
 
     .warning{
@@ -87,41 +80,36 @@
       border:1px solid rgba(255,85,85,.22);
       color:#ffb7b7;
       font-size:12px;
-      line-height:1.45;
+      line-height:1.45
     }
 
     .warning.show{
-      display:block;
+      display:block
     }
 
     .balances{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-bottom:18px;
+      margin-bottom:18px
     }
 
     .balance-card{
       border-radius:19px;
       padding:15px;
-      background:
-        linear-gradient(
-          145deg,
-          #171c25,
-          #10141a
-        );
-      border:1px solid #303846;
+      background:linear-gradient(145deg,#171c25,#10141a);
+      border:1px solid #303846
     }
 
     .balance-label{
       color:#8d95a3;
       font-size:12px;
-      margin-bottom:5px;
+      margin-bottom:5px
     }
 
     .balance-value{
       font-size:22px;
-      font-weight:900;
+      font-weight:900
     }
 
     .hero{
@@ -130,22 +118,14 @@
       margin-bottom:24px;
       border:1px solid #353d49;
       background:
-        radial-gradient(
-          circle at 85% 10%,
-          rgba(149,80,255,.26),
-          transparent 33%
-        ),
-        linear-gradient(
-          145deg,
-          #1d212a,
-          #12161c
-        );
+        radial-gradient(circle at 85% 10%,rgba(149,80,255,.26),transparent 33%),
+        linear-gradient(145deg,#1d212a,#12161c)
     }
 
     .hero-title{
       font-size:21px;
       font-weight:900;
-      margin-bottom:13px;
+      margin-bottom:13px
     }
 
     .preview-strip{
@@ -158,18 +138,7 @@
       overflow:hidden;
       border-radius:20px;
       background:#242832;
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    .roulette-track{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      will-change:transform;
-      transition:
-        transform
-        4.2s
-        cubic-bezier(.08,.72,.12,1);
+      border:1px solid rgba(255,255,255,.06)
     }
 
     .preview-item{
@@ -179,14 +148,22 @@
       border-radius:16px;
       overflow:hidden;
       background:#161a22;
-      border:1px solid #3b4350;
+      border:1px solid #3b4350
     }
 
     .preview-item img{
       width:100%;
       height:100%;
       object-fit:contain;
-      display:block;
+      display:block
+    }
+
+    .roulette-track{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      will-change:transform;
+      transition:transform 4.2s cubic-bezier(.08,.72,.12,1);
     }
 
     .preview-item.failure{
@@ -199,13 +176,13 @@
       line-height:1.15;
       font-weight:950;
       color:#ff7a7a;
-      background:
-        linear-gradient(
-          145deg,
-          #2b171c,
-          #161a22
-        );
-      border-color:#7b333e;
+      background:linear-gradient(145deg,#2b171c,#161a22);
+      border-color:#7b333e
+    }
+
+    .case.selected{
+      border-color:#8d69ff;
+      box-shadow:0 0 0 2px rgba(141,105,255,.18),0 0 28px rgba(141,105,255,.13)
     }
 
     .preview-line{
@@ -216,9 +193,8 @@
       width:4px;
       transform:translateX(-50%);
       background:#8d69ff;
-      box-shadow:
-        0 0 16px rgba(141,105,255,.7);
-      z-index:5;
+      box-shadow:0 0 16px rgba(141,105,255,.7);
+      z-index:5
     }
 
     .deposit-btn{
@@ -230,62 +206,31 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      background:
-        linear-gradient(
-          135deg,
-          #675cff,
-          #a34dff
-        );
-    }
-
-    .deposit-btn.low{
-      background:
-        linear-gradient(
-          135deg,
-          #675cff,
-          #a34dff
-        );
-    }
-
-    .deposit-btn:disabled{
-      opacity:.65;
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
     .section-title{
       font-size:22px;
       font-weight:950;
-      margin:0 2px 14px;
+      margin:0 2px 14px
     }
 
     .cases{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px;
+      gap:12px
     }
 
     .case{
       border-radius:25px;
       border:1px solid #313946;
-      background:
-        linear-gradient(
-          145deg,
-          #171c24,
-          #11151b
-        );
+      background:linear-gradient(145deg,#171c24,#11151b);
       padding:12px;
-      overflow:hidden;
-      transition:.2s ease;
-    }
-
-    .case.selected{
-      border-color:#8d69ff;
-      box-shadow:
-        0 0 0 2px rgba(141,105,255,.18),
-        0 0 28px rgba(141,105,255,.13);
+      overflow:hidden
     }
 
     .case:active{
-      transform:scale(.985);
+      transform:scale(.985)
     }
 
     .case-art{
@@ -299,22 +244,14 @@
       overflow:hidden;
       border:2px solid rgba(220,169,46,.75);
       background:
-        radial-gradient(
-          circle at 50% 35%,
-          rgba(255,255,255,.13),
-          transparent 25%
-        ),
-        linear-gradient(
-          180deg,
-          #30343d,
-          #23262e
-        );
+        radial-gradient(circle at 50% 35%,rgba(255,255,255,.13),transparent 25%),
+        linear-gradient(180deg,#30343d,#23262e)
     }
 
     .case-thumbs{
       position:relative;
       width:115px;
-      height:105px;
+      height:105px
     }
 
     .case-thumb{
@@ -324,34 +261,33 @@
       border-radius:15px;
       overflow:hidden;
       border:2px solid rgba(255,255,255,.16);
-      box-shadow:
-        0 8px 20px rgba(0,0,0,.32);
-      background:#151922;
+      box-shadow:0 8px 20px rgba(0,0,0,.32);
+      background:#151922
     }
 
     .case-thumb img{
       width:100%;
       height:100%;
       object-fit:contain;
-      display:block;
+      display:block
     }
 
     .case-thumb:nth-child(1){
       left:0;
       bottom:0;
-      transform:rotate(-8deg);
+      transform:rotate(-8deg)
     }
 
     .case-thumb:nth-child(2){
       right:0;
       bottom:0;
-      transform:rotate(8deg);
+      transform:rotate(8deg)
     }
 
     .case-thumb:nth-child(3){
       left:23px;
       top:0;
-      z-index:3;
+      z-index:3
     }
 
     .price-pill{
@@ -363,13 +299,13 @@
       border-radius:13px;
       padding:8px 11px;
       font-size:13px;
-      font-weight:900;
+      font-weight:900
     }
 
     .case-name{
       font-size:18px;
       font-weight:900;
-      margin-bottom:6px;
+      margin-bottom:6px
     }
 
     .case-price{
@@ -377,7 +313,7 @@
       font-size:13px;
       line-height:1.35;
       min-height:38px;
-      margin-bottom:10px;
+      margin-bottom:10px
     }
 
     .case-btn{
@@ -388,21 +324,11 @@
       font-size:13px;
       font-weight:900;
       color:#fff;
-      background:
-        linear-gradient(
-          135deg,
-          #675cff,
-          #a34dff
-        );
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
-    .case.selected .case-btn{
-      background:
-        linear-gradient(
-          135deg,
-          #554be8,
-          #8740e9
-        );
+    .case-btn.low{
+      background:linear-gradient(135deg,#ff7918,#ff4b4b)
     }
 
     .empty{
@@ -414,7 +340,7 @@
       color:#9098a5;
       font-size:14px;
       line-height:1.45;
-      text-align:center;
+      text-align:center
     }
 
     .modal{
@@ -426,11 +352,11 @@
       align-items:flex-end;
       background:rgba(0,0,0,.80);
       backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px)
     }
 
     .modal.active{
-      display:flex;
+      display:flex
     }
 
     .sheet{
@@ -441,10 +367,7 @@
       background:#11161e;
       border-radius:30px 30px 0 0;
       border:1px solid #303846;
-      padding:
-        19px
-        16px
-        calc(25px + env(safe-area-inset-bottom));
+      padding:19px 16px calc(25px + env(safe-area-inset-bottom))
     }
 
     .sheet-head{
@@ -452,12 +375,12 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:10px;
+      margin-bottom:10px
     }
 
     .sheet-title{
       font-size:25px;
-      font-weight:950;
+      font-weight:950
     }
 
     .close-btn{
@@ -467,49 +390,34 @@
       border-radius:50%;
       background:#292f39;
       color:#fff;
-      font-size:20px;
+      font-size:20px
     }
 
     .sheet-price{
       color:#9ba3af;
       font-size:14px;
-      margin-bottom:18px;
+      margin-bottom:18px
     }
 
     .drop-heading{
       font-size:19px;
       font-weight:900;
-      margin-bottom:12px;
+      margin-bottom:12px
     }
 
     .drops{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-bottom:18px;
+      margin-bottom:18px
     }
 
     .drop{
       border-radius:19px;
       overflow:hidden;
-      background:
-        linear-gradient(
-          145deg,
-          #1b2029,
-          #131820
-        );
+      background:linear-gradient(145deg,#1b2029,#131820);
       border:1px solid #343c49;
-      padding:10px;
-    }
-
-    .drop.failure{
-      border-color:#713741;
-      background:
-        linear-gradient(
-          145deg,
-          #28161b,
-          #131820
-        );
+      padding:10px
     }
 
     .drop-image{
@@ -518,40 +426,27 @@
       overflow:hidden;
       border-radius:15px;
       background:#222731;
-      margin-bottom:9px;
+      margin-bottom:9px
     }
 
     .drop-image img{
       width:100%;
       height:100%;
       object-fit:contain;
-      display:block;
-    }
-
-    .failure-box{
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px;
-      text-align:center;
-      color:#ff7777;
-      font-size:17px;
-      font-weight:950;
+      display:block
     }
 
     .drop-name{
       font-size:13px;
       font-weight:850;
       line-height:1.3;
-      min-height:34px;
+      min-height:34px
     }
 
     .drop-chance{
       color:#929aa7;
       font-size:11px;
-      margin-top:5px;
+      margin-top:5px
     }
 
     .drop-link{
@@ -559,7 +454,7 @@
       color:#8978ff;
       font-size:11px;
       margin-top:5px;
-      text-decoration:none;
+      text-decoration:none
     }
 
     .modal-action{
@@ -570,30 +465,20 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      background:
-        linear-gradient(
-          135deg,
-          #675cff,
-          #a34dff
-        );
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
     .modal-action.low{
-      background:
-        linear-gradient(
-          135deg,
-          #ff7918,
-          #ff4b4b
-        );
+      background:linear-gradient(135deg,#ff7918,#ff4b4b)
     }
 
     .result{
       display:none;
-      text-align:center;
+      text-align:center
     }
 
     .result.show{
-      display:block;
+      display:block
     }
 
     .result-image{
@@ -603,32 +488,32 @@
       border-radius:24px;
       overflow:hidden;
       background:#20252d;
-      border:1px solid #3a4350;
+      border:1px solid #3a4350
     }
 
     .result-image img{
       width:100%;
       height:100%;
       object-fit:contain;
-      display:block;
+      display:block
     }
 
     .result-label{
       color:#8f97a4;
       font-size:13px;
-      margin-bottom:5px;
+      margin-bottom:5px
     }
 
     .result-name{
       font-size:27px;
       font-weight:950;
-      margin-bottom:18px;
+      margin-bottom:18px
     }
 
     .win-actions{
       display:grid;
       gap:10px;
-      margin-top:14px;
+      margin-top:14px
     }
 
     .withdraw-btn,
@@ -639,94 +524,76 @@
       border-radius:18px;
       padding:16px;
       color:#fff;
-      font-size:15px;
-      font-weight:900;
+      font-size:16px;
+      font-weight:900
     }
 
     .withdraw-btn{
-      background:
-        linear-gradient(
-          135deg,
-          #665cff,
-          #a34dff
-        );
+      background:linear-gradient(135deg,#675cff,#a34dff)
     }
 
     .sell-btn{
-      background:
-        linear-gradient(
-          135deg,
-          #1f8bff,
-          #695aff
-        );
+      background:linear-gradient(135deg,#f4a11a,#ffcf3d);
+      color:#211500
     }
 
     .again-btn{
-      background:#262d37;
+      background:#252c36;
+      border:1px solid #353e4b
     }
 
-    .result-status{
-      display:none;
-      margin-top:14px;
+    .status-box{
+      margin-top:12px;
       padding:12px;
       border-radius:14px;
-      background:#1c222c;
-      color:#b7c0cd;
+      background:#202630;
+      color:#b7bec8;
       font-size:13px;
       line-height:1.4;
+      display:none
     }
 
-    .result-status.show{
-      display:block;
+    .status-box.show{
+      display:block
     }
 
     .toast{
       position:fixed;
       left:50%;
-      bottom:
-        calc(22px + env(safe-area-inset-bottom));
-      transform:translateX(-50%) translateY(120px);
-      z-index:10000;
-      width:calc(100% - 30px);
-      max-width:500px;
-      padding:13px 16px;
-      border-radius:17px;
-      background:#222832;
+      bottom:30px;
+      transform:translateX(-50%);
+      width:max-content;
+      max-width:90%;
+      padding:12px 16px;
+      border-radius:14px;
+      background:#242a34;
       color:#fff;
-      text-align:center;
       font-size:13px;
       font-weight:700;
-      opacity:0;
-      pointer-events:none;
-      transition:.25s ease;
-      border:1px solid #394250;
+      text-align:center;
+      display:none;
+      z-index:20000
     }
 
     .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(0);
+      display:block
     }
 
     @media(max-width:390px){
-      .app{
-        padding-left:11px;
-        padding-right:11px;
-      }
-
       .cases{
-        gap:9px;
+        gap:9px
       }
 
       .case{
-        padding:9px;
+        padding:10px
       }
 
       .case-art{
-        height:145px;
+        height:145px
       }
 
       .case-name{
-        font-size:16px;
+        font-size:16px
       }
     }
   </style>
@@ -737,268 +604,248 @@
 <div class="app">
 
   <div class="topbar">
-
-    <button
-      class="back-btn"
-      id="backBtn"
-    >
+    <button id="backBtn" class="back-btn" type="button">
       ← Назад
     </button>
 
     <div>
-      <div class="page-title">
-        Кейсы
-      </div>
-
+      <div class="page-title">Кейсы</div>
       <div class="page-subtitle">
         NFT из @fart2_backpack
       </div>
     </div>
-
   </div>
 
-  <div
-    class="warning"
-    id="catalogWarning"
-  ></div>
+  <div id="catalogWarning" class="warning"></div>
 
   <div class="balances">
-
     <div class="balance-card">
       <div class="balance-label">
         Telegram Stars
       </div>
-
-      <div
-        class="balance-value"
-        id="starsBalance"
-      >
-        0
-      </div>
+      <div id="starsBalance" class="balance-value">0</div>
     </div>
 
     <div class="balance-card">
-      <div class="balance-label">
-        TON
-      </div>
-
-      <div
-        class="balance-value"
-        id="tonBalance"
-      >
-        0
-      </div>
+      <div class="balance-label">TON</div>
+      <div id="tonBalance" class="balance-value">0</div>
     </div>
-
   </div>
 
-  <section class="hero">
-
+  <div class="hero">
     <div class="hero-title">
       Подарки внутри кейсов
     </div>
 
-    <div
-      class="preview-strip"
-      id="previewStrip"
-    >
-
-      <div
-        class="roulette-track"
-        id="rouletteTrack"
-      ></div>
-
+    <div id="previewStrip" class="preview-strip">
+      <div id="rouletteTrack" class="roulette-track"></div>
       <div class="preview-line"></div>
-
     </div>
 
-    <button
-      class="deposit-btn"
-      id="depositBtn"
-    >
+    <button id="depositBtn" class="deposit-btn" type="button">
       + Пополнить баланс
     </button>
-
-  </section>
+  </div>
 
   <div class="section-title">
     Выбери кейс
   </div>
 
-  <div
-    class="cases"
-    id="casesList"
-  ></div>
+  <div id="cases" class="cases"></div>
 
 </div>
 
 
-<div
-  class="modal"
-  id="caseModal"
->
-
+<div id="caseModal" class="modal">
   <div class="sheet">
 
-    <div
-      id="caseContent"
-    >
-
+    <div id="caseContent">
       <div class="sheet-head">
-
-        <div
-          class="sheet-title"
-          id="modalTitle"
-        >
+        <div id="modalTitle" class="sheet-title">
           Кейс
         </div>
 
-        <button
-          class="close-btn"
-          id="closeModal"
-        >
-          ×
+        <button id="closeModal" class="close-btn" type="button">
+          ✕
         </button>
-
       </div>
 
-      <div
-        class="sheet-price"
-        id="modalPrice"
-      ></div>
+      <div id="modalPrice" class="sheet-price"></div>
 
       <div class="drop-heading">
         Что может выпасть
       </div>
 
-      <div
-        class="drops"
-        id="drops"
-      ></div>
+      <div id="drops" class="drops"></div>
 
-      <button
-        class="modal-action"
-        id="modalAction"
-      >
-        Крутить
+      <button id="modalAction" class="modal-action" type="button">
+        Пополнить баланс
       </button>
-
     </div>
 
 
-    <div
-      class="result"
-      id="winResult"
-    >
+    <div id="winResult" class="result">
 
       <div class="sheet-head">
-
         <div class="sheet-title">
-          Результат
+          Выпало!
         </div>
 
-        <button
-          class="close-btn"
-          id="closeResult"
-        >
-          ×
+        <button id="closeResult" class="close-btn" type="button">
+          ✕
         </button>
-
       </div>
 
       <div class="result-image">
-        <img
-          id="resultImage"
-          src=""
-          alt=""
-        >
+        <img id="resultImage" src="" alt="">
       </div>
 
       <div class="result-label">
-        Выпало
+        Ваш приз
       </div>
 
-      <div
-        class="result-name"
-        id="resultName"
-      >
-        Приз
-      </div>
+      <div id="resultName" class="result-name"></div>
+
+      <div id="resultStatus" class="status-box"></div>
 
       <div class="win-actions">
 
         <button
-          class="withdraw-btn"
           id="withdrawPrize"
+          class="withdraw-btn"
+          type="button"
         >
-          Вывести NFT
+          Вывести
         </button>
 
         <button
-          class="sell-btn"
           id="sellPrize"
+          class="sell-btn"
+          type="button"
+          style="display:none"
         >
-          Продать
+          ⭐ Продать за 15 Stars
         </button>
 
         <button
-          class="again-btn"
           id="playAgain"
+          class="again-btn"
+          type="button"
         >
-          Крутить ещё
+          Вернуться к кейсу
         </button>
 
       </div>
 
-      <div
-        class="result-status"
-        id="resultStatus"
-      ></div>
-
     </div>
 
   </div>
-
 </div>
 
 
-<div
-  class="toast"
-  id="toast"
-></div>
+<div id="toast" class="toast"></div>
 
 
 <script>
 (() => {
 
-  const tg =
-    window.Telegram?.WebApp || null;
+  const tg = window.Telegram?.WebApp || null;
 
-  try{
-    tg?.ready();
-    tg?.expand();
-  }catch(_){}
-
-
-  let CASES = [];
-
-  let selectedCase = null;
-
-  let currentWin = null;
-
-  let rouletteBusy = false;
-
-  let BALANCES = {
-    XTR:0,
-    TON:0
+  let userBalance = {
+    stars:0,
+    ton:0
   };
 
+  let CASES = [];
+  let selectedCase = null;
+  let currentWin = null;
+  let rouletteBusy = false;
 
-  function safeText(value){
+  try {
+    tg?.ready();
+    tg?.expand();
+    tg?.setHeaderColor("#07090e");
+    tg?.setBackgroundColor("#07090e");
+  } catch (_) {}
 
-    return String(
-      value ?? ""
-    )
+  function showToast(message, timeout = 3500) {
+    const el = document.getElementById("toast");
+    el.textContent = message;
+    el.classList.add("show");
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer = setTimeout(() => {
+      el.classList.remove("show");
+    }, timeout);
+  }
+
+  function parseNumber(value) {
+    const n = Number(
+      String(value ?? 0).replace(",", ".")
+    );
+
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function hasEnough(item) {
+    return (
+      userBalance.stars >= Number(item.stars) ||
+      userBalance.ton >= Number(item.ton)
+    );
+  }
+
+  function hasEnoughStars(item) {
+    return userBalance.stars >= Number(item?.stars || 0);
+  }
+
+  function requireInitData() {
+    if (!tg?.initData) {
+      throw new Error(
+        "Откройте мини-приложение внутри Telegram"
+      );
+    }
+
+    return tg.initData;
+  }
+
+  async function post(url, body) {
+    const response = await fetch(url, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body)
+    });
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok) {
+      throw new Error(
+        data?.detail ||
+        data?.message ||
+        `Ошибка ${response.status}`
+      );
+    }
+
+    return data;
+  }
+
+  function giftImage(item) {
+    if (item?.is_failure) return "";
+
+    return (
+      item?.image_url ||
+      "/static/nft-gift.png"
+    );
+  }
+
+  function safeText(value) {
+    return String(value ?? "")
       .replaceAll("&","&amp;")
       .replaceAll("<","&lt;")
       .replaceAll(">","&gt;")
@@ -1006,882 +853,422 @@
       .replaceAll("'","&#039;");
   }
 
+  function setBalances(data) {
+    const balances = data || {};
 
-  function requireInitData(){
-
-    const initData =
-      tg?.initData || "";
-
-    if(!initData){
-      throw new Error(
-        "Открой мини-приложение через Telegram."
-      );
-    }
-
-    return initData;
-  }
-
-
-  async function post(
-    url,
-    body
-  ){
-
-    const response =
-      await fetch(
-        url,
-        {
-          method:"POST",
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-          body:
-            JSON.stringify(body)
-        }
-      );
-
-    let data = null;
-
-    try{
-      data =
-        await response.json();
-    }catch(_){}
-
-    if(!response.ok){
-
-      throw new Error(
-        data?.detail ||
-        data?.message ||
-        "Ошибка сервера"
-      );
-
-    }
-
-    return data;
-  }
-
-
-  function showToast(
-    text,
-    timeout=3000
-  ){
-
-    const toast =
-      document.getElementById(
-        "toast"
-      );
-
-    toast.textContent =
-      String(text || "");
-
-    toast.classList.add(
-      "show"
+    userBalance.stars = parseNumber(
+      balances.XTR
     );
 
-    clearTimeout(
-      showToast.timer
+    userBalance.ton = parseNumber(
+      balances.TON
     );
-
-    showToast.timer =
-      setTimeout(
-        () => {
-          toast.classList.remove(
-            "show"
-          );
-        },
-        timeout
-      );
-  }
-
-
-  function normalizeBalanceValue(
-    value
-  ){
-
-    const number =
-      Number(value || 0);
-
-    if(
-      !Number.isFinite(number)
-    ){
-      return 0;
-    }
-
-    return number;
-  }
-
-
-  function setBalances(
-    balances
-  ){
-
-    BALANCES.XTR =
-      normalizeBalanceValue(
-        balances?.XTR ??
-        balances?.stars ??
-        balances?.telegram_stars ??
-        0
-      );
-
-    BALANCES.TON =
-      normalizeBalanceValue(
-        balances?.TON ??
-        balances?.ton ??
-        0
-      );
 
     document.getElementById(
       "starsBalance"
-    ).textContent =
-      BALANCES.XTR;
+    ).textContent = userBalance.stars;
 
     document.getElementById(
       "tonBalance"
-    ).textContent =
-      BALANCES.TON;
+    ).textContent = userBalance.ton;
 
     updateHeroAction();
   }
 
-
-  function giftImage(
-    item
-  ){
-
-    return (
-      item?.image_url ||
-      item?.image ||
-      item?.gift_image ||
-      "/static/nft-gift.png"
-    );
-  }
-
-
-  function isFailure(
-    item
-  ){
-
-    return Boolean(
-      item?.is_failure
-    );
-  }
-
-
-  function hasEnoughStars(
-    item
-  ){
-
-    return (
-      BALANCES.XTR >=
-      Number(
-        item?.stars || 0
-      )
-    );
-  }
-
-
-  function rouletteItemHtml(
-    gift
-  ){
-
-    if(
-      isFailure(gift)
-    ){
-
+  function rouletteItemHtml(item) {
+    if (item?.is_failure) {
       return `
-        <div class="preview-item failure">
+        <div class="preview-item failure" data-prize-id="${safeText(item.id)}">
           НЕУДАЧА
         </div>
       `;
-
     }
 
     return `
-      <div class="preview-item">
-
+      <div class="preview-item" data-prize-id="${safeText(item?.id || "")}">
         <img
-          src="${safeText(giftImage(gift))}"
-          alt=""
+          src="${safeText(giftImage(item))}"
+          alt="${safeText(item?.name || "Приз")}"
           onerror="this.onerror=null;this.src='/static/nft-gift.png'"
         >
-
       </div>
     `;
   }
 
+  function renderPreview(item = selectedCase) {
+    const track = document.getElementById("rouletteTrack");
 
-  function getPreviewItems(
-    item
-  ){
+    const items = Array.isArray(item?.items)
+      ? item.items
+      : [];
 
-    const items =
-      Array.isArray(item?.items)
-        ? item.items
-        : [];
+    track.style.transition = "none";
+    track.style.transform = "translateX(0px)";
 
-    if(!items.length){
-      return [];
-    }
-
-    const result = [];
-
-    for(
-      let repeat = 0;
-      repeat < 4;
-      repeat++
-    ){
-
-      for(
-        const gift of items
-      ){
-        result.push(gift);
-      }
-
-    }
-
-    return result;
-  }
-
-
-  function renderPreview(
-    item = selectedCase
-  ){
-
-    const track =
-      document.getElementById(
-        "rouletteTrack"
-      );
-
-    track.style.transition =
-      "none";
-
-    track.style.transform =
-      "translateX(0px)";
-
-    const items =
-      getPreviewItems(item);
-
-    if(!items.length){
-
+    if (!items.length) {
       track.innerHTML = `
-        <div
-          style="
-            color:#8f97a4;
-            font-size:13px;
-            padding:20px;
-          "
-        >
-          Выберите кейс
+        <div class="preview-item failure">
+          ВЫБЕРИ КЕЙС
         </div>
       `;
-
       return;
     }
 
-    track.innerHTML =
-      items
-        .map(
-          rouletteItemHtml
-        )
-        .join("");
+    const repeated = [];
+    for (let i = 0; i < 3; i++) {
+      repeated.push(...items);
+    }
+
+    track.innerHTML = repeated
+      .map(rouletteItemHtml)
+      .join("");
   }
 
+  function updateHeroAction() {
+    const button = document.getElementById("depositBtn");
+    if (!button) return;
 
-  function updateHeroAction(){
-
-    const button =
-      document.getElementById(
-        "depositBtn"
-      );
-
-    if(!selectedCase){
-
-      button.textContent =
-        "+ Пополнить баланс";
-
-      button.classList.add(
-        "low"
-      );
-
+    if (!selectedCase) {
+      button.textContent = "+ Пополнить баланс";
+      button.classList.add("low");
       return;
     }
 
-    if(
-      hasEnoughStars(
-        selectedCase
-      )
-    ){
-
-      button.classList.remove(
-        "low"
-      );
-
-      button.textContent =
-        `Крутить за ${Number(selectedCase.stars)} ⭐`;
-
-    }else{
-
-      button.classList.add(
-        "low"
-      );
-
-      button.textContent =
-        "+ Пополнить баланс";
+    if (hasEnoughStars(selectedCase)) {
+      button.textContent = `Крутить за ${selectedCase.stars} ⭐`;
+      button.classList.remove("low");
+    } else {
+      button.textContent = "+ Пополнить баланс";
+      button.classList.add("low");
     }
   }
 
+  function selectCase(item) {
+    selectedCase = item;
+    currentWin = null;
+    renderPreview(item);
+    renderCases();
+    updateHeroAction();
 
-  function getCaseThumbs(
-    item
-  ){
+    document.querySelector(".hero")?.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+  }
 
-    const gifts =
-      (
-        Array.isArray(item?.items)
-          ? item.items
-          : []
-      )
-      .filter(
-        gift =>
-          !isFailure(gift)
-      )
-      .slice(
-        0,
-        3
-      );
+  function casePreviewHtml(items) {
+    const preview = Array.isArray(items)
+      ? items.filter(x => !x?.is_failure).slice(0,3)
+      : [];
 
-    if(!gifts.length){
+    if (!preview.length) {
+      return `
+        <div class="case-thumb">
+          <img
+            src="/static/nft-gift.png"
+            alt=""
+          >
+        </div>
+      `;
+    }
+
+    return preview
+      .map(item => `
+        <div class="case-thumb">
+          <img
+            src="${safeText(giftImage(item))}"
+            alt=""
+            onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+          >
+        </div>
+      `)
+      .join("");
+  }
+
+  function renderCases() {
+    const root = document.getElementById("cases");
+
+    if (!CASES.length) {
+      root.innerHTML = `
+        <div class="empty">
+          В кейсах пока нет доступных призов.
+        </div>
+      `;
+      return;
+    }
+
+    root.innerHTML = CASES.map(item => {
+      const active = Number(selectedCase?.id) === Number(item.id);
 
       return `
         <div
-          style="
-            color:#9da5b2;
-            font-size:12px;
-            text-align:center;
-          "
+          class="case ${active ? "selected" : ""}"
+          data-case="${item.id}"
         >
-          NFT
+          <div class="case-art">
+            <div class="price-pill">
+              ${item.stars} ⭐
+            </div>
+
+            <div class="case-thumbs">
+              ${casePreviewHtml(item.items)}
+            </div>
+          </div>
+
+          <div class="case-name">
+            ${safeText(item.name)}
+          </div>
+
+          <div class="case-price">
+            ${item.stars} Stars /
+            ${Number(item.ton).toFixed(2)} TON
+          </div>
+
+          <button
+            type="button"
+            class="case-btn"
+            data-action="${item.id}"
+          >
+            ${active ? "✓ Выбрано" : "Выбрать"}
+          </button>
         </div>
       `;
-
-    }
-
-    return `
-      <div class="case-thumbs">
-
-        ${
-          gifts.map(
-            gift => `
-              <div class="case-thumb">
-
-                <img
-                  src="${safeText(giftImage(gift))}"
-                  alt=""
-                  onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-                >
-
-              </div>
-            `
-          ).join("")
-        }
-
-      </div>
-    `;
-  }
-
-
-  function renderCases(){
-
-    const list =
-      document.getElementById(
-        "casesList"
-      );
-
-    if(!CASES.length){
-
-      list.innerHTML = `
-        <div class="empty">
-          Кейсы пока не загружены.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    list.innerHTML =
-      CASES
-        .map(
-          item => {
-
-            const selected =
-              selectedCase &&
-              Number(
-                selectedCase.id
-              ) ===
-              Number(
-                item.id
-              );
-
-            return `
-              <div
-                class="case ${selected ? "selected" : ""}"
-                data-case="${Number(item.id)}"
-              >
-
-                <div class="case-art">
-
-                  <div class="price-pill">
-                    ${Number(item.stars)} ⭐
-                  </div>
-
-                  ${getCaseThumbs(item)}
-
-                </div>
-
-                <div class="case-name">
-                  ${safeText(item.name || "Кейс")}
-                </div>
-
-                <div class="case-price">
-                  ${Number(item.stars)} Stars /
-                  ${Number(item.ton || 0).toFixed(2)} TON
-                </div>
-
-                <button
-                  class="case-btn"
-                  data-select-case="${Number(item.id)}"
-                >
-                  ${
-                    selected
-                      ? "✓ Выбрано"
-                      : "Выбрать"
-                  }
-                </button>
-
-              </div>
-            `;
-          }
-        )
-        .join("");
-
+    }).join("");
 
     document
-      .querySelectorAll(
-        "[data-select-case]"
-      )
-      .forEach(
-        button => {
+      .querySelectorAll("[data-case]")
+      .forEach(card => {
+        card.addEventListener("click", event => {
+          if (event.target.closest("[data-action]")) return;
 
-          button.addEventListener(
-            "click",
-            event => {
-
-              event.stopPropagation();
-
-              const id =
-                Number(
-                  button.dataset.selectCase
-                );
-
-              const item =
-                CASES.find(
-                  caseItem =>
-                    Number(
-                      caseItem.id
-                    ) === id
-                );
-
-              if(!item){
-                return;
-              }
-
-              selectedCase =
-                item;
-
-              renderPreview(
-                selectedCase
-              );
-
-              renderCases();
-
-              updateHeroAction();
-
-              try{
-                tg?.HapticFeedback
-                  ?.impactOccurred(
-                    "light"
-                  );
-              }catch(_){}
-            }
+          const item = CASES.find(
+            x => Number(x.id) === Number(card.dataset.case)
           );
-        }
-      );
+
+          if (item) selectCase(item);
+        });
+      });
+
+    document
+      .querySelectorAll("[data-action]")
+      .forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+
+          const item = CASES.find(
+            x => Number(x.id) === Number(button.dataset.action)
+          );
+
+          if (item) selectCase(item);
+        });
+      });
   }
 
-
-  function openCaseDetails(
-    item
-  ){
-
+  function openCase(item) {
     selectedCase = item;
-
     currentWin = null;
 
     document.getElementById(
       "caseContent"
-    ).style.display =
-      "block";
+    ).style.display = "block";
 
     document.getElementById(
       "winResult"
-    ).classList.remove(
-      "show"
-    );
+    ).classList.remove("show");
 
     document.getElementById(
       "modalTitle"
-    ).textContent =
-      item.name;
+    ).textContent = item.name;
 
     document.getElementById(
       "modalPrice"
     ).textContent =
       `${item.stars} Stars / ${Number(item.ton).toFixed(2)} TON`;
 
+    const drops = document.getElementById(
+      "drops"
+    );
 
-    const drops =
-      document.getElementById(
-        "drops"
-      );
-
-
-    if(
-      !Array.isArray(
-        item.items
-      ) ||
+    if (
+      !Array.isArray(item.items) ||
       !item.items.length
-    ){
-
+    ) {
       drops.innerHTML = `
         <div class="empty">
           В этом кейсе пока нет доступных призов.
         </div>
       `;
+    } else {
+      drops.innerHTML = item.items.map(gift => {
+        const chance = Number(
+          gift.chance_percent || 0
+        );
 
-    }else{
+        return `
+          <div class="drop">
+            <div class="drop-image">
+              <img
+                src="${safeText(giftImage(gift))}"
+                alt=""
+                onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+              >
+            </div>
 
-      drops.innerHTML =
-        item.items
-          .map(
-            gift => {
+            <div class="drop-name">
+              ${safeText(gift.name || "Приз")}
+            </div>
 
-              const chance =
-                Number(
-                  gift.chance_percent || 0
-                );
+            <div class="drop-chance">
+              Шанс: ${chance}%
+            </div>
 
-              if(
-                isFailure(gift)
-              ){
-
-                return `
-                  <div class="drop failure">
-
-                    <div class="drop-image">
-
-                      <div class="failure-box">
-                        НЕУДАЧА
-                      </div>
-
-                    </div>
-
-                    <div class="drop-name">
-                      Неудача
-                    </div>
-
-                    <div class="drop-chance">
-                      Шанс: ${chance}%
-                    </div>
-
-                  </div>
-                `;
-              }
-
-              return `
-                <div class="drop">
-
-                  <div class="drop-image">
-
-                    <img
-                      src="${safeText(giftImage(gift))}"
-                      alt=""
-                      onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-                    >
-
-                  </div>
-
-                  <div class="drop-name">
-                    ${safeText(gift.name || "Приз")}
-                  </div>
-
-                  <div class="drop-chance">
-                    Шанс: ${chance}%
-                  </div>
-
-                  ${
-                    gift.gift_url
-                      ? `
-                        <a
-                          class="drop-link"
-                          href="${safeText(gift.gift_url)}"
-                          target="_blank"
-                        >
-                          Посмотреть NFT
-                        </a>
-                      `
-                      : ""
-                  }
-
-                </div>
-              `;
+            ${
+              gift.gift_url
+                ? `
+                  <a
+                    class="drop-link"
+                    href="${safeText(gift.gift_url)}"
+                    target="_blank"
+                  >
+                    Посмотреть NFT
+                  </a>
+                `
+                : ""
             }
-          )
-          .join("");
+          </div>
+        `;
+      }).join("");
     }
 
+    const action = document.getElementById(
+      "modalAction"
+    );
 
-    const action =
-      document.getElementById(
-        "modalAction"
-      );
-
-
-    if(
-      hasEnoughStars(item)
-    ){
-
-      action.classList.remove(
-        "low"
-      );
-
+    if (hasEnough(item)) {
+      action.classList.remove("low");
       action.textContent =
-        `Крутить за ${item.stars} ⭐`;
-
-    }else{
-
-      action.classList.add(
-        "low"
-      );
-
+        `Крутить за ${item.stars}`;
+    } else {
+      action.classList.add("low");
       action.textContent =
         "Пополнить баланс";
     }
 
-
     document.getElementById(
       "caseModal"
-    ).classList.add(
-      "active"
-    );
+    ).classList.add("active");
   }
 
-
-  function closeModal(){
-
+  function closeModal() {
     document.getElementById(
       "caseModal"
-    ).classList.remove(
-      "active"
-    );
+    ).classList.remove("active");
   }
 
+  async function loadBalances() {
+    const initData = requireInitData();
 
-  async function loadBalances(){
-
-    const initData =
-      requireInitData();
-
-    const data =
-      await post(
-        "/api/balances",
-        {
-          initData
-        }
-      );
-
-    setBalances(
-      data?.balances || {}
+    const data = await post(
+      "/api/balances",
+      { initData }
     );
+
+    setBalances(data?.balances || {});
   }
 
+  async function loadCatalog() {
+    const initData = requireInitData();
 
-  async function loadCatalog(){
+    const warning = document.getElementById(
+      "catalogWarning"
+    );
 
-    const initData =
-      requireInitData();
-
-    const warning =
-      document.getElementById(
-        "catalogWarning"
+    try {
+      const data = await post(
+        "/api/cases/catalog",
+        { initData }
       );
 
-    try{
+      CASES = Array.isArray(data?.cases)
+        ? data.cases
+        : [];
 
-      const data =
-        await post(
-          "/api/cases/catalog",
-          {
-            initData
-          }
-        );
-
-
-      CASES =
-        Array.isArray(
-          data?.cases
-        )
-          ? data.cases
-          : [];
-
-
-      if(
-        data?.warning
-      ){
-
-        warning.textContent =
-          data.warning;
-
-        warning.classList.add(
-          "show"
-        );
-
-      }else{
-
-        warning.classList.remove(
-          "show"
-        );
+      if (data?.warning) {
+        warning.textContent = data.warning;
+        warning.classList.add("show");
+      } else {
+        warning.classList.remove("show");
       }
 
-
-      if(
-        !selectedCase &&
-        CASES.length
-      ){
-
-        selectedCase =
-          CASES[0];
+      if (!selectedCase && CASES.length) {
+        selectedCase = CASES[0];
       }
 
-
-      renderPreview(
-        selectedCase
-      );
-
+      renderPreview(selectedCase);
       renderCases();
-
       updateHeroAction();
 
-    }catch(error){
-
+    } catch (error) {
       warning.textContent =
         "Не удалось загрузить кейсы: "
         + error.message;
 
-      warning.classList.add(
-        "show"
-      );
+      warning.classList.add("show");
 
       CASES = [];
-
       renderCases();
     }
   }
 
+  async function animateRouletteTo(prize) {
+    const track = document.getElementById("rouletteTrack");
 
-  async function animateRouletteTo(
-    prize
-  ){
+    const items = Array.isArray(selectedCase?.items)
+      ? selectedCase.items
+      : [];
 
-    const track =
-      document.getElementById(
-        "rouletteTrack"
-      );
-
-    const items =
-      Array.isArray(
-        selectedCase?.items
-      )
-        ? selectedCase.items
-        : [];
-
-
-    if(
-      !items.length
-    ){
-      return;
-    }
-
+    if (!items.length) return;
 
     const sequence = [];
 
-
-    for(
-      let i = 0;
-      i < 8;
-      i++
-    ){
-
-      sequence.push(
-        ...items
-      );
+    // Длинная лента ДО результата
+    for (let i = 0; i < 10; i++) {
+      sequence.push(...items);
     }
 
+    // Позиция выигрышной карточки
+    const targetIndex = sequence.length;
 
-    sequence.push(
-      prize
+    // Добавляем именно тот приз, который вернул сервер
+    sequence.push(prize);
+
+    // Продолжаем ленту ПОСЛЕ выигрышной карточки
+    // Неудача / Мишка / Сердце / NFT продолжают отображаться справа
+    for (let i = 0; i < 8; i++) {
+      sequence.push(...items);
+    }
+
+    track.style.transition = "none";
+    track.style.transform = "translateX(0px)";
+
+    track.innerHTML = sequence
+      .map(rouletteItemHtml)
+      .join("");
+
+    await new Promise(resolve =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(resolve)
+      )
     );
 
+    const cards = [...track.children];
+    const target = cards[targetIndex];
 
-    track.style.transition =
-      "none";
-
-    track.style.transform =
-      "translateX(0px)";
-
-    track.innerHTML =
-      sequence
-        .map(
-          rouletteItemHtml
-        )
-        .join("");
-
-
-    await new Promise(
-      resolve =>
-        requestAnimationFrame(
-          () =>
-            requestAnimationFrame(
-              resolve
-            )
-        )
+    const strip = document.getElementById(
+      "previewStrip"
     );
 
-
-    const cards =
-      [...track.children];
-
-    const target =
-      cards[
-        cards.length - 1
-      ];
-
-    const strip =
-      document.getElementById(
-        "previewStrip"
-      );
-
+    if (!target || !strip) return;
 
     const targetCenter =
       target.offsetLeft +
@@ -1894,473 +1281,251 @@
       stripCenter -
       targetCenter;
 
-
     track.style.transition =
       "transform 4.2s cubic-bezier(.08,.72,.12,1)";
 
     track.style.transform =
       `translateX(${translate}px)`;
 
-
-    await new Promise(
-      resolve =>
-        setTimeout(
-          resolve,
-          4300
-        )
+    await new Promise(resolve =>
+      setTimeout(resolve, 4300)
     );
   }
 
+  async function openSelectedCase() {
+    if (!selectedCase || rouletteBusy) return;
 
-  async function openSelectedCase(){
-
-    if(
-      !selectedCase ||
-      rouletteBusy
-    ){
+    if (!hasEnoughStars(selectedCase)) {
+      window.location.href = "/?openDeposit=1";
       return;
     }
 
-
-    if(
-      !hasEnoughStars(
-        selectedCase
-      )
-    ){
-
-      window.location.href =
-        "/?openDeposit=1";
-
-      return;
-    }
-
-
-    const button =
-      document.getElementById(
-        "depositBtn"
-      );
-
+    const button = document.getElementById("depositBtn");
+    const oldText = button.textContent;
 
     rouletteBusy = true;
+    button.disabled = true;
+    button.textContent = "Крутим…";
 
-    button.disabled =
-      true;
-
-    button.textContent =
-      "Крутим…";
-
-
-    try{
-
-      const data =
-        await post(
-          "/api/cases/open",
-          {
-            initData:
-              requireInitData(),
-
-            case_id:
-              Number(
-                selectedCase.id
-              )
-          }
-        );
-
+    try {
+      const data = await post(
+        "/api/cases/open",
+        {
+          initData: requireInitData(),
+          case_id: Number(selectedCase.id)
+        }
+      );
 
       currentWin = {
-        win_id:
-          data.win_id,
-
-        prize:
-          data.prize
+        win_id: data.win_id,
+        prize: data.prize
       };
 
+      await animateRouletteTo(data.prize);
 
-      await animateRouletteTo(
-        data.prize
-      );
-
-
-      setBalances(
-        data?.balances || {}
-      );
-
-
-      showWin(
-        data.prize
-      );
-
-
+      setBalances(data?.balances || {});
+      showWin(data.prize);
       renderCases();
 
-    }catch(error){
+    } catch (error) {
+      showToast(error.message, 5000);
+      renderPreview(selectedCase);
 
-      showToast(
-        error.message,
-        5000
-      );
-
-      renderPreview(
-        selectedCase
-      );
-
-    }finally{
-
+    } finally {
       rouletteBusy = false;
-
-      button.disabled =
-        false;
-
+      button.disabled = false;
       updateHeroAction();
     }
   }
 
-
-  function showWin(
-    prize
-  ){
-
+  function showWin(prize) {
     document.getElementById(
       "caseContent"
-    ).style.display =
-      "none";
-
+    ).style.display = "none";
 
     document.getElementById(
       "winResult"
-    ).classList.add(
-      "show"
+    ).classList.add("show");
+
+    const image = document.getElementById(
+      "resultImage"
     );
 
+    const failed = Boolean(prize?.is_failure);
 
-    document.getElementById(
-      "caseModal"
-    ).classList.add(
-      "active"
-    );
+    if (failed) {
+      image.removeAttribute("src");
+      image.alt = "Неудача";
+      image.style.display = "none";
+    } else {
+      image.style.display = "block";
+      image.src = giftImage(prize);
 
-
-    const image =
-      document.getElementById(
-        "resultImage"
-      );
-
-
-    const failed =
-      Boolean(
-        prize?.is_failure
-      );
-
-
-    if(
-      failed
-    ){
-
-      image.removeAttribute(
-        "src"
-      );
-
-      image.alt =
-        "Неудача";
-
-      image.style.display =
-        "none";
-
-    }else{
-
-      image.style.display =
-        "block";
-
-      image.src =
-        giftImage(
-          prize
-        );
-
-      image.onerror =
-        () => {
-
-          image.onerror =
-            null;
-
-          image.src =
-            "/static/nft-gift.png";
-        };
+      image.onerror = () => {
+        image.onerror = null;
+        image.src = "/static/nft-gift.png";
+      };
     }
-
 
     document.getElementById(
       "resultName"
-    ).textContent =
-      failed
-        ? "Неудача — в этот раз без приза"
-        : (
-            prize?.name ||
-            "Приз"
-          );
+    ).textContent = failed
+      ? "Неудача — в этот раз без приза"
+      : (prize?.name || "Приз");
 
+    const sellButton = document.getElementById(
+      "sellPrize"
+    );
 
-    const sellButton =
-      document.getElementById(
-        "sellPrize"
-      );
+    const sellStars = Number(
+      prize?.sell_stars || 0
+    );
 
-
-    const sellStars =
-      Number(
-        prize?.sell_stars || 0
-      );
-
-
-    if(
-      !failed &&
-      sellStars > 0
-    ){
-
-      sellButton.style.display =
-        "block";
-
+    if (sellStars > 0) {
+      sellButton.style.display = "block";
       sellButton.textContent =
         `⭐ Продать за ${sellStars} Stars`;
-
-    }else{
-
-      sellButton.style.display =
-        "none";
+    } else {
+      sellButton.style.display = "none";
     }
 
-
-    const withdrawButton =
-      document.getElementById(
-        "withdrawPrize"
-      );
-
+    const withdrawButton = document.getElementById(
+      "withdrawPrize"
+    );
 
     withdrawButton.style.display =
-      (
-        failed ||
-        prize?.withdrawable === false
-      )
+      (failed || prize?.withdrawable === false)
         ? "none"
         : "block";
 
-
-    const status =
-      document.getElementById(
-        "resultStatus"
-      );
-
-
-    status.classList.remove(
-      "show"
+    const status = document.getElementById(
+      "resultStatus"
     );
 
-    status.textContent =
-      "";
+    status.classList.remove("show");
+    status.textContent = "";
   }
 
+  async function sellCurrentPrize() {
+    if (!currentWin?.win_id) return;
 
-  async function sellCurrentPrize(){
+    const button = document.getElementById(
+      "sellPrize"
+    );
 
-    if(
-      !currentWin?.win_id
-    ){
-      return;
-    }
+    button.disabled = true;
 
-
-    const button =
-      document.getElementById(
-        "sellPrize"
+    try {
+      const data = await post(
+        "/api/cases/sell",
+        {
+          initData: requireInitData(),
+          win_id: currentWin.win_id
+        }
       );
-
-
-    button.disabled =
-      true;
-
-
-    try{
-
-      const data =
-        await post(
-          "/api/cases/sell",
-          {
-            initData:
-              requireInitData(),
-
-            win_id:
-              currentWin.win_id
-          }
-        );
-
 
       setBalances(
         data?.balances || {}
       );
 
-
-      const status =
-        document.getElementById(
-          "resultStatus"
-        );
-
+      const status = document.getElementById(
+        "resultStatus"
+      );
 
       status.textContent =
         `Продано. На баланс начислено ${data.credited_stars} Stars.`;
 
+      status.classList.add("show");
 
-      status.classList.add(
-        "show"
-      );
-
-
-      button.style.display =
-        "none";
-
+      button.style.display = "none";
 
       document.getElementById(
         "withdrawPrize"
-      ).style.display =
-        "none";
-
+      ).style.display = "none";
 
       renderCases();
 
-    }catch(error){
-
+    } catch (error) {
       showToast(
         error.message,
         5000
       );
 
-    }finally{
-
-      button.disabled =
-        false;
+    } finally {
+      button.disabled = false;
     }
   }
 
+  async function withdrawCurrentPrize() {
+    if (!currentWin?.win_id) return;
 
-  async function withdrawCurrentPrize(){
+    const button = document.getElementById(
+      "withdrawPrize"
+    );
 
-    if(
-      !currentWin?.win_id
-    ){
-      return;
-    }
+    button.disabled = true;
+    const oldText = button.textContent;
+    button.textContent = "Отправляем заявку…";
 
-
-    const button =
-      document.getElementById(
-        "withdrawPrize"
+    try {
+      const data = await post(
+        "/api/cases/withdraw",
+        {
+          initData: requireInitData(),
+          win_id: currentWin.win_id
+        }
       );
 
-
-    button.disabled =
-      true;
-
-
-    const oldText =
-      button.textContent;
-
-
-    button.textContent =
-      "Отправляем заявку…";
-
-
-    try{
-
-      const data =
-        await post(
-          "/api/cases/withdraw",
-          {
-            initData:
-              requireInitData(),
-
-            win_id:
-              currentWin.win_id
-          }
-        );
-
-
-      const status =
-        document.getElementById(
-          "resultStatus"
-        );
-
+      const status = document.getElementById(
+        "resultStatus"
+      );
 
       status.textContent =
         data.message ||
         "Заявка на вывод отправлена.";
 
+      status.classList.add("show");
 
-      status.classList.add(
-        "show"
-      );
-
-
-      button.style.display =
-        "none";
-
+      button.style.display = "none";
 
       document.getElementById(
         "sellPrize"
-      ).style.display =
-        "none";
+      ).style.display = "none";
 
-    }catch(error){
-
+    } catch (error) {
       showToast(
         error.message,
         5000
       );
 
+      button.textContent = oldText;
 
-      button.textContent =
-        oldText;
-
-    }finally{
-
-      button.disabled =
-        false;
+    } finally {
+      button.disabled = false;
     }
   }
-
 
   document.getElementById(
     "backBtn"
   ).addEventListener(
     "click",
     () => {
-
-      window.location.href =
-        "/";
+      window.location.href = "/";
     }
   );
-
 
   document.getElementById(
     "depositBtn"
   ).addEventListener(
     "click",
     () => {
-
-      if(
-        selectedCase &&
-        hasEnoughStars(
-          selectedCase
-        )
-      ){
-
+      if (selectedCase && hasEnoughStars(selectedCase)) {
         openSelectedCase();
-
-      }else{
-
-        window.location.href =
-          "/?openDeposit=1";
+      } else {
+        window.location.href = "/?openDeposit=1";
       }
     }
   );
-
 
   document.getElementById(
     "closeModal"
@@ -2369,7 +1534,6 @@
     closeModal
   );
 
-
   document.getElementById(
     "closeResult"
   ).addEventListener(
@@ -2377,49 +1541,26 @@
     closeModal
   );
 
-
   document.getElementById(
     "caseModal"
   ).addEventListener(
     "click",
     event => {
-
-      if(
+      if (
         event.target.id ===
         "caseModal"
-      ){
-
+      ) {
         closeModal();
       }
     }
   );
-
 
   document.getElementById(
     "modalAction"
   ).addEventListener(
     "click",
-    () => {
-
-      if(
-        selectedCase &&
-        hasEnoughStars(
-          selectedCase
-        )
-      ){
-
-        closeModal();
-
-        openSelectedCase();
-
-      }else{
-
-        window.location.href =
-          "/?openDeposit=1";
-      }
-    }
+    openSelectedCase
   );
-
 
   document.getElementById(
     "sellPrize"
@@ -2428,7 +1569,6 @@
     sellCurrentPrize
   );
 
-
   document.getElementById(
     "withdrawPrize"
   ).addEventListener(
@@ -2436,41 +1576,28 @@
     withdrawCurrentPrize
   );
 
-
   document.getElementById(
     "playAgain"
   ).addEventListener(
     "click",
     () => {
-
       closeModal();
-
-      renderPreview(
-        selectedCase
-      );
-
+      renderPreview(selectedCase);
       updateHeroAction();
     }
   );
 
-
-  async function init(){
-
-    try{
-
+  async function init() {
+    try {
       await loadBalances();
-
       await loadCatalog();
-
-    }catch(error){
-
+    } catch (error) {
       showToast(
         error.message,
         5000
       );
     }
   }
-
 
   init();
 
