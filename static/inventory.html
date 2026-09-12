@@ -26,7 +26,12 @@
       min-height: 100%;
       background: #07090e;
       color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
     }
 
     body {
@@ -38,6 +43,7 @@
 
     button {
       font-family: inherit;
+      touch-action: manipulation;
     }
 
     .wrap {
@@ -65,7 +71,10 @@
     }
 
     .brand {
-      font-family: Georgia, "Times New Roman", serif;
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
       font-weight: 800;
       font-size: 20px;
     }
@@ -73,9 +82,16 @@
     .hero {
       border-radius: 30px;
       padding: 25px 22px;
-      background: linear-gradient(135deg, #25c58f, #147561);
+      background:
+        linear-gradient(
+          135deg,
+          #25c58f,
+          #147561
+        );
       margin-bottom: 18px;
-      box-shadow: 0 16px 40px rgba(37, 197, 143, .14);
+      box-shadow:
+        0 16px 40px
+        rgba(37, 197, 143, .14);
     }
 
     .hero-badge {
@@ -123,7 +139,11 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0, 1fr)
+        );
       gap: 12px;
     }
 
@@ -136,7 +156,12 @@
 
     .gift-image-wrap {
       aspect-ratio: 1 / 1;
-      background: linear-gradient(145deg, #171d26, #0d1117);
+      background:
+        linear-gradient(
+          145deg,
+          #171d26,
+          #0d1117
+        );
       display: flex;
       align-items: center;
       justify-content: center;
@@ -170,23 +195,63 @@
       margin-top: 9px;
       padding: 6px 9px;
       border-radius: 10px;
-      background: rgba(34, 201, 144, .12);
+      background:
+        rgba(
+          34,
+          201,
+          144,
+          .12
+        );
       color: #42d9a4;
       font-size: 12px;
       font-weight: 800;
     }
 
-    .gift-link {
+    .gift-status.case {
+      background:
+        rgba(
+          121,
+          92,
+          255,
+          .15
+        );
+      color: #a996ff;
+    }
+
+    .gift-link,
+    .withdraw-btn {
       width: 100%;
       border: none;
       border-radius: 14px;
-      padding: 11px;
+      padding: 12px;
       margin-top: 11px;
-      background: #242b36;
       color: #fff;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
+    }
+
+    .gift-link {
+      background: #242b36;
+    }
+
+    .withdraw-btn {
+      background:
+        linear-gradient(
+          135deg,
+          #675cff,
+          #a34dff
+        );
+    }
+
+    .withdraw-btn:disabled {
+      opacity: .55;
+      cursor: default;
+    }
+
+    .withdraw-btn.sent {
+      background: #1c493d;
+      color: #7ce7c2;
     }
 
     .empty {
@@ -229,12 +294,46 @@
       padding: 13px;
       border-radius: 16px;
       background: #1b1518;
-      border: 1px solid rgba(255, 92, 92, .5);
+      border: 1px solid
+        rgba(
+          255,
+          92,
+          92,
+          .5
+        );
       color: #ffb5b5;
       line-height: 1.4;
     }
 
     .error.show {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom:
+        calc(
+          24px
+          +
+          env(safe-area-inset-bottom)
+        );
+      transform:
+        translateX(-50%);
+      width: max-content;
+      max-width: 90%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #242a34;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      display: none;
+      z-index: 99999;
+    }
+
+    .toast.show {
       display: block;
     }
 
@@ -336,12 +435,18 @@
     </div>
 
     <div>
-      После подтверждения подарка администратором он появится здесь.
+      После подтверждения подарка или выигрыша в кейсе он появится здесь.
     </div>
 
   </div>
 
 </div>
+
+
+<div
+  id="toast"
+  class="toast"
+></div>
 
 
 <script>
@@ -377,14 +482,62 @@
         "errorBox"
       );
 
-
     box.textContent =
       message;
-
 
     box.classList.add(
       "show"
     );
+
+  }
+
+
+  function hideError() {
+
+    document
+      .getElementById(
+        "errorBox"
+      )
+      .classList
+      .remove(
+        "show"
+      );
+
+  }
+
+
+  function showToast(
+    message,
+    timeout = 3500
+  ) {
+
+    const toast =
+      document.getElementById(
+        "toast"
+      );
+
+    toast.textContent =
+      message;
+
+    toast.classList.add(
+      "show"
+    );
+
+    clearTimeout(
+      window.inventoryToastTimer
+    );
+
+    window.inventoryToastTimer =
+      setTimeout(
+        () => {
+
+          toast.classList.remove(
+            "show"
+          );
+
+        },
+        timeout
+      );
 
   }
 
@@ -398,7 +551,6 @@
       );
 
     }
-
 
     return tg.initData;
 
@@ -414,7 +566,6 @@
       await fetch(
         url,
         {
-
           method:
             "POST",
 
@@ -427,13 +578,10 @@
             JSON.stringify(
               body
             )
-
         }
       );
 
-
     let data = {};
-
 
     try {
 
@@ -446,19 +594,13 @@
     if (!response.ok) {
 
       throw new Error(
-
         data?.detail ||
-
         data?.error ||
-
         data?.message ||
-
         `Ошибка сервера ${response.status}`
-
       );
 
     }
-
 
     return data;
 
@@ -509,6 +651,7 @@
           class="gift-image"
           src="${escapeHtml(gift.gift_image)}"
           alt=""
+          onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>🎁</div>'"
         >
       `
 
@@ -517,6 +660,57 @@
           🎁
         </div>
       `;
+
+
+    const isCaseGift =
+      gift.source === "case"
+      ||
+      String(
+        gift.id || ""
+      ).startsWith(
+        "case:"
+      );
+
+
+    let actionButton = "";
+
+
+    if (
+      isCaseGift &&
+      gift.case_win_id
+    ) {
+
+      actionButton = `
+
+        <button
+          class="withdraw-btn"
+          type="button"
+          data-withdraw-id="${Number(gift.case_win_id)}"
+        >
+          Вывести
+        </button>
+
+      `;
+
+    }
+
+    else if (
+      gift.gift_url
+    ) {
+
+      actionButton = `
+
+        <button
+          class="gift-link"
+          type="button"
+          data-url="${escapeHtml(gift.gift_url)}"
+        >
+          Открыть NFT
+        </button>
+
+      `;
+
+    }
 
 
     return `
@@ -544,24 +738,201 @@
           </div>
 
 
-          <div class="gift-status">
-            ✅ В инвентаре
+          <div
+            class="gift-status ${
+              isCaseGift
+                ? "case"
+                : ""
+            }"
+          >
+
+            ${
+              isCaseGift
+                ? "🎁 Выиграно в кейсе"
+                : "✅ В инвентаре"
+            }
+
           </div>
 
 
-          <button
-            class="gift-link"
-            type="button"
-            data-url="${escapeHtml(gift.gift_url)}"
-          >
-            Открыть NFT
-          </button>
+          ${actionButton}
 
         </div>
 
       </div>
 
     `;
+
+  }
+
+
+  function bindOpenButtons() {
+
+    document
+      .querySelectorAll(
+        "[data-url]"
+      )
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              const url =
+                button.dataset.url ||
+                "";
+
+
+              if (!url) {
+                return;
+              }
+
+
+              if (
+                tg?.openTelegramLink &&
+                url.startsWith(
+                  "https://t.me/"
+                )
+              ) {
+
+                tg.openTelegramLink(
+                  url
+                );
+
+              }
+
+              else if (
+                tg?.openLink
+              ) {
+
+                tg.openLink(
+                  url
+                );
+
+              }
+
+              else {
+
+                window.location.href =
+                  url;
+
+              }
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  function bindWithdrawButtons() {
+
+    document
+      .querySelectorAll(
+        "[data-withdraw-id]"
+      )
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            "click",
+            async () => {
+
+              const winId =
+                Number(
+                  button.dataset.withdrawId
+                );
+
+
+              if (
+                !Number.isInteger(
+                  winId
+                )
+                ||
+                winId <= 0
+              ) {
+
+                showToast(
+                  "Не удалось определить выигрыш"
+                );
+
+                return;
+
+              }
+
+
+              const oldText =
+                button.textContent;
+
+
+              button.disabled =
+                true;
+
+
+              button.textContent =
+                "Отправляем…";
+
+
+              try {
+
+                hideError();
+
+
+                const data =
+                  await post(
+                    "/api/cases/withdraw",
+                    {
+                      initData:
+                        getInitData(),
+
+                      win_id:
+                        winId
+                    }
+                  );
+
+
+                button.textContent =
+                  "✓ Заявка отправлена";
+
+
+                button.classList.add(
+                  "sent"
+                );
+
+
+                showToast(
+                  data?.message ||
+                  "Заявка на вывод отправлена",
+                  4500
+                );
+
+
+              } catch (error) {
+
+                button.disabled =
+                  false;
+
+
+                button.textContent =
+                  oldText;
+
+
+                showError(
+                  "Ошибка вывода: "
+                  +
+                  error.message
+                );
+
+              }
+
+            }
+          );
+
+        }
+      );
 
   }
 
@@ -594,14 +965,15 @@
 
     try {
 
+      hideError();
+
+
       const data =
         await post(
           "/api/me",
           {
-
             initData:
               getInitData()
-
           }
         );
 
@@ -610,8 +982,8 @@
         (
           data.deposits ||
           []
-        ).filter(
-
+        )
+        .filter(
           item =>
 
             item.status ===
@@ -622,7 +994,6 @@
             Number(
               item.hidden || 0
             ) === 0
-
         );
 
 
@@ -634,6 +1005,10 @@
         !gifts.length
       ) {
 
+        grid.innerHTML =
+          "";
+
+
         empty.classList.add(
           "show"
         );
@@ -644,6 +1019,11 @@
       }
 
 
+      empty.classList.remove(
+        "show"
+      );
+
+
       grid.innerHTML =
         gifts
           .map(
@@ -652,64 +1032,16 @@
           .join("");
 
 
-      grid
-        .querySelectorAll(
-          "[data-url]"
-        )
-        .forEach(
-          button => {
+      bindOpenButtons();
 
-            button.addEventListener(
-              "click",
-              () => {
-
-                const url =
-                  button.dataset.url;
-
-
-                if (
-                  tg?.openTelegramLink &&
-                  url.startsWith(
-                    "https://t.me/"
-                  )
-                ) {
-
-                  tg.openTelegramLink(
-                    url
-                  );
-
-                }
-
-
-                else if (
-                  tg?.openLink
-                ) {
-
-                  tg.openLink(
-                    url
-                  );
-
-                }
-
-
-                else {
-
-                  window.location.href =
-                    url;
-
-                }
-
-              }
-            );
-
-          }
-        );
+      bindWithdrawButtons();
 
 
     } catch (error) {
 
       showError(
-        "Ошибка: " +
+        "Ошибка: "
+        +
         error.message
       );
 
