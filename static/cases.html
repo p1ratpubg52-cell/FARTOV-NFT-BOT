@@ -17,25 +17,26 @@
       box-sizing:border-box;
       margin:0;
       padding:0;
-      -webkit-tap-highlight-color:transparent
+      -webkit-tap-highlight-color:transparent;
     }
 
-    html,body{
+    html,
+    body{
       width:100%;
       min-height:100%;
       background:#07090e;
       color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-      overflow-x:hidden
+      overflow-x:hidden;
     }
 
     body{
-      padding-bottom:env(safe-area-inset-bottom)
+      padding-bottom:env(safe-area-inset-bottom);
     }
 
     button{
       font-family:inherit;
-      touch-action:manipulation
+      touch-action:manipulation;
     }
 
     .app{
@@ -52,7 +53,7 @@
       display:flex;
       align-items:center;
       gap:14px;
-      margin-bottom:20px
+      margin-bottom:20px;
     }
 
     .back-btn{
@@ -63,19 +64,18 @@
       padding:13px 15px;
       font-size:14px;
       font-weight:850;
-      cursor:pointer
     }
 
     .page-title{
       font-size:31px;
       font-weight:950;
-      letter-spacing:-.8px
+      letter-spacing:-.8px;
     }
 
     .page-subtitle{
       color:#7d8491;
       font-size:13px;
-      margin-top:3px
+      margin-top:3px;
     }
 
     .warning{
@@ -87,36 +87,41 @@
       border:1px solid rgba(255,85,85,.22);
       color:#ffb7b7;
       font-size:12px;
-      line-height:1.45
+      line-height:1.45;
     }
 
     .warning.show{
-      display:block
+      display:block;
     }
 
     .balances{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-bottom:18px
+      margin-bottom:18px;
     }
 
     .balance-card{
       border-radius:19px;
       padding:15px;
-      background:linear-gradient(145deg,#171c25,#10141a);
-      border:1px solid #303846
+      background:
+        linear-gradient(
+          145deg,
+          #171c25,
+          #10141a
+        );
+      border:1px solid #303846;
     }
 
     .balance-label{
       color:#8d95a3;
       font-size:12px;
-      margin-bottom:5px
+      margin-bottom:5px;
     }
 
     .balance-value{
       font-size:22px;
-      font-weight:900
+      font-weight:900;
     }
 
     .hero{
@@ -134,13 +139,13 @@
           145deg,
           #1d212a,
           #12161c
-        )
+        );
     }
 
     .hero-title{
       font-size:21px;
       font-weight:900;
-      margin-bottom:13px
+      margin-bottom:13px;
     }
 
     .preview-strip{
@@ -153,7 +158,18 @@
       overflow:hidden;
       border-radius:20px;
       background:#242832;
-      border:1px solid rgba(255,255,255,.06)
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .roulette-track{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      will-change:transform;
+      transition:
+        transform
+        4.2s
+        cubic-bezier(.08,.72,.12,1);
     }
 
     .preview-item{
@@ -164,16 +180,32 @@
       overflow:hidden;
       background:#161a22;
       border:1px solid #3b4350;
-      display:flex;
-      align-items:center;
-      justify-content:center
     }
 
     .preview-item img{
       width:100%;
       height:100%;
-      object-fit:cover;
-      display:block
+      object-fit:contain;
+      display:block;
+    }
+
+    .preview-item.failure{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px;
+      text-align:center;
+      font-size:12px;
+      line-height:1.15;
+      font-weight:950;
+      color:#ff7a7a;
+      background:
+        linear-gradient(
+          145deg,
+          #2b171c,
+          #161a22
+        );
+      border-color:#7b333e;
     }
 
     .preview-line{
@@ -184,8 +216,9 @@
       width:4px;
       transform:translateX(-50%);
       background:#8d69ff;
-      box-shadow:0 0 16px rgba(141,105,255,.7);
-      z-index:5
+      box-shadow:
+        0 0 16px rgba(141,105,255,.7);
+      z-index:5;
     }
 
     .deposit-btn{
@@ -197,33 +230,62 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      background:linear-gradient(135deg,#675cff,#a34dff);
-      cursor:pointer
+      background:
+        linear-gradient(
+          135deg,
+          #675cff,
+          #a34dff
+        );
+    }
+
+    .deposit-btn.low{
+      background:
+        linear-gradient(
+          135deg,
+          #675cff,
+          #a34dff
+        );
+    }
+
+    .deposit-btn:disabled{
+      opacity:.65;
     }
 
     .section-title{
       font-size:22px;
       font-weight:950;
-      margin:0 2px 14px
+      margin:0 2px 14px;
     }
 
     .cases{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px
+      gap:12px;
     }
 
     .case{
       border-radius:25px;
       border:1px solid #313946;
-      background:linear-gradient(145deg,#171c24,#11151b);
+      background:
+        linear-gradient(
+          145deg,
+          #171c24,
+          #11151b
+        );
       padding:12px;
-      cursor:pointer;
-      overflow:hidden
+      overflow:hidden;
+      transition:.2s ease;
+    }
+
+    .case.selected{
+      border-color:#8d69ff;
+      box-shadow:
+        0 0 0 2px rgba(141,105,255,.18),
+        0 0 28px rgba(141,105,255,.13);
     }
 
     .case:active{
-      transform:scale(.985)
+      transform:scale(.985);
     }
 
     .case-art{
@@ -242,13 +304,17 @@
           rgba(255,255,255,.13),
           transparent 25%
         ),
-        linear-gradient(180deg,#30343d,#23262e)
+        linear-gradient(
+          180deg,
+          #30343d,
+          #23262e
+        );
     }
 
     .case-thumbs{
       position:relative;
       width:115px;
-      height:105px
+      height:105px;
     }
 
     .case-thumb{
@@ -258,33 +324,34 @@
       border-radius:15px;
       overflow:hidden;
       border:2px solid rgba(255,255,255,.16);
-      box-shadow:0 8px 20px rgba(0,0,0,.32);
-      background:#151922
+      box-shadow:
+        0 8px 20px rgba(0,0,0,.32);
+      background:#151922;
     }
 
     .case-thumb img{
       width:100%;
       height:100%;
-      object-fit:cover;
-      display:block
+      object-fit:contain;
+      display:block;
     }
 
     .case-thumb:nth-child(1){
       left:0;
       bottom:0;
-      transform:rotate(-8deg)
+      transform:rotate(-8deg);
     }
 
     .case-thumb:nth-child(2){
       right:0;
       bottom:0;
-      transform:rotate(8deg)
+      transform:rotate(8deg);
     }
 
     .case-thumb:nth-child(3){
       left:23px;
       top:0;
-      z-index:3
+      z-index:3;
     }
 
     .price-pill{
@@ -296,13 +363,13 @@
       border-radius:13px;
       padding:8px 11px;
       font-size:13px;
-      font-weight:900
+      font-weight:900;
     }
 
     .case-name{
       font-size:18px;
       font-weight:900;
-      margin-bottom:6px
+      margin-bottom:6px;
     }
 
     .case-price{
@@ -310,7 +377,7 @@
       font-size:13px;
       line-height:1.35;
       min-height:38px;
-      margin-bottom:10px
+      margin-bottom:10px;
     }
 
     .case-btn{
@@ -321,12 +388,21 @@
       font-size:13px;
       font-weight:900;
       color:#fff;
-      background:linear-gradient(135deg,#675cff,#a34dff);
-      cursor:pointer
+      background:
+        linear-gradient(
+          135deg,
+          #675cff,
+          #a34dff
+        );
     }
 
-    .case-btn.low{
-      background:linear-gradient(135deg,#ff7918,#ff4b4b)
+    .case.selected .case-btn{
+      background:
+        linear-gradient(
+          135deg,
+          #554be8,
+          #8740e9
+        );
     }
 
     .empty{
@@ -338,10 +414,8 @@
       color:#9098a5;
       font-size:14px;
       line-height:1.45;
-      text-align:center
+      text-align:center;
     }
-
-    /* MODAL */
 
     .modal{
       position:fixed;
@@ -352,11 +426,11 @@
       align-items:flex-end;
       background:rgba(0,0,0,.80);
       backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px)
+      -webkit-backdrop-filter:blur(10px);
     }
 
     .modal.active{
-      display:flex
+      display:flex;
     }
 
     .sheet{
@@ -370,7 +444,7 @@
       padding:
         19px
         16px
-        calc(25px + env(safe-area-inset-bottom))
+        calc(25px + env(safe-area-inset-bottom));
     }
 
     .sheet-head{
@@ -378,12 +452,12 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:10px
+      margin-bottom:10px;
     }
 
     .sheet-title{
       font-size:25px;
-      font-weight:950
+      font-weight:950;
     }
 
     .close-btn{
@@ -394,35 +468,48 @@
       background:#292f39;
       color:#fff;
       font-size:20px;
-      cursor:pointer;
-      flex:0 0 auto
     }
 
     .sheet-price{
       color:#9ba3af;
       font-size:14px;
-      margin-bottom:18px
+      margin-bottom:18px;
     }
 
     .drop-heading{
       font-size:19px;
       font-weight:900;
-      margin-bottom:12px
+      margin-bottom:12px;
     }
 
     .drops{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-bottom:18px
+      margin-bottom:18px;
     }
 
     .drop{
       border-radius:19px;
       overflow:hidden;
-      background:linear-gradient(145deg,#1b2029,#131820);
+      background:
+        linear-gradient(
+          145deg,
+          #1b2029,
+          #131820
+        );
       border:1px solid #343c49;
-      padding:10px
+      padding:10px;
+    }
+
+    .drop.failure{
+      border-color:#713741;
+      background:
+        linear-gradient(
+          145deg,
+          #28161b,
+          #131820
+        );
     }
 
     .drop-image{
@@ -431,27 +518,40 @@
       overflow:hidden;
       border-radius:15px;
       background:#222731;
-      margin-bottom:9px
+      margin-bottom:9px;
     }
 
     .drop-image img{
       width:100%;
       height:100%;
-      object-fit:cover;
-      display:block
+      object-fit:contain;
+      display:block;
+    }
+
+    .failure-box{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px;
+      text-align:center;
+      color:#ff7777;
+      font-size:17px;
+      font-weight:950;
     }
 
     .drop-name{
       font-size:13px;
       font-weight:850;
       line-height:1.3;
-      min-height:34px
+      min-height:34px;
     }
 
     .drop-chance{
       color:#929aa7;
       font-size:11px;
-      margin-top:5px
+      margin-top:5px;
     }
 
     .drop-link{
@@ -459,7 +559,7 @@
       color:#8978ff;
       font-size:11px;
       margin-top:5px;
-      text-decoration:none
+      text-decoration:none;
     }
 
     .modal-action{
@@ -470,61 +570,164 @@
       color:#fff;
       font-size:16px;
       font-weight:900;
-      cursor:pointer;
-      background:linear-gradient(135deg,#675cff,#a34dff)
+      background:
+        linear-gradient(
+          135deg,
+          #675cff,
+          #a34dff
+        );
     }
 
     .modal-action.low{
-      background:linear-gradient(135deg,#ff7918,#ff4b4b)
+      background:
+        linear-gradient(
+          135deg,
+          #ff7918,
+          #ff4b4b
+        );
     }
 
-    .loading{
-      grid-column:1/-1;
+    .result{
+      display:none;
       text-align:center;
-      padding:28px 15px;
-      color:#929aa7
+    }
+
+    .result.show{
+      display:block;
+    }
+
+    .result-image{
+      width:190px;
+      height:190px;
+      margin:10px auto 16px;
+      border-radius:24px;
+      overflow:hidden;
+      background:#20252d;
+      border:1px solid #3a4350;
+    }
+
+    .result-image img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
+    .result-label{
+      color:#8f97a4;
+      font-size:13px;
+      margin-bottom:5px;
+    }
+
+    .result-name{
+      font-size:27px;
+      font-weight:950;
+      margin-bottom:18px;
+    }
+
+    .win-actions{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .withdraw-btn,
+    .sell-btn,
+    .again-btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:16px;
+      color:#fff;
+      font-size:15px;
+      font-weight:900;
+    }
+
+    .withdraw-btn{
+      background:
+        linear-gradient(
+          135deg,
+          #665cff,
+          #a34dff
+        );
+    }
+
+    .sell-btn{
+      background:
+        linear-gradient(
+          135deg,
+          #1f8bff,
+          #695aff
+        );
+    }
+
+    .again-btn{
+      background:#262d37;
+    }
+
+    .result-status{
+      display:none;
+      margin-top:14px;
+      padding:12px;
+      border-radius:14px;
+      background:#1c222c;
+      color:#b7c0cd;
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .result-status.show{
+      display:block;
     }
 
     .toast{
       position:fixed;
       left:50%;
-      bottom:30px;
-      transform:translateX(-50%);
-      width:max-content;
-      max-width:90%;
-      padding:12px 16px;
-      border-radius:14px;
-      background:#242a34;
+      bottom:
+        calc(22px + env(safe-area-inset-bottom));
+      transform:translateX(-50%) translateY(120px);
+      z-index:10000;
+      width:calc(100% - 30px);
+      max-width:500px;
+      padding:13px 16px;
+      border-radius:17px;
+      background:#222832;
       color:#fff;
+      text-align:center;
       font-size:13px;
       font-weight:700;
-      text-align:center;
-      display:none;
-      z-index:20000
+      opacity:0;
+      pointer-events:none;
+      transition:.25s ease;
+      border:1px solid #394250;
     }
 
     .toast.show{
-      display:block
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
     }
 
     @media(max-width:390px){
+      .app{
+        padding-left:11px;
+        padding-right:11px;
+      }
 
       .cases{
-        gap:9px
+        gap:9px;
       }
 
       .case{
-        padding:10px
+        padding:9px;
       }
 
       .case-art{
-        height:145px
+        height:145px;
       }
 
       .case-name{
-        font-size:16px
+        font-size:16px;
       }
-
     }
   </style>
 </head>
@@ -536,9 +739,8 @@
   <div class="topbar">
 
     <button
-      id="backBtn"
       class="back-btn"
-      type="button"
+      id="backBtn"
     >
       ← Назад
     </button>
@@ -555,141 +757,205 @@
 
   </div>
 
-
   <div
-    id="catalogWarning"
     class="warning"
+    id="catalogWarning"
   ></div>
-
 
   <div class="balances">
 
     <div class="balance-card">
-
       <div class="balance-label">
         Telegram Stars
       </div>
 
       <div
-        id="starsBalance"
         class="balance-value"
+        id="starsBalance"
       >
         0
       </div>
-
     </div>
 
-
     <div class="balance-card">
-
       <div class="balance-label">
         TON
       </div>
 
       <div
-        id="tonBalance"
         class="balance-value"
+        id="tonBalance"
       >
         0
       </div>
-
     </div>
 
   </div>
 
-
-  <div class="hero">
+  <section class="hero">
 
     <div class="hero-title">
       Подарки внутри кейсов
     </div>
 
     <div
-      id="previewStrip"
       class="preview-strip"
+      id="previewStrip"
     >
+
+      <div
+        class="roulette-track"
+        id="rouletteTrack"
+      ></div>
+
       <div class="preview-line"></div>
+
     </div>
 
     <button
-      id="depositBtn"
       class="deposit-btn"
-      type="button"
+      id="depositBtn"
     >
       + Пополнить баланс
     </button>
 
-  </div>
-
+  </section>
 
   <div class="section-title">
     Выбери кейс
   </div>
 
-
   <div
-    id="cases"
     class="cases"
-  >
-    <div class="loading">
-      Загружаем NFT...
-    </div>
-  </div>
+    id="casesList"
+  ></div>
 
 </div>
 
 
 <div
-  id="caseModal"
   class="modal"
+  id="caseModal"
 >
 
   <div class="sheet">
 
-    <div class="sheet-head">
+    <div
+      id="caseContent"
+    >
 
-      <div
-        id="modalTitle"
-        class="sheet-title"
-      >
-        Кейс
+      <div class="sheet-head">
+
+        <div
+          class="sheet-title"
+          id="modalTitle"
+        >
+          Кейс
+        </div>
+
+        <button
+          class="close-btn"
+          id="closeModal"
+        >
+          ×
+        </button>
+
       </div>
 
+      <div
+        class="sheet-price"
+        id="modalPrice"
+      ></div>
+
+      <div class="drop-heading">
+        Что может выпасть
+      </div>
+
+      <div
+        class="drops"
+        id="drops"
+      ></div>
+
       <button
-        id="closeModal"
-        class="close-btn"
-        type="button"
+        class="modal-action"
+        id="modalAction"
       >
-        ✕
+        Крутить
       </button>
 
     </div>
 
 
     <div
-      id="modalPrice"
-      class="sheet-price"
-    ></div>
-
-
-    <div class="drop-heading">
-      Что может выпасть
-    </div>
-
-
-    <div
-      id="drops"
-      class="drops"
-    ></div>
-
-
-    <button
-      id="modalAction"
-      class="modal-action"
-      type="button"
+      class="result"
+      id="winResult"
     >
-      Пополнить баланс
-    </button>
+
+      <div class="sheet-head">
+
+        <div class="sheet-title">
+          Результат
+        </div>
+
+        <button
+          class="close-btn"
+          id="closeResult"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="result-image">
+        <img
+          id="resultImage"
+          src=""
+          alt=""
+        >
+      </div>
+
+      <div class="result-label">
+        Выпало
+      </div>
+
+      <div
+        class="result-name"
+        id="resultName"
+      >
+        Приз
+      </div>
+
+      <div class="win-actions">
+
+        <button
+          class="withdraw-btn"
+          id="withdrawPrize"
+        >
+          Вывести NFT
+        </button>
+
+        <button
+          class="sell-btn"
+          id="sellPrize"
+        >
+          Продать
+        </button>
+
+        <button
+          class="again-btn"
+          id="playAgain"
+        >
+          Крутить ещё
+        </button>
+
+      </div>
+
+      <div
+        class="result-status"
+        id="resultStatus"
+      ></div>
+
+    </div>
 
   </div>
 
@@ -697,439 +963,505 @@
 
 
 <div
-  id="toast"
   class="toast"
+  id="toast"
 ></div>
 
 
 <script>
-
 (() => {
 
   const tg =
-    window.Telegram?.WebApp ||
-    null;
+    window.Telegram?.WebApp || null;
 
-
-  let userBalance = {
-    stars:0,
-    ton:0
-  };
+  try{
+    tg?.ready();
+    tg?.expand();
+  }catch(_){}
 
 
   let CASES = [];
 
   let selectedCase = null;
 
+  let currentWin = null;
 
-  try {
+  let rouletteBusy = false;
 
-    tg?.ready();
-
-    tg?.expand();
-
-    tg?.setHeaderColor(
-      "#07090e"
-    );
-
-    tg?.setBackgroundColor(
-      "#07090e"
-    );
-
-  } catch (_) {}
+  let BALANCES = {
+    XTR:0,
+    TON:0
+  };
 
 
-  function showToast(
-    message,
-    timeout = 3500
-  ) {
+  function safeText(value){
 
-    const el =
-      document.getElementById(
-        "toast"
-      );
-
-
-    el.textContent =
-      message;
-
-
-    el.classList.add(
-      "show"
-    );
-
-
-    clearTimeout(
-      window.toastTimer
-    );
-
-
-    window.toastTimer =
-      setTimeout(
-        () => {
-
-          el.classList.remove(
-            "show"
-          );
-
-        },
-        timeout
-      );
-
+    return String(
+      value ?? ""
+    )
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
 
-  function parseNumber(value) {
+  function requireInitData(){
 
-    const n =
-      Number(
-        String(
-          value ?? 0
-        ).replace(
-          ",",
-          "."
-        )
+    const initData =
+      tg?.initData || "";
+
+    if(!initData){
+      throw new Error(
+        "Открой мини-приложение через Telegram."
       );
+    }
 
-
-    return Number.isFinite(n)
-      ? n
-      : 0;
-
-  }
-
-
-  function hasEnough(item) {
-
-    return (
-      userBalance.stars >=
-      Number(item.stars)
-      ||
-      userBalance.ton >=
-      Number(item.ton)
-    );
-
+    return initData;
   }
 
 
   async function post(
     url,
     body
-  ) {
+  ){
 
     const response =
       await fetch(
         url,
         {
           method:"POST",
-
           headers:{
             "Content-Type":
               "application/json"
           },
-
           body:
             JSON.stringify(body)
         }
       );
 
+    let data = null;
 
-    let data = {};
-
-
-    try {
-
+    try{
       data =
         await response.json();
+    }catch(_){}
 
-    } catch (_) {}
-
-
-    if (!response.ok) {
+    if(!response.ok){
 
       throw new Error(
         data?.detail ||
         data?.message ||
-        `Ошибка ${response.status}`
+        "Ошибка сервера"
       );
 
     }
 
-
     return data;
-
   }
 
 
-  function giftImage(item) {
+  function showToast(
+    text,
+    timeout=3000
+  ){
+
+    const toast =
+      document.getElementById(
+        "toast"
+      );
+
+    toast.textContent =
+      String(text || "");
+
+    toast.classList.add(
+      "show"
+    );
+
+    clearTimeout(
+      showToast.timer
+    );
+
+    showToast.timer =
+      setTimeout(
+        () => {
+          toast.classList.remove(
+            "show"
+          );
+        },
+        timeout
+      );
+  }
+
+
+  function normalizeBalanceValue(
+    value
+  ){
+
+    const number =
+      Number(value || 0);
+
+    if(
+      !Number.isFinite(number)
+    ){
+      return 0;
+    }
+
+    return number;
+  }
+
+
+  function setBalances(
+    balances
+  ){
+
+    BALANCES.XTR =
+      normalizeBalanceValue(
+        balances?.XTR ??
+        balances?.stars ??
+        balances?.telegram_stars ??
+        0
+      );
+
+    BALANCES.TON =
+      normalizeBalanceValue(
+        balances?.TON ??
+        balances?.ton ??
+        0
+      );
+
+    document.getElementById(
+      "starsBalance"
+    ).textContent =
+      BALANCES.XTR;
+
+    document.getElementById(
+      "tonBalance"
+    ).textContent =
+      BALANCES.TON;
+
+    updateHeroAction();
+  }
+
+
+  function giftImage(
+    item
+  ){
 
     return (
       item?.image_url ||
+      item?.image ||
+      item?.gift_image ||
       "/static/nft-gift.png"
     );
-
   }
 
 
-  function safeText(value) {
+  function isFailure(
+    item
+  ){
 
-    return String(
-      value ?? ""
-    )
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
+    return Boolean(
+      item?.is_failure
+    );
   }
 
 
-  function renderPreview() {
+  function hasEnoughStars(
+    item
+  ){
 
-    const preview =
-      document.getElementById(
-        "previewStrip"
-      );
-
-
-    const allItems =
-      CASES.flatMap(
-        item =>
-          Array.isArray(item.items)
-            ? item.items
-            : []
-      );
-
-
-    preview.innerHTML =
-      '<div class="preview-line"></div>';
-
-
-    if (!allItems.length) {
-
-      const box =
-        document.createElement(
-          "div"
-        );
-
-
-      box.className =
-        "preview-item";
-
-
-      box.innerHTML =
-        `<img src="/static/nft-gift.png" alt="">`;
-
-
-      preview.appendChild(
-        box
-      );
-
-
-      return;
-
-    }
-
-
-    allItems
-      .slice(0,8)
-      .forEach(
-        item => {
-
-          const box =
-            document.createElement(
-              "div"
-            );
-
-
-          box.className =
-            "preview-item";
-
-
-          const img =
-            document.createElement(
-              "img"
-            );
-
-
-          img.src =
-            giftImage(
-              item
-            );
-
-
-          img.alt =
-            item?.name ||
-            "Telegram NFT";
-
-
-          img.onerror =
-            () => {
-
-              img.onerror = null;
-
-              img.src =
-                "/static/nft-gift.png";
-
-            };
-
-
-          box.appendChild(
-            img
-          );
-
-
-          preview.appendChild(
-            box
-          );
-
-        }
-      );
-
+    return (
+      BALANCES.XTR >=
+      Number(
+        item?.stars || 0
+      )
+    );
   }
 
 
-  function casePreviewHtml(items) {
+  function rouletteItemHtml(
+    gift
+  ){
 
-    const preview =
-      Array.isArray(items)
-        ? items.slice(0,3)
-        : [];
-
-
-    if (!preview.length) {
+    if(
+      isFailure(gift)
+    ){
 
       return `
-        <div class="case-thumb">
-          <img
-            src="/static/nft-gift.png"
-            alt=""
-          >
+        <div class="preview-item failure">
+          НЕУДАЧА
         </div>
       `;
 
     }
 
+    return `
+      <div class="preview-item">
 
-    return preview
-      .map(
-        item => `
+        <img
+          src="${safeText(giftImage(gift))}"
+          alt=""
+          onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+        >
 
-          <div class="case-thumb">
-
-            <img
-              src="${safeText(giftImage(item))}"
-              alt=""
-              onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-            >
-
-          </div>
-
-        `
-      )
-      .join("");
-
+      </div>
+    `;
   }
 
 
-  function renderCases() {
+  function getPreviewItems(
+    item
+  ){
 
-    const root =
-      document.getElementById(
-        "cases"
-      );
+    const items =
+      Array.isArray(item?.items)
+        ? item.items
+        : [];
 
+    if(!items.length){
+      return [];
+    }
 
-    if (!CASES.length) {
+    const result = [];
 
-      root.innerHTML =
-        `
-          <div class="empty">
-            NFT с @fart2_backpack пока не удалось получить.
-          </div>
-        `;
+    for(
+      let repeat = 0;
+      repeat < 4;
+      repeat++
+    ){
 
-      return;
+      for(
+        const gift of items
+      ){
+        result.push(gift);
+      }
 
     }
 
+    return result;
+  }
 
-    root.innerHTML =
+
+  function renderPreview(
+    item = selectedCase
+  ){
+
+    const track =
+      document.getElementById(
+        "rouletteTrack"
+      );
+
+    track.style.transition =
+      "none";
+
+    track.style.transform =
+      "translateX(0px)";
+
+    const items =
+      getPreviewItems(item);
+
+    if(!items.length){
+
+      track.innerHTML = `
+        <div
+          style="
+            color:#8f97a4;
+            font-size:13px;
+            padding:20px;
+          "
+        >
+          Выберите кейс
+        </div>
+      `;
+
+      return;
+    }
+
+    track.innerHTML =
+      items
+        .map(
+          rouletteItemHtml
+        )
+        .join("");
+  }
+
+
+  function updateHeroAction(){
+
+    const button =
+      document.getElementById(
+        "depositBtn"
+      );
+
+    if(!selectedCase){
+
+      button.textContent =
+        "+ Пополнить баланс";
+
+      button.classList.add(
+        "low"
+      );
+
+      return;
+    }
+
+    if(
+      hasEnoughStars(
+        selectedCase
+      )
+    ){
+
+      button.classList.remove(
+        "low"
+      );
+
+      button.textContent =
+        `Крутить за ${Number(selectedCase.stars)} ⭐`;
+
+    }else{
+
+      button.classList.add(
+        "low"
+      );
+
+      button.textContent =
+        "+ Пополнить баланс";
+    }
+  }
+
+
+  function getCaseThumbs(
+    item
+  ){
+
+    const gifts =
+      (
+        Array.isArray(item?.items)
+          ? item.items
+          : []
+      )
+      .filter(
+        gift =>
+          !isFailure(gift)
+      )
+      .slice(
+        0,
+        3
+      );
+
+    if(!gifts.length){
+
+      return `
+        <div
+          style="
+            color:#9da5b2;
+            font-size:12px;
+            text-align:center;
+          "
+        >
+          NFT
+        </div>
+      `;
+
+    }
+
+    return `
+      <div class="case-thumbs">
+
+        ${
+          gifts.map(
+            gift => `
+              <div class="case-thumb">
+
+                <img
+                  src="${safeText(giftImage(gift))}"
+                  alt=""
+                  onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+                >
+
+              </div>
+            `
+          ).join("")
+        }
+
+      </div>
+    `;
+  }
+
+
+  function renderCases(){
+
+    const list =
+      document.getElementById(
+        "casesList"
+      );
+
+    if(!CASES.length){
+
+      list.innerHTML = `
+        <div class="empty">
+          Кейсы пока не загружены.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    list.innerHTML =
       CASES
         .map(
           item => {
 
-            const enough =
-              hasEnough(
-                item
+            const selected =
+              selectedCase &&
+              Number(
+                selectedCase.id
+              ) ===
+              Number(
+                item.id
               );
 
-
             return `
-
               <div
-                class="case"
-                data-case="${item.id}"
+                class="case ${selected ? "selected" : ""}"
+                data-case="${Number(item.id)}"
               >
 
                 <div class="case-art">
 
                   <div class="price-pill">
-                    ${item.stars} ⭐
+                    ${Number(item.stars)} ⭐
                   </div>
 
-
-                  <div class="case-thumbs">
-
-                    ${
-                      casePreviewHtml(
-                        item.items
-                      )
-                    }
-
-                  </div>
+                  ${getCaseThumbs(item)}
 
                 </div>
-
 
                 <div class="case-name">
-
-                  ${
-                    safeText(
-                      item.name
-                    )
-                  }
-
+                  ${safeText(item.name || "Кейс")}
                 </div>
-
 
                 <div class="case-price">
-
-                  ${item.stars} Stars /
-                  ${Number(item.ton).toFixed(2)} TON
-
+                  ${Number(item.stars)} Stars /
+                  ${Number(item.ton || 0).toFixed(2)} TON
                 </div>
 
-
                 <button
-                  type="button"
-                  class="case-btn ${enough ? "" : "low"}"
-                  data-action="${item.id}"
+                  class="case-btn"
+                  data-select-case="${Number(item.id)}"
                 >
-
                   ${
-                    enough
-                      ? `Крутить за ${item.stars}`
-                      : "Пополнить баланс"
+                    selected
+                      ? "✓ Выбрано"
+                      : "Выбрать"
                   }
-
                 </button>
 
               </div>
-
             `;
-
           }
         )
         .join("");
@@ -1137,55 +1469,7 @@
 
     document
       .querySelectorAll(
-        "[data-case]"
-      )
-      .forEach(
-        card => {
-
-          card.addEventListener(
-            "click",
-            event => {
-
-              if (
-                event.target.closest(
-                  "[data-action]"
-                )
-              ) {
-                return;
-              }
-
-
-              const id =
-                Number(
-                  card.dataset.case
-                );
-
-
-              const item =
-                CASES.find(
-                  x =>
-                    Number(x.id) === id
-                );
-
-
-              if (item) {
-
-                openCase(
-                  item
-                );
-
-              }
-
-            }
-          );
-
-        }
-      );
-
-
-    document
-      .querySelectorAll(
-        "[data-action]"
+        "[data-select-case]"
       )
       .forEach(
         button => {
@@ -1196,72 +1480,75 @@
 
               event.stopPropagation();
 
-
               const id =
                 Number(
-                  button.dataset.action
+                  button.dataset.selectCase
                 );
-
 
               const item =
                 CASES.find(
-                  x =>
-                    Number(x.id) === id
+                  caseItem =>
+                    Number(
+                      caseItem.id
+                    ) === id
                 );
 
-
-              if (!item) {
+              if(!item){
                 return;
               }
 
+              selectedCase =
+                item;
 
-              if (
-                !hasEnough(
-                  item
-                )
-              ) {
-
-                window.location.href =
-                  "/?openDeposit=1";
-
-                return;
-
-              }
-
-
-              openCase(
-                item
+              renderPreview(
+                selectedCase
               );
 
+              renderCases();
+
+              updateHeroAction();
+
+              try{
+                tg?.HapticFeedback
+                  ?.impactOccurred(
+                    "light"
+                  );
+              }catch(_){}
             }
           );
-
         }
       );
-
   }
 
 
-  function openCase(item) {
+  function openCaseDetails(
+    item
+  ){
 
-    selectedCase =
-      item;
+    selectedCase = item;
 
+    currentWin = null;
 
-    document
-      .getElementById(
-        "modalTitle"
-      )
-      .textContent =
-        item.name;
+    document.getElementById(
+      "caseContent"
+    ).style.display =
+      "block";
 
+    document.getElementById(
+      "winResult"
+    ).classList.remove(
+      "show"
+    );
 
-    document
-      .getElementById(
-        "modalPrice"
-      )
-      .textContent =
-        `${item.stars} Stars / ${Number(item.ton).toFixed(2)} TON`;
+    document.getElementById(
+      "modalTitle"
+    ).textContent =
+      item.name;
+
+    document.getElementById(
+      "modalPrice"
+    ).textContent =
+      `${item.stars} Stars / ${Number(item.ton).toFixed(2)} TON`;
 
 
     const drops =
@@ -1270,22 +1557,20 @@
       );
 
 
-    if (
+    if(
       !Array.isArray(
         item.items
-      )
-      ||
+      ) ||
       !item.items.length
-    ) {
+    ){
 
-      drops.innerHTML =
-        `
-          <div class="empty">
-            В этом кейсе пока нет доступных NFT.
-          </div>
-        `;
+      drops.innerHTML = `
+        <div class="empty">
+          В этом кейсе пока нет доступных призов.
+        </div>
+      `;
 
-    } else {
+    }else{
 
       drops.innerHTML =
         item.items
@@ -1294,13 +1579,37 @@
 
               const chance =
                 Number(
-                  gift.chance_percent ||
-                  0
+                  gift.chance_percent || 0
                 );
 
+              if(
+                isFailure(gift)
+              ){
+
+                return `
+                  <div class="drop failure">
+
+                    <div class="drop-image">
+
+                      <div class="failure-box">
+                        НЕУДАЧА
+                      </div>
+
+                    </div>
+
+                    <div class="drop-name">
+                      Неудача
+                    </div>
+
+                    <div class="drop-chance">
+                      Шанс: ${chance}%
+                    </div>
+
+                  </div>
+                `;
+              }
 
               return `
-
                 <div class="drop">
 
                   <div class="drop-image">
@@ -1313,29 +1622,13 @@
 
                   </div>
 
-
                   <div class="drop-name">
-
-                    ${
-                      safeText(
-                        gift.name ||
-                        "Telegram NFT"
-                      )
-                    }
-
+                    ${safeText(gift.name || "Приз")}
                   </div>
 
-
-                  ${
-                    chance > 0
-                      ? `
-                        <div class="drop-chance">
-                          Шанс: ${chance}%
-                        </div>
-                      `
-                      : ""
-                  }
-
+                  <div class="drop-chance">
+                    Шанс: ${chance}%
+                  </div>
 
                   ${
                     gift.gift_url
@@ -1352,13 +1645,10 @@
                   }
 
                 </div>
-
               `;
-
             }
           )
           .join("");
-
     }
 
 
@@ -1368,153 +1658,82 @@
       );
 
 
-    if (
-      hasEnough(
-        item
-      )
-    ) {
+    if(
+      hasEnoughStars(item)
+    ){
 
       action.classList.remove(
         "low"
       );
 
-
       action.textContent =
-        `Крутить за ${item.stars}`;
+        `Крутить за ${item.stars} ⭐`;
 
-    } else {
+    }else{
 
       action.classList.add(
         "low"
       );
 
-
       action.textContent =
         "Пополнить баланс";
-
     }
 
 
-    document
-      .getElementById(
-        "caseModal"
-      )
-      .classList
-      .add(
-        "active"
-      );
-
+    document.getElementById(
+      "caseModal"
+    ).classList.add(
+      "active"
+    );
   }
 
 
-  function closeModal() {
+  function closeModal(){
 
-    document
-      .getElementById(
-        "caseModal"
-      )
-      .classList
-      .remove(
-        "active"
-      );
-
+    document.getElementById(
+      "caseModal"
+    ).classList.remove(
+      "active"
+    );
   }
 
 
-  async function loadBalances() {
+  async function loadBalances(){
 
-    if (!tg?.initData) {
-      return;
-    }
+    const initData =
+      requireInitData();
 
-
-    try {
-
-      const data =
-        await post(
-          "/api/balances",
-          {
-            initData:
-              tg.initData
-          }
-        );
-
-
-      const balances =
-        data?.balances ||
-        {};
-
-
-      userBalance.stars =
-        parseNumber(
-          balances.XTR
-        );
-
-
-      userBalance.ton =
-        parseNumber(
-          balances.TON
-        );
-
-
-      document
-        .getElementById(
-          "starsBalance"
-        )
-        .textContent =
-          userBalance.stars;
-
-
-      document
-        .getElementById(
-          "tonBalance"
-        )
-        .textContent =
-          userBalance.ton;
-
-
-    } catch (error) {
-
-      console.error(
-        "Balance error:",
-        error
+    const data =
+      await post(
+        "/api/balances",
+        {
+          initData
+        }
       );
 
-    }
-
+    setBalances(
+      data?.balances || {}
+    );
   }
 
 
-  async function loadCatalog() {
+  async function loadCatalog(){
+
+    const initData =
+      requireInitData();
 
     const warning =
       document.getElementById(
         "catalogWarning"
       );
 
-
-    if (!tg?.initData) {
-
-      warning.textContent =
-        "Открой мини-приложение внутри Telegram.";
-
-      warning.classList.add(
-        "show"
-      );
-
-      return;
-
-    }
-
-
-    try {
+    try{
 
       const data =
         await post(
           "/api/cases/catalog",
           {
-            initData:
-              tg.initData
+            initData
           }
         );
 
@@ -1527,242 +1746,729 @@
           : [];
 
 
-      if (
+      if(
         data?.warning
-      ) {
+      ){
 
         warning.textContent =
           data.warning;
-
 
         warning.classList.add(
           "show"
         );
 
-      } else {
+      }else{
 
         warning.classList.remove(
           "show"
         );
-
       }
 
 
-      renderPreview();
+      if(
+        !selectedCase &&
+        CASES.length
+      ){
+
+        selectedCase =
+          CASES[0];
+      }
+
+
+      renderPreview(
+        selectedCase
+      );
 
       renderCases();
 
+      updateHeroAction();
 
-    } catch (error) {
-
-      console.error(
-        "Catalog error:",
-        error
-      );
-
+    }catch(error){
 
       warning.textContent =
-        "Не удалось загрузить NFT: "
-        +
-        error.message;
-
+        "Не удалось загрузить кейсы: "
+        + error.message;
 
       warning.classList.add(
         "show"
       );
 
-
       CASES = [];
 
-      renderPreview();
-
       renderCases();
-
     }
-
   }
 
 
-  document
-    .getElementById(
-      "backBtn"
-    )
-    .addEventListener(
-      "click",
-      () => {
+  async function animateRouletteTo(
+    prize
+  ){
 
-        window.location.href =
-          "/";
+    const track =
+      document.getElementById(
+        "rouletteTrack"
+      );
 
-      }
+    const items =
+      Array.isArray(
+        selectedCase?.items
+      )
+        ? selectedCase.items
+        : [];
+
+
+    if(
+      !items.length
+    ){
+      return;
+    }
+
+
+    const sequence = [];
+
+
+    for(
+      let i = 0;
+      i < 8;
+      i++
+    ){
+
+      sequence.push(
+        ...items
+      );
+    }
+
+
+    sequence.push(
+      prize
     );
 
 
-  document
-    .getElementById(
-      "depositBtn"
-    )
-    .addEventListener(
-      "click",
-      () => {
+    track.style.transition =
+      "none";
 
-        window.location.href =
-          "/?openDeposit=1";
+    track.style.transform =
+      "translateX(0px)";
 
-      }
+    track.innerHTML =
+      sequence
+        .map(
+          rouletteItemHtml
+        )
+        .join("");
+
+
+    await new Promise(
+      resolve =>
+        requestAnimationFrame(
+          () =>
+            requestAnimationFrame(
+              resolve
+            )
+        )
     );
 
 
-  document
-    .getElementById(
-      "closeModal"
-    )
-    .addEventListener(
-      "click",
-      closeModal
+    const cards =
+      [...track.children];
+
+    const target =
+      cards[
+        cards.length - 1
+      ];
+
+    const strip =
+      document.getElementById(
+        "previewStrip"
+      );
+
+
+    const targetCenter =
+      target.offsetLeft +
+      target.offsetWidth / 2;
+
+    const stripCenter =
+      strip.clientWidth / 2;
+
+    const translate =
+      stripCenter -
+      targetCenter;
+
+
+    track.style.transition =
+      "transform 4.2s cubic-bezier(.08,.72,.12,1)";
+
+    track.style.transform =
+      `translateX(${translate}px)`;
+
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          4300
+        )
     );
+  }
 
 
-  document
-    .getElementById(
-      "caseModal"
-    )
-    .addEventListener(
-      "click",
-      event => {
+  async function openSelectedCase(){
 
-        if (
-          event.target.id ===
-          "caseModal"
-        ) {
-
-          closeModal();
-
-        }
-
-      }
-    );
+    if(
+      !selectedCase ||
+      rouletteBusy
+    ){
+      return;
+    }
 
 
-  document
-  .getElementById("modalAction")
-  .addEventListener(
-    "click",
-    async () => {
+    if(
+      !hasEnoughStars(
+        selectedCase
+      )
+    ){
 
-      if (!selectedCase) {
-        return;
-      }
+      window.location.href =
+        "/?openDeposit=1";
 
-      if (!hasEnough(selectedCase)) {
-        window.location.href =
-          "/?openDeposit=1";
-        return;
-      }
+      return;
+    }
 
-      const button =
-        document.getElementById(
-          "modalAction"
+
+    const button =
+      document.getElementById(
+        "depositBtn"
+      );
+
+
+    rouletteBusy = true;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Крутим…";
+
+
+    try{
+
+      const data =
+        await post(
+          "/api/cases/open",
+          {
+            initData:
+              requireInitData(),
+
+            case_id:
+              Number(
+                selectedCase.id
+              )
+          }
         );
 
-      const oldText =
-        button.textContent;
 
-      button.disabled = true;
-      button.textContent =
-        "Открываем кейс…";
+      currentWin = {
+        win_id:
+          data.win_id,
 
-      try {
+        prize:
+          data.prize
+      };
 
-        const data =
-          await post(
-            "/api/cases/open",
-            {
-              initData:
-                tg.initData,
 
-              case_id:
-                Number(
-                  selectedCase.id
-                )
-            }
+      await animateRouletteTo(
+        data.prize
+      );
+
+
+      setBalances(
+        data?.balances || {}
+      );
+
+
+      showWin(
+        data.prize
+      );
+
+
+      renderCases();
+
+    }catch(error){
+
+      showToast(
+        error.message,
+        5000
+      );
+
+      renderPreview(
+        selectedCase
+      );
+
+    }finally{
+
+      rouletteBusy = false;
+
+      button.disabled =
+        false;
+
+      updateHeroAction();
+    }
+  }
+
+
+  function showWin(
+    prize
+  ){
+
+    document.getElementById(
+      "caseContent"
+    ).style.display =
+      "none";
+
+
+    document.getElementById(
+      "winResult"
+    ).classList.add(
+      "show"
+    );
+
+
+    document.getElementById(
+      "caseModal"
+    ).classList.add(
+      "active"
+    );
+
+
+    const image =
+      document.getElementById(
+        "resultImage"
+      );
+
+
+    const failed =
+      Boolean(
+        prize?.is_failure
+      );
+
+
+    if(
+      failed
+    ){
+
+      image.removeAttribute(
+        "src"
+      );
+
+      image.alt =
+        "Неудача";
+
+      image.style.display =
+        "none";
+
+    }else{
+
+      image.style.display =
+        "block";
+
+      image.src =
+        giftImage(
+          prize
+        );
+
+      image.onerror =
+        () => {
+
+          image.onerror =
+            null;
+
+          image.src =
+            "/static/nft-gift.png";
+        };
+    }
+
+
+    document.getElementById(
+      "resultName"
+    ).textContent =
+      failed
+        ? "Неудача — в этот раз без приза"
+        : (
+            prize?.name ||
+            "Приз"
           );
 
-        const prize =
-          data.prize || {};
 
-        showToast(
-          "🎉 Выпало: " +
-          (
-            prize.name ||
-            "NFT подарок"
-          ),
-          5000
+    const sellButton =
+      document.getElementById(
+        "sellPrize"
+      );
+
+
+    const sellStars =
+      Number(
+        prize?.sell_stars || 0
+      );
+
+
+    if(
+      !failed &&
+      sellStars > 0
+    ){
+
+      sellButton.style.display =
+        "block";
+
+      sellButton.textContent =
+        `⭐ Продать за ${sellStars} Stars`;
+
+    }else{
+
+      sellButton.style.display =
+        "none";
+    }
+
+
+    const withdrawButton =
+      document.getElementById(
+        "withdrawPrize"
+      );
+
+
+    withdrawButton.style.display =
+      (
+        failed ||
+        prize?.withdrawable === false
+      )
+        ? "none"
+        : "block";
+
+
+    const status =
+      document.getElementById(
+        "resultStatus"
+      );
+
+
+    status.classList.remove(
+      "show"
+    );
+
+    status.textContent =
+      "";
+  }
+
+
+  async function sellCurrentPrize(){
+
+    if(
+      !currentWin?.win_id
+    ){
+      return;
+    }
+
+
+    const button =
+      document.getElementById(
+        "sellPrize"
+      );
+
+
+    button.disabled =
+      true;
+
+
+    try{
+
+      const data =
+        await post(
+          "/api/cases/sell",
+          {
+            initData:
+              requireInitData(),
+
+            win_id:
+              currentWin.win_id
+          }
         );
 
-        if (data.balances) {
 
-          userBalance.stars =
-            parseNumber(
-              data.balances.XTR
-            );
+      setBalances(
+        data?.balances || {}
+      );
 
-          userBalance.ton =
-            parseNumber(
-              data.balances.TON
-            );
 
-          document
-            .getElementById(
-              "starsBalance"
-            )
-            .textContent =
-              userBalance.stars;
-
-          document
-            .getElementById(
-              "tonBalance"
-            )
-            .textContent =
-              userBalance.ton;
-
-          renderCases();
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Case open error:",
-          error
+      const status =
+        document.getElementById(
+          "resultStatus"
         );
 
-        showToast(
-          "Ошибка: " +
-          error.message,
-          5000
+
+      status.textContent =
+        `Продано. На баланс начислено ${data.credited_stars} Stars.`;
+
+
+      status.classList.add(
+        "show"
+      );
+
+
+      button.style.display =
+        "none";
+
+
+      document.getElementById(
+        "withdrawPrize"
+      ).style.display =
+        "none";
+
+
+      renderCases();
+
+    }catch(error){
+
+      showToast(
+        error.message,
+        5000
+      );
+
+    }finally{
+
+      button.disabled =
+        false;
+    }
+  }
+
+
+  async function withdrawCurrentPrize(){
+
+    if(
+      !currentWin?.win_id
+    ){
+      return;
+    }
+
+
+    const button =
+      document.getElementById(
+        "withdrawPrize"
+      );
+
+
+    button.disabled =
+      true;
+
+
+    const oldText =
+      button.textContent;
+
+
+    button.textContent =
+      "Отправляем заявку…";
+
+
+    try{
+
+      const data =
+        await post(
+          "/api/cases/withdraw",
+          {
+            initData:
+              requireInitData(),
+
+            win_id:
+              currentWin.win_id
+          }
         );
 
-      } finally {
 
-        button.disabled =
-          false;
+      const status =
+        document.getElementById(
+          "resultStatus"
+        );
 
-        button.textContent =
-          oldText;
 
-      }
+      status.textContent =
+        data.message ||
+        "Заявка на вывод отправлена.";
 
+
+      status.classList.add(
+        "show"
+      );
+
+
+      button.style.display =
+        "none";
+
+
+      document.getElementById(
+        "sellPrize"
+      ).style.display =
+        "none";
+
+    }catch(error){
+
+      showToast(
+        error.message,
+        5000
+      );
+
+
+      button.textContent =
+        oldText;
+
+    }finally{
+
+      button.disabled =
+        false;
+    }
+  }
+
+
+  document.getElementById(
+    "backBtn"
+  ).addEventListener(
+    "click",
+    () => {
+
+      window.location.href =
+        "/";
     }
   );
 
 
-  async function init() {
+  document.getElementById(
+    "depositBtn"
+  ).addEventListener(
+    "click",
+    () => {
 
-    await loadBalances();
+      if(
+        selectedCase &&
+        hasEnoughStars(
+          selectedCase
+        )
+      ){
 
-    await loadCatalog();
+        openSelectedCase();
 
+      }else{
+
+        window.location.href =
+          "/?openDeposit=1";
+      }
+    }
+  );
+
+
+  document.getElementById(
+    "closeModal"
+  ).addEventListener(
+    "click",
+    closeModal
+  );
+
+
+  document.getElementById(
+    "closeResult"
+  ).addEventListener(
+    "click",
+    closeModal
+  );
+
+
+  document.getElementById(
+    "caseModal"
+  ).addEventListener(
+    "click",
+    event => {
+
+      if(
+        event.target.id ===
+        "caseModal"
+      ){
+
+        closeModal();
+      }
+    }
+  );
+
+
+  document.getElementById(
+    "modalAction"
+  ).addEventListener(
+    "click",
+    () => {
+
+      if(
+        selectedCase &&
+        hasEnoughStars(
+          selectedCase
+        )
+      ){
+
+        closeModal();
+
+        openSelectedCase();
+
+      }else{
+
+        window.location.href =
+          "/?openDeposit=1";
+      }
+    }
+  );
+
+
+  document.getElementById(
+    "sellPrize"
+  ).addEventListener(
+    "click",
+    sellCurrentPrize
+  );
+
+
+  document.getElementById(
+    "withdrawPrize"
+  ).addEventListener(
+    "click",
+    withdrawCurrentPrize
+  );
+
+
+  document.getElementById(
+    "playAgain"
+  ).addEventListener(
+    "click",
+    () => {
+
+      closeModal();
+
+      renderPreview(
+        selectedCase
+      );
+
+      updateHeroAction();
+    }
+  );
+
+
+  async function init(){
+
+    try{
+
+      await loadBalances();
+
+      await loadCatalog();
+
+    }catch(error){
+
+      showToast(
+        error.message,
+        5000
+      );
+    }
   }
 
 
