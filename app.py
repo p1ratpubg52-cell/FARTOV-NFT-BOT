@@ -42,6 +42,23 @@ ADMIN_ID = int(
 )
 WEBAPP_URL = os.getenv("WEBAPP_URL", "").strip()
 
+# Данные Telegram MTProto для чтения официального рынка.
+# Секреты НЕ храним в GitHub-коде — только в переменных окружения.
+TELEGRAM_API_ID = int(
+    os.getenv("TELEGRAM_API_ID", "0") or 0
+)
+
+TELEGRAM_API_HASH = os.getenv(
+    "TELEGRAM_API_HASH",
+    ""
+).strip()
+
+# Добавим на следующем шаге после одноразовой авторизации аккаунта.
+TELEGRAM_SESSION_STRING = os.getenv(
+    "TELEGRAM_SESSION_STRING",
+    ""
+).strip()
+
 DEPOSIT_USERNAME = os.getenv(
     "DEPOSIT_USERNAME",
     "fart2_backpack"
@@ -1244,7 +1261,16 @@ async def cases_page():
 async def health():
     return {
         "ok": True,
-        "db_path": DB
+        "db_path": DB,
+        "telegram_market_api_id_configured": bool(
+            TELEGRAM_API_ID
+        ),
+        "telegram_market_api_hash_configured": bool(
+            TELEGRAM_API_HASH
+        ),
+        "telegram_market_session_configured": bool(
+            TELEGRAM_SESSION_STRING
+        )
     }
 
 
