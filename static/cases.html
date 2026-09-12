@@ -2,11 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   >
+
   <title>Кейсы — FART2 NFT BOT</title>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -163,7 +166,7 @@
       align-items:center;
       gap:8px;
       will-change:transform;
-      transition:transform 4.2s cubic-bezier(.08,.72,.12,1);
+      transition:transform 4.2s cubic-bezier(.08,.72,.12,1)
     }
 
     .preview-item.failure{
@@ -182,7 +185,9 @@
 
     .case.selected{
       border-color:#8d69ff;
-      box-shadow:0 0 0 2px rgba(141,105,255,.18),0 0 28px rgba(141,105,255,.13)
+      box-shadow:
+        0 0 0 2px rgba(141,105,255,.18),
+        0 0 28px rgba(141,105,255,.13)
     }
 
     .preview-line{
@@ -207,6 +212,10 @@
       font-size:16px;
       font-weight:900;
       background:linear-gradient(135deg,#675cff,#a34dff)
+    }
+
+    .deposit-btn:disabled{
+      opacity:.65
     }
 
     .section-title{
@@ -604,109 +613,221 @@
 <div class="app">
 
   <div class="topbar">
-    <button id="backBtn" class="back-btn" type="button">
+
+    <button
+      id="backBtn"
+      class="back-btn"
+      type="button"
+    >
       ← Назад
     </button>
 
     <div>
-      <div class="page-title">Кейсы</div>
+      <div class="page-title">
+        Кейсы
+      </div>
+
       <div class="page-subtitle">
         NFT из @fart2_backpack
       </div>
     </div>
+
   </div>
 
-  <div id="catalogWarning" class="warning"></div>
+  <div
+    id="catalogWarning"
+    class="warning"
+  ></div>
 
   <div class="balances">
+
     <div class="balance-card">
+
       <div class="balance-label">
         Telegram Stars
       </div>
-      <div id="starsBalance" class="balance-value">0</div>
+
+      <div
+        id="starsBalance"
+        class="balance-value"
+      >
+        0
+      </div>
+
     </div>
 
     <div class="balance-card">
-      <div class="balance-label">TON</div>
-      <div id="tonBalance" class="balance-value">0</div>
+
+      <div class="balance-label">
+        TON
+      </div>
+
+      <div
+        id="tonBalance"
+        class="balance-value"
+      >
+        0
+      </div>
+
     </div>
+
   </div>
 
+
   <div class="hero">
+
     <div class="hero-title">
       Подарки внутри кейсов
     </div>
 
-    <div id="previewStrip" class="preview-strip">
-      <div id="rouletteTrack" class="roulette-track"></div>
+    <div
+      id="previewStrip"
+      class="preview-strip"
+    >
+
+      <div
+        id="rouletteTrack"
+        class="roulette-track"
+      ></div>
+
       <div class="preview-line"></div>
+
     </div>
 
-    <button id="depositBtn" class="deposit-btn" type="button">
+    <button
+      id="depositBtn"
+      class="deposit-btn"
+      type="button"
+    >
       + Пополнить баланс
     </button>
+
   </div>
+
 
   <div class="section-title">
     Выбери кейс
   </div>
 
-  <div id="cases" class="cases"></div>
+  <div
+    id="cases"
+    class="cases"
+  ></div>
 
 </div>
 
 
-<div id="caseModal" class="modal">
+<!-- МОДАЛЬНОЕ ОКНО -->
+
+<div
+  id="caseModal"
+  class="modal"
+>
+
   <div class="sheet">
 
+
+    <!-- ИНФОРМАЦИЯ О КЕЙСЕ -->
+
     <div id="caseContent">
+
       <div class="sheet-head">
-        <div id="modalTitle" class="sheet-title">
+
+        <div
+          id="modalTitle"
+          class="sheet-title"
+        >
           Кейс
         </div>
 
-        <button id="closeModal" class="close-btn" type="button">
+        <button
+          id="closeModal"
+          class="close-btn"
+          type="button"
+        >
           ✕
         </button>
+
       </div>
 
-      <div id="modalPrice" class="sheet-price"></div>
+      <div
+        id="modalPrice"
+        class="sheet-price"
+      ></div>
 
       <div class="drop-heading">
         Что может выпасть
       </div>
 
-      <div id="drops" class="drops"></div>
+      <div
+        id="drops"
+        class="drops"
+      ></div>
 
-      <button id="modalAction" class="modal-action" type="button">
+      <button
+        id="modalAction"
+        class="modal-action"
+        type="button"
+      >
         Пополнить баланс
       </button>
+
     </div>
 
 
-    <div id="winResult" class="result">
+    <!-- РЕЗУЛЬТАТ -->
+
+    <div
+      id="winResult"
+      class="result"
+    >
 
       <div class="sheet-head">
+
         <div class="sheet-title">
-          Выпало!
+          Выпало! 🎉
         </div>
 
-        <button id="closeResult" class="close-btn" type="button">
+        <button
+          id="closeResult"
+          class="close-btn"
+          type="button"
+        >
           ✕
         </button>
+
       </div>
 
-      <div class="result-image">
-        <img id="resultImage" src="" alt="">
+
+      <div
+        id="resultImageBox"
+        class="result-image"
+      >
+
+        <img
+          id="resultImage"
+          src=""
+          alt=""
+        >
+
       </div>
+
 
       <div class="result-label">
         Ваш приз
       </div>
 
-      <div id="resultName" class="result-name"></div>
+      <div
+        id="resultName"
+        class="result-name"
+      ></div>
 
-      <div id="resultStatus" class="status-box"></div>
+
+      <div
+        id="resultStatus"
+        class="status-box"
+      ></div>
+
 
       <div class="win-actions">
 
@@ -715,8 +836,9 @@
           class="withdraw-btn"
           type="button"
         >
-          Вывести
+          Вывести NFT
         </button>
+
 
         <button
           id="sellPrize"
@@ -726,6 +848,7 @@
         >
           ⭐ Продать за 15 Stars
         </button>
+
 
         <button
           id="playAgain"
@@ -740,864 +863,2038 @@
     </div>
 
   </div>
+
 </div>
 
 
-<div id="toast" class="toast"></div>
+<div
+  id="toast"
+  class="toast"
+></div>
 
 
 <script>
 (() => {
 
-  const tg = window.Telegram?.WebApp || null;
+  const tg =
+    window.Telegram?.WebApp || null;
+
 
   let userBalance = {
     stars:0,
     ton:0
   };
 
+
   let CASES = [];
+
   let selectedCase = null;
+
   let currentWin = null;
+
   let rouletteBusy = false;
 
+
+
   try {
+
     tg?.ready();
+
     tg?.expand();
-    tg?.setHeaderColor("#07090e");
-    tg?.setBackgroundColor("#07090e");
+
+    tg?.setHeaderColor(
+      "#07090e"
+    );
+
+    tg?.setBackgroundColor(
+      "#07090e"
+    );
+
   } catch (_) {}
 
-  function showToast(message, timeout = 3500) {
-    const el = document.getElementById("toast");
-    el.textContent = message;
-    el.classList.add("show");
 
-    clearTimeout(window.toastTimer);
 
-    window.toastTimer = setTimeout(() => {
-      el.classList.remove("show");
-    }, timeout);
+  function showToast(
+    message,
+    timeout = 3500
+  ) {
+
+    const el =
+      document.getElementById(
+        "toast"
+      );
+
+    el.textContent =
+      message;
+
+    el.classList.add(
+      "show"
+    );
+
+
+    clearTimeout(
+      window.toastTimer
+    );
+
+
+    window.toastTimer =
+      setTimeout(() => {
+
+        el.classList.remove(
+          "show"
+        );
+
+      }, timeout);
+
   }
+
+
 
   function parseNumber(value) {
-    const n = Number(
-      String(value ?? 0).replace(",", ".")
-    );
 
-    return Number.isFinite(n) ? n : 0;
+    const n =
+      Number(
+        String(
+          value ?? 0
+        ).replace(
+          ",",
+          "."
+        )
+      );
+
+    return Number.isFinite(n)
+      ? n
+      : 0;
+
   }
+
+
 
   function hasEnough(item) {
+
     return (
-      userBalance.stars >= Number(item.stars) ||
-      userBalance.ton >= Number(item.ton)
+      userBalance.stars >=
+        Number(item?.stars || 0)
+      ||
+      userBalance.ton >=
+        Number(item?.ton || 0)
     );
+
   }
+
+
 
   function hasEnoughStars(item) {
-    return userBalance.stars >= Number(item?.stars || 0);
+
+    return (
+      userBalance.stars >=
+      Number(
+        item?.stars || 0
+      )
+    );
+
   }
 
+
+
   function requireInitData() {
+
     if (!tg?.initData) {
+
       throw new Error(
         "Откройте мини-приложение внутри Telegram"
       );
+
     }
 
     return tg.initData;
+
   }
 
-  async function post(url, body) {
-    const response = await fetch(url, {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(body)
-    });
+
+
+  async function post(
+    url,
+    body
+  ) {
+
+    const response =
+      await fetch(
+        url,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              body
+            )
+        }
+      );
+
 
     let data = {};
 
+
     try {
-      data = await response.json();
+
+      data =
+        await response.json();
+
     } catch (_) {}
 
+
     if (!response.ok) {
+
       throw new Error(
         data?.detail ||
         data?.message ||
         `Ошибка ${response.status}`
       );
+
     }
 
+
     return data;
+
   }
 
+
+
   function giftImage(item) {
-    if (item?.is_failure) return "";
+
+    if (
+      item?.is_failure
+    ) {
+      return "";
+    }
 
     return (
       item?.image_url ||
+      item?.image ||
+      item?.photo_url ||
       "/static/nft-gift.png"
     );
+
   }
+
+
 
   function safeText(value) {
-    return String(value ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+
+    return String(
+      value ?? ""
+    )
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
   }
 
+
+
   function setBalances(data) {
-    const balances = data || {};
 
-    userBalance.stars = parseNumber(
-      balances.XTR
-    );
+    const balances =
+      data || {};
 
-    userBalance.ton = parseNumber(
-      balances.TON
-    );
+
+    userBalance.stars =
+      parseNumber(
+        balances.XTR ??
+        balances.stars ??
+        0
+      );
+
+
+    userBalance.ton =
+      parseNumber(
+        balances.TON ??
+        balances.ton ??
+        0
+      );
+
 
     document.getElementById(
       "starsBalance"
-    ).textContent = userBalance.stars;
+    ).textContent =
+      userBalance.stars;
+
 
     document.getElementById(
       "tonBalance"
-    ).textContent = userBalance.ton;
+    ).textContent =
+      userBalance.ton;
+
 
     updateHeroAction();
+
   }
 
-  function rouletteItemHtml(item) {
-    if (item?.is_failure) {
+
+
+  function rouletteItemHtml(
+    item
+  ) {
+
+    if (
+      item?.is_failure
+    ) {
+
       return `
-        <div class="preview-item failure" data-prize-id="${safeText(item.id)}">
+        <div
+          class="preview-item failure"
+          data-prize-id="${safeText(item?.id || "")}"
+        >
           НЕУДАЧА
         </div>
       `;
+
     }
 
+
     return `
-      <div class="preview-item" data-prize-id="${safeText(item?.id || "")}">
+      <div
+        class="preview-item"
+        data-prize-id="${safeText(item?.id || "")}"
+      >
+
         <img
           src="${safeText(giftImage(item))}"
           alt="${safeText(item?.name || "Приз")}"
           onerror="this.onerror=null;this.src='/static/nft-gift.png'"
         >
+
       </div>
     `;
+
   }
 
-  function renderPreview(item = selectedCase) {
-    const track = document.getElementById("rouletteTrack");
 
-    const items = Array.isArray(item?.items)
-      ? item.items
-      : [];
 
-    track.style.transition = "none";
-    track.style.transform = "translateX(0px)";
+  function renderPreview(
+    item = selectedCase
+  ) {
+
+    const track =
+      document.getElementById(
+        "rouletteTrack"
+      );
+
+
+    const items =
+      Array.isArray(
+        item?.items
+      )
+        ? item.items
+        : [];
+
+
+    track.style.transition =
+      "none";
+
+    track.style.transform =
+      "translateX(0px)";
+
 
     if (!items.length) {
+
       track.innerHTML = `
         <div class="preview-item failure">
           ВЫБЕРИ КЕЙС
         </div>
       `;
+
       return;
+
     }
+
 
     const repeated = [];
-    for (let i = 0; i < 3; i++) {
-      repeated.push(...items);
+
+
+    for (
+      let i = 0;
+      i < 3;
+      i++
+    ) {
+
+      repeated.push(
+        ...items
+      );
+
     }
 
-    track.innerHTML = repeated
-      .map(rouletteItemHtml)
-      .join("");
+
+    track.innerHTML =
+      repeated
+        .map(
+          rouletteItemHtml
+        )
+        .join("");
+
   }
+
+
 
   function updateHeroAction() {
-    const button = document.getElementById("depositBtn");
+
+    const button =
+      document.getElementById(
+        "depositBtn"
+      );
+
+
     if (!button) return;
 
+
     if (!selectedCase) {
-      button.textContent = "+ Пополнить баланс";
-      button.classList.add("low");
+
+      button.textContent =
+        "+ Пополнить баланс";
+
+      button.classList.add(
+        "low"
+      );
+
       return;
+
     }
 
-    if (hasEnoughStars(selectedCase)) {
-      button.textContent = `Крутить за ${selectedCase.stars} ⭐`;
-      button.classList.remove("low");
+
+    if (
+      hasEnoughStars(
+        selectedCase
+      )
+    ) {
+
+      button.textContent =
+        `Крутить за ${selectedCase.stars} ⭐`;
+
+      button.classList.remove(
+        "low"
+      );
+
     } else {
-      button.textContent = "+ Пополнить баланс";
-      button.classList.add("low");
+
+      button.textContent =
+        "+ Пополнить баланс";
+
+      button.classList.add(
+        "low"
+      );
+
     }
+
   }
+
+
 
   function selectCase(item) {
-    selectedCase = item;
-    currentWin = null;
-    renderPreview(item);
+
+    selectedCase =
+      item;
+
+    currentWin =
+      null;
+
+
+    renderPreview(
+      item
+    );
+
     renderCases();
+
     updateHeroAction();
 
-    document.querySelector(".hero")?.scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
+
+    document
+      .querySelector(
+        ".hero"
+      )
+      ?.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
   }
 
-  function casePreviewHtml(items) {
-    const preview = Array.isArray(items)
-      ? items.filter(x => !x?.is_failure).slice(0,3)
-      : [];
 
-    if (!preview.length) {
+
+  function casePreviewHtml(
+    items
+  ) {
+
+    const preview =
+      Array.isArray(items)
+
+        ? items
+            .filter(
+              x =>
+                !x?.is_failure
+            )
+            .slice(
+              0,
+              3
+            )
+
+        : [];
+
+
+    if (
+      !preview.length
+    ) {
+
       return `
         <div class="case-thumb">
+
           <img
             src="/static/nft-gift.png"
             alt=""
           >
+
         </div>
       `;
+
     }
 
+
     return preview
-      .map(item => `
-        <div class="case-thumb">
-          <img
-            src="${safeText(giftImage(item))}"
-            alt=""
-            onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-          >
-        </div>
-      `)
+      .map(
+        item => `
+          <div class="case-thumb">
+
+            <img
+              src="${safeText(giftImage(item))}"
+              alt=""
+              onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+            >
+
+          </div>
+        `
+      )
       .join("");
+
   }
 
+
+
   function renderCases() {
-    const root = document.getElementById("cases");
+
+    const root =
+      document.getElementById(
+        "cases"
+      );
+
 
     if (!CASES.length) {
+
       root.innerHTML = `
         <div class="empty">
           В кейсах пока нет доступных призов.
         </div>
       `;
+
       return;
+
     }
 
-    root.innerHTML = CASES.map(item => {
-      const active = Number(selectedCase?.id) === Number(item.id);
 
-      return `
-        <div
-          class="case ${active ? "selected" : ""}"
-          data-case="${item.id}"
-        >
-          <div class="case-art">
-            <div class="price-pill">
-              ${item.stars} ⭐
+    root.innerHTML =
+      CASES.map(
+        item => {
+
+          const active =
+            Number(
+              selectedCase?.id
+            )
+            ===
+            Number(
+              item.id
+            );
+
+
+          return `
+
+            <div
+              class="case ${active ? "selected" : ""}"
+              data-case="${item.id}"
+            >
+
+              <div class="case-art">
+
+                <div class="price-pill">
+                  ${item.stars} ⭐
+                </div>
+
+                <div class="case-thumbs">
+                  ${casePreviewHtml(item.items)}
+                </div>
+
+              </div>
+
+
+              <div class="case-name">
+                ${safeText(item.name)}
+              </div>
+
+
+              <div class="case-price">
+
+                ${item.stars} Stars /
+
+                ${Number(
+                  item.ton || 0
+                ).toFixed(2)} TON
+
+              </div>
+
+
+              <button
+                type="button"
+                class="case-btn"
+                data-action="${item.id}"
+              >
+
+                ${
+                  active
+                    ? "✓ Выбрано"
+                    : "Выбрать"
+                }
+
+              </button>
+
             </div>
 
-            <div class="case-thumbs">
-              ${casePreviewHtml(item.items)}
-            </div>
-          </div>
+          `;
 
-          <div class="case-name">
-            ${safeText(item.name)}
-          </div>
+        }
+      )
+      .join("");
 
-          <div class="case-price">
-            ${item.stars} Stars /
-            ${Number(item.ton).toFixed(2)} TON
-          </div>
 
-          <button
-            type="button"
-            class="case-btn"
-            data-action="${item.id}"
-          >
-            ${active ? "✓ Выбрано" : "Выбрать"}
-          </button>
-        </div>
-      `;
-    }).join("");
 
     document
-      .querySelectorAll("[data-case]")
-      .forEach(card => {
-        card.addEventListener("click", event => {
-          if (event.target.closest("[data-action]")) return;
+      .querySelectorAll(
+        "[data-case]"
+      )
+      .forEach(
+        card => {
 
-          const item = CASES.find(
-            x => Number(x.id) === Number(card.dataset.case)
+          card.addEventListener(
+            "click",
+            event => {
+
+              if (
+                event.target.closest(
+                  "[data-action]"
+                )
+              ) {
+                return;
+              }
+
+
+              const item =
+                CASES.find(
+                  x =>
+                    Number(x.id)
+                    ===
+                    Number(
+                      card.dataset.case
+                    )
+                );
+
+
+              if (item) {
+
+                selectCase(
+                  item
+                );
+
+              }
+
+            }
           );
 
-          if (item) selectCase(item);
-        });
-      });
+        }
+      );
+
+
 
     document
-      .querySelectorAll("[data-action]")
-      .forEach(button => {
-        button.addEventListener("click", event => {
-          event.stopPropagation();
+      .querySelectorAll(
+        "[data-action]"
+      )
+      .forEach(
+        button => {
 
-          const item = CASES.find(
-            x => Number(x.id) === Number(button.dataset.action)
+          button.addEventListener(
+            "click",
+            event => {
+
+              event.stopPropagation();
+
+
+              const item =
+                CASES.find(
+                  x =>
+                    Number(x.id)
+                    ===
+                    Number(
+                      button.dataset.action
+                    )
+                );
+
+
+              if (item) {
+
+                selectCase(
+                  item
+                );
+
+              }
+
+            }
           );
 
-          if (item) selectCase(item);
-        });
-      });
+        }
+      );
+
   }
 
+
+
   function openCase(item) {
-    selectedCase = item;
-    currentWin = null;
+
+    selectedCase =
+      item;
+
+    currentWin =
+      null;
+
 
     document.getElementById(
       "caseContent"
-    ).style.display = "block";
+    ).style.display =
+      "block";
+
 
     document.getElementById(
       "winResult"
-    ).classList.remove("show");
+    ).classList.remove(
+      "show"
+    );
+
 
     document.getElementById(
       "modalTitle"
-    ).textContent = item.name;
+    ).textContent =
+      item.name;
+
 
     document.getElementById(
       "modalPrice"
     ).textContent =
-      `${item.stars} Stars / ${Number(item.ton).toFixed(2)} TON`;
+      `${item.stars} Stars / ${Number(item.ton || 0).toFixed(2)} TON`;
 
-    const drops = document.getElementById(
-      "drops"
-    );
+
+    const drops =
+      document.getElementById(
+        "drops"
+      );
+
 
     if (
-      !Array.isArray(item.items) ||
+      !Array.isArray(
+        item.items
+      )
+      ||
       !item.items.length
     ) {
+
       drops.innerHTML = `
         <div class="empty">
           В этом кейсе пока нет доступных призов.
         </div>
       `;
+
     } else {
-      drops.innerHTML = item.items.map(gift => {
-        const chance = Number(
-          gift.chance_percent || 0
-        );
 
-        return `
-          <div class="drop">
-            <div class="drop-image">
-              <img
-                src="${safeText(giftImage(gift))}"
-                alt=""
-                onerror="this.onerror=null;this.src='/static/nft-gift.png'"
-              >
-            </div>
 
-            <div class="drop-name">
-              ${safeText(gift.name || "Приз")}
-            </div>
+      drops.innerHTML =
+        item.items
+          .map(
+            gift => {
 
-            <div class="drop-chance">
-              Шанс: ${chance}%
-            </div>
+              const chance =
+                Number(
+                  gift.chance_percent ||
+                  0
+                );
 
-            ${
-              gift.gift_url
-                ? `
-                  <a
-                    class="drop-link"
-                    href="${safeText(gift.gift_url)}"
-                    target="_blank"
-                  >
-                    Посмотреть NFT
-                  </a>
-                `
-                : ""
+
+              return `
+                <div class="drop">
+
+                  <div class="drop-image">
+
+                    <img
+                      src="${safeText(giftImage(gift))}"
+                      alt=""
+                      onerror="this.onerror=null;this.src='/static/nft-gift.png'"
+                    >
+
+                  </div>
+
+                  <div class="drop-name">
+                    ${safeText(gift.name || "Приз")}
+                  </div>
+
+                  <div class="drop-chance">
+                    Шанс: ${chance}%
+                  </div>
+
+                  ${
+                    gift.gift_url
+                      ? `
+                        <a
+                          class="drop-link"
+                          href="${safeText(gift.gift_url)}"
+                          target="_blank"
+                        >
+                          Посмотреть NFT
+                        </a>
+                      `
+                      : ""
+                  }
+
+                </div>
+              `;
+
             }
-          </div>
-        `;
-      }).join("");
+          )
+          .join("");
+
     }
 
-    const action = document.getElementById(
-      "modalAction"
-    );
 
-    if (hasEnough(item)) {
-      action.classList.remove("low");
-      action.textContent =
-        `Крутить за ${item.stars}`;
-    } else {
-      action.classList.add("low");
-      action.textContent =
-        "Пополнить баланс";
-    }
-
-    document.getElementById(
-      "caseModal"
-    ).classList.add("active");
-  }
-
-  function closeModal() {
-    document.getElementById(
-      "caseModal"
-    ).classList.remove("active");
-  }
-
-  async function loadBalances() {
-    const initData = requireInitData();
-
-    const data = await post(
-      "/api/balances",
-      { initData }
-    );
-
-    setBalances(data?.balances || {});
-  }
-
-  async function loadCatalog() {
-    const initData = requireInitData();
-
-    const warning = document.getElementById(
-      "catalogWarning"
-    );
-
-    try {
-      const data = await post(
-        "/api/cases/catalog",
-        { initData }
+    const action =
+      document.getElementById(
+        "modalAction"
       );
 
-      CASES = Array.isArray(data?.cases)
-        ? data.cases
-        : [];
 
-      if (data?.warning) {
-        warning.textContent = data.warning;
-        warning.classList.add("show");
+    if (
+      hasEnough(item)
+    ) {
+
+      action.classList.remove(
+        "low"
+      );
+
+      action.textContent =
+        `Крутить за ${item.stars} ⭐`;
+
+    } else {
+
+      action.classList.add(
+        "low"
+      );
+
+      action.textContent =
+        "Пополнить баланс";
+
+    }
+
+
+    document.getElementById(
+      "caseModal"
+    ).classList.add(
+      "active"
+    );
+
+  }
+
+
+
+  function closeModal() {
+
+    document.getElementById(
+      "caseModal"
+    ).classList.remove(
+      "active"
+    );
+
+  }
+
+
+
+  async function loadBalances() {
+
+    const initData =
+      requireInitData();
+
+
+    const data =
+      await post(
+        "/api/balances",
+        {
+          initData
+        }
+      );
+
+
+    setBalances(
+      data?.balances ||
+      {}
+    );
+
+  }
+
+
+
+  async function loadCatalog() {
+
+    const initData =
+      requireInitData();
+
+
+    const warning =
+      document.getElementById(
+        "catalogWarning"
+      );
+
+
+    try {
+
+      const data =
+        await post(
+          "/api/cases/catalog",
+          {
+            initData
+          }
+        );
+
+
+      CASES =
+        Array.isArray(
+          data?.cases
+        )
+          ? data.cases
+          : [];
+
+
+      if (
+        data?.warning
+      ) {
+
+        warning.textContent =
+          data.warning;
+
+        warning.classList.add(
+          "show"
+        );
+
       } else {
-        warning.classList.remove("show");
+
+        warning.classList.remove(
+          "show"
+        );
+
       }
 
-      if (!selectedCase && CASES.length) {
-        selectedCase = CASES[0];
+
+      if (
+        !selectedCase
+        &&
+        CASES.length
+      ) {
+
+        selectedCase =
+          CASES[0];
+
       }
 
-      renderPreview(selectedCase);
+
+      renderPreview(
+        selectedCase
+      );
+
       renderCases();
+
       updateHeroAction();
 
     } catch (error) {
+
       warning.textContent =
         "Не удалось загрузить кейсы: "
-        + error.message;
+        +
+        error.message;
 
-      warning.classList.add("show");
+
+      warning.classList.add(
+        "show"
+      );
+
 
       CASES = [];
+
+
       renderCases();
+
     }
+
   }
 
-  async function animateRouletteTo(prize) {
-    const track = document.getElementById("rouletteTrack");
 
-    const items = Array.isArray(selectedCase?.items)
-      ? selectedCase.items
-      : [];
 
-    if (!items.length) return;
+  async function animateRouletteTo(
+    prize
+  ) {
+
+    const track =
+      document.getElementById(
+        "rouletteTrack"
+      );
+
+
+    const items =
+      Array.isArray(
+        selectedCase?.items
+      )
+        ? selectedCase.items
+        : [];
+
+
+    if (!items.length) {
+
+      return;
+
+    }
+
 
     const sequence = [];
 
-    // Длинная лента ДО результата
-    for (let i = 0; i < 10; i++) {
-      sequence.push(...items);
+
+    // длинная лента перед выигрышем
+
+    for (
+      let i = 0;
+      i < 10;
+      i++
+    ) {
+
+      sequence.push(
+        ...items
+      );
+
     }
 
-    // Позиция выигрышной карточки
-    const targetIndex = sequence.length;
 
-    // Добавляем именно тот приз, который вернул сервер
-    sequence.push(prize);
+    // именно сюда станет выигрыш
 
-    // Продолжаем ленту ПОСЛЕ выигрышной карточки
-    // Неудача / Мишка / Сердце / NFT продолжают отображаться справа
-    for (let i = 0; i < 8; i++) {
-      sequence.push(...items);
+    const targetIndex =
+      sequence.length;
+
+
+    sequence.push(
+      prize
+    );
+
+
+    // элементы после выигрыша
+
+    for (
+      let i = 0;
+      i < 8;
+      i++
+    ) {
+
+      sequence.push(
+        ...items
+      );
+
     }
 
-    track.style.transition = "none";
-    track.style.transform = "translateX(0px)";
 
-    track.innerHTML = sequence
-      .map(rouletteItemHtml)
-      .join("");
+    track.style.transition =
+      "none";
 
-    await new Promise(resolve =>
-      requestAnimationFrame(() =>
-        requestAnimationFrame(resolve)
-      )
+
+    track.style.transform =
+      "translateX(0px)";
+
+
+    track.innerHTML =
+      sequence
+        .map(
+          rouletteItemHtml
+        )
+        .join("");
+
+
+    await new Promise(
+      resolve =>
+
+        requestAnimationFrame(
+          () =>
+
+            requestAnimationFrame(
+              resolve
+            )
+
+        )
+
     );
 
-    const cards = [...track.children];
-    const target = cards[targetIndex];
 
-    const strip = document.getElementById(
-      "previewStrip"
-    );
+    const cards =
+      [
+        ...track.children
+      ];
 
-    if (!target || !strip) return;
+
+    const target =
+      cards[
+        targetIndex
+      ];
+
+
+    const strip =
+      document.getElementById(
+        "previewStrip"
+      );
+
+
+    if (
+      !target ||
+      !strip
+    ) {
+
+      return;
+
+    }
+
 
     const targetCenter =
-      target.offsetLeft +
+      target.offsetLeft
+      +
       target.offsetWidth / 2;
+
 
     const stripCenter =
       strip.clientWidth / 2;
 
+
     const translate =
-      stripCenter -
+      stripCenter
+      -
       targetCenter;
+
 
     track.style.transition =
       "transform 4.2s cubic-bezier(.08,.72,.12,1)";
 
+
     track.style.transform =
       `translateX(${translate}px)`;
 
-    await new Promise(resolve =>
-      setTimeout(resolve, 4300)
+
+    await new Promise(
+      resolve =>
+
+        setTimeout(
+          resolve,
+          4350
+        )
+
     );
+
   }
+
+
 
   async function openSelectedCase() {
-    if (!selectedCase || rouletteBusy) return;
 
-    if (!hasEnoughStars(selectedCase)) {
-      window.location.href = "/?openDeposit=1";
+    if (
+      !selectedCase ||
+      rouletteBusy
+    ) {
+
       return;
+
     }
 
-    const button = document.getElementById("depositBtn");
-    const oldText = button.textContent;
 
-    rouletteBusy = true;
-    button.disabled = true;
-    button.textContent = "Крутим…";
+    if (
+      !hasEnoughStars(
+        selectedCase
+      )
+    ) {
 
-    try {
-      const data = await post(
-        "/api/cases/open",
-        {
-          initData: requireInitData(),
-          case_id: Number(selectedCase.id)
-        }
+      window.location.href =
+        "/?openDeposit=1";
+
+      return;
+
+    }
+
+
+    const button =
+      document.getElementById(
+        "depositBtn"
       );
 
+
+    rouletteBusy =
+      true;
+
+
+    button.disabled =
+      true;
+
+
+    button.textContent =
+      "Крутим…";
+
+
+    try {
+
+
+      const data =
+        await post(
+          "/api/cases/open",
+          {
+
+            initData:
+              requireInitData(),
+
+            case_id:
+              Number(
+                selectedCase.id
+              )
+
+          }
+        );
+
+
+      if (
+        !data?.prize
+      ) {
+
+        throw new Error(
+          "Сервер не вернул приз"
+        );
+
+      }
+
+
       currentWin = {
-        win_id: data.win_id,
-        prize: data.prize
+
+        win_id:
+          data.win_id,
+
+        prize:
+          data.prize
+
       };
 
-      await animateRouletteTo(data.prize);
 
-      setBalances(data?.balances || {});
-      showWin(data.prize);
+      await animateRouletteTo(
+        data.prize
+      );
+
+
+      if (
+        data?.balances
+      ) {
+
+        setBalances(
+          data.balances
+        );
+
+      } else {
+
+        try {
+
+          await loadBalances();
+
+        } catch (_) {}
+
+      }
+
+
+      // ВАЖНО:
+      // ПОСЛЕ РУЛЕТКИ ОТКРЫВАЕМ
+      // РЕЗУЛЬТАТ В МОДАЛЬНОМ ОКНЕ
+
+      showWin(
+        data.prize
+      );
+
+
       renderCases();
 
+
     } catch (error) {
-      showToast(error.message, 5000);
-      renderPreview(selectedCase);
+
+
+      showToast(
+        error.message,
+        5000
+      );
+
+
+      renderPreview(
+        selectedCase
+      );
+
 
     } finally {
-      rouletteBusy = false;
-      button.disabled = false;
+
+
+      rouletteBusy =
+        false;
+
+
+      button.disabled =
+        false;
+
+
       updateHeroAction();
+
     }
+
   }
 
-  function showWin(prize) {
+
+
+  function showWin(
+    prize
+  ) {
+
+    const modal =
+      document.getElementById(
+        "caseModal"
+      );
+
+
+    // ГЛАВНОЕ ИСПРАВЛЕНИЕ:
+    // МОДАЛКА ТЕПЕРЬ ОБЯЗАТЕЛЬНО ОТКРЫВАЕТСЯ
+
+    modal.classList.add(
+      "active"
+    );
+
+
     document.getElementById(
       "caseContent"
-    ).style.display = "none";
+    ).style.display =
+      "none";
+
 
     document.getElementById(
       "winResult"
-    ).classList.add("show");
-
-    const image = document.getElementById(
-      "resultImage"
+    ).classList.add(
+      "show"
     );
 
-    const failed = Boolean(prize?.is_failure);
+
+    const image =
+      document.getElementById(
+        "resultImage"
+      );
+
+
+    const imageBox =
+      document.getElementById(
+        "resultImageBox"
+      );
+
+
+    const failed =
+      Boolean(
+        prize?.is_failure
+      );
+
 
     if (failed) {
-      image.removeAttribute("src");
-      image.alt = "Неудача";
-      image.style.display = "none";
-    } else {
-      image.style.display = "block";
-      image.src = giftImage(prize);
 
-      image.onerror = () => {
-        image.onerror = null;
-        image.src = "/static/nft-gift.png";
-      };
+
+      image.removeAttribute(
+        "src"
+      );
+
+
+      image.style.display =
+        "none";
+
+
+      imageBox.style.display =
+        "none";
+
+
+    } else {
+
+
+      imageBox.style.display =
+        "block";
+
+
+      image.style.display =
+        "block";
+
+
+      image.src =
+        giftImage(
+          prize
+        );
+
+
+      image.alt =
+        prize?.name ||
+        "Приз";
+
+
+      image.onerror =
+        () => {
+
+          image.onerror =
+            null;
+
+          image.src =
+            "/static/nft-gift.png";
+
+        };
+
     }
+
 
     document.getElementById(
       "resultName"
-    ).textContent = failed
-      ? "Неудача — в этот раз без приза"
-      : (prize?.name || "Приз");
+    ).textContent =
 
-    const sellButton = document.getElementById(
-      "sellPrize"
-    );
+      failed
 
-    const sellStars = Number(
-      prize?.sell_stars || 0
-    );
+        ? "Неудача — в этот раз без приза"
 
-    if (sellStars > 0) {
-      sellButton.style.display = "block";
-      sellButton.textContent =
-        `⭐ Продать за ${sellStars} Stars`;
-    } else {
-      sellButton.style.display = "none";
+        : (
+            prize?.name ||
+            "Приз"
+          );
+
+
+    const sellButton =
+      document.getElementById(
+        "sellPrize"
+      );
+
+
+    // Берём цену продажи от сервера.
+    // Если сервер её пока не присылает —
+    // показываем 15 Stars.
+
+    let sellStars =
+      Number(
+        prize?.sell_stars ??
+        prize?.sell_price ??
+        prize?.sellStars ??
+        0
+      );
+
+
+    if (
+      !failed &&
+      sellStars <= 0
+    ) {
+
+      sellStars = 15;
+
     }
 
-    const withdrawButton = document.getElementById(
-      "withdrawPrize"
-    );
 
-    withdrawButton.style.display =
-      (failed || prize?.withdrawable === false)
-        ? "none"
-        : "block";
+    if (
+      !failed &&
+      sellStars > 0
+    ) {
 
-    const status = document.getElementById(
-      "resultStatus"
-    );
 
-    status.classList.remove("show");
-    status.textContent = "";
-  }
+      sellButton.style.display =
+        "block";
 
-  async function sellCurrentPrize() {
-    if (!currentWin?.win_id) return;
 
-    const button = document.getElementById(
-      "sellPrize"
-    );
+      sellButton.textContent =
+        `⭐ Продать за ${sellStars} Stars`;
 
-    button.disabled = true;
 
-    try {
-      const data = await post(
-        "/api/cases/sell",
-        {
-          initData: requireInitData(),
-          win_id: currentWin.win_id
-        }
+      sellButton.dataset.sellStars =
+        String(
+          sellStars
+        );
+
+
+    } else {
+
+
+      sellButton.style.display =
+        "none";
+
+
+      delete sellButton.dataset.sellStars;
+
+    }
+
+
+
+    const withdrawButton =
+      document.getElementById(
+        "withdrawPrize"
       );
 
-      setBalances(
-        data?.balances || {}
-      );
 
-      const status = document.getElementById(
+    if (
+      failed ||
+      prize?.withdrawable === false
+    ) {
+
+
+      withdrawButton.style.display =
+        "none";
+
+
+    } else {
+
+
+      withdrawButton.style.display =
+        "block";
+
+
+      withdrawButton.textContent =
+        "Вывести NFT";
+
+    }
+
+
+
+    const status =
+      document.getElementById(
         "resultStatus"
       );
 
+
+    status.classList.remove(
+      "show"
+    );
+
+
+    status.textContent =
+      "";
+
+
+
+    // ВИБРАЦИЯ
+
+    try {
+
+
+      if (failed) {
+
+
+        tg?.HapticFeedback
+          ?.notificationOccurred(
+            "error"
+          );
+
+
+      } else {
+
+
+        tg?.HapticFeedback
+          ?.notificationOccurred(
+            "success"
+          );
+
+
+      }
+
+
+    } catch (_) {}
+
+  }
+
+
+
+  async function sellCurrentPrize() {
+
+    if (
+      !currentWin?.win_id
+    ) {
+
+      showToast(
+        "Не найден ID выигрыша",
+        4000
+      );
+
+      return;
+
+    }
+
+
+    const button =
+      document.getElementById(
+        "sellPrize"
+      );
+
+
+    const oldText =
+      button.textContent;
+
+
+    button.disabled =
+      true;
+
+
+    button.textContent =
+      "Продаём…";
+
+
+    try {
+
+
+      const data =
+        await post(
+          "/api/cases/sell",
+          {
+
+            initData:
+              requireInitData(),
+
+            win_id:
+              currentWin.win_id
+
+          }
+        );
+
+
+      if (
+        data?.balances
+      ) {
+
+        setBalances(
+          data.balances
+        );
+
+      } else {
+
+        try {
+
+          await loadBalances();
+
+        } catch (_) {}
+
+      }
+
+
+      const creditedStars =
+        Number(
+          data?.credited_stars ??
+          data?.stars ??
+          button.dataset.sellStars ??
+          15
+        );
+
+
+      const status =
+        document.getElementById(
+          "resultStatus"
+        );
+
+
       status.textContent =
-        `Продано. На баланс начислено ${data.credited_stars} Stars.`;
+        `Продано. На баланс начислено ${creditedStars} Stars.`;
 
-      status.classList.add("show");
 
-      button.style.display = "none";
+      status.classList.add(
+        "show"
+      );
+
+
+      button.style.display =
+        "none";
+
 
       document.getElementById(
         "withdrawPrize"
-      ).style.display = "none";
+      ).style.display =
+        "none";
+
+
+      currentWin.sold =
+        true;
+
+
+      try {
+
+        tg?.HapticFeedback
+          ?.notificationOccurred(
+            "success"
+          );
+
+      } catch (_) {}
+
 
       renderCases();
 
+
     } catch (error) {
+
+
+      button.textContent =
+        oldText;
+
+
       showToast(
         error.message,
         5000
       );
 
+
     } finally {
-      button.disabled = false;
+
+
+      button.disabled =
+        false;
+
     }
+
   }
 
+
+
   async function withdrawCurrentPrize() {
-    if (!currentWin?.win_id) return;
 
-    const button = document.getElementById(
-      "withdrawPrize"
-    );
+    if (
+      !currentWin?.win_id
+    ) {
 
-    button.disabled = true;
-    const oldText = button.textContent;
-    button.textContent = "Отправляем заявку…";
+      showToast(
+        "Не найден ID выигрыша",
+        4000
+      );
+
+      return;
+
+    }
+
+
+    const button =
+      document.getElementById(
+        "withdrawPrize"
+      );
+
+
+    button.disabled =
+      true;
+
+
+    const oldText =
+      button.textContent;
+
+
+    button.textContent =
+      "Отправляем заявку…";
+
 
     try {
-      const data = await post(
-        "/api/cases/withdraw",
-        {
-          initData: requireInitData(),
-          win_id: currentWin.win_id
-        }
-      );
 
-      const status = document.getElementById(
-        "resultStatus"
-      );
+
+      const data =
+        await post(
+          "/api/cases/withdraw",
+          {
+
+            initData:
+              requireInitData(),
+
+            win_id:
+              currentWin.win_id
+
+          }
+        );
+
+
+      const status =
+        document.getElementById(
+          "resultStatus"
+        );
+
 
       status.textContent =
-        data.message ||
+        data?.message ||
         "Заявка на вывод отправлена.";
 
-      status.classList.add("show");
 
-      button.style.display = "none";
+      status.classList.add(
+        "show"
+      );
+
+
+      button.style.display =
+        "none";
+
 
       document.getElementById(
         "sellPrize"
-      ).style.display = "none";
+      ).style.display =
+        "none";
+
+
+      currentWin.withdrawn =
+        true;
+
+
+      try {
+
+        tg?.HapticFeedback
+          ?.notificationOccurred(
+            "success"
+          );
+
+      } catch (_) {}
+
 
     } catch (error) {
+
+
       showToast(
         error.message,
         5000
       );
 
-      button.textContent = oldText;
+
+      button.textContent =
+        oldText;
+
 
     } finally {
-      button.disabled = false;
+
+
+      button.disabled =
+        false;
+
     }
+
   }
+
+
 
   document.getElementById(
     "backBtn"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     () => {
-      window.location.href = "/";
+
+      window.location.href =
+        "/";
+
     }
   );
+
+
 
   document.getElementById(
     "depositBtn"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     () => {
-      if (selectedCase && hasEnoughStars(selectedCase)) {
+
+      if (
+        selectedCase &&
+        hasEnoughStars(
+          selectedCase
+        )
+      ) {
+
         openSelectedCase();
+
       } else {
-        window.location.href = "/?openDeposit=1";
+
+        window.location.href =
+          "/?openDeposit=1";
+
       }
+
     }
   );
 
+
+
   document.getElementById(
     "closeModal"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     closeModal
   );
+
+
 
   document.getElementById(
     "closeResult"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     closeModal
   );
 
+
+
   document.getElementById(
     "caseModal"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     event => {
+
       if (
         event.target.id ===
         "caseModal"
       ) {
+
         closeModal();
+
       }
+
     }
   );
 
+
+
   document.getElementById(
     "modalAction"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
-    openSelectedCase
+    () => {
+
+      if (
+        selectedCase &&
+        hasEnoughStars(
+          selectedCase
+        )
+      ) {
+
+        closeModal();
+
+        openSelectedCase();
+
+      } else {
+
+        window.location.href =
+          "/?openDeposit=1";
+
+      }
+
+    }
   );
+
+
 
   document.getElementById(
     "sellPrize"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     sellCurrentPrize
   );
 
+
+
   document.getElementById(
     "withdrawPrize"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     withdrawCurrentPrize
   );
 
+
+
   document.getElementById(
     "playAgain"
-  ).addEventListener(
+  )
+  .addEventListener(
     "click",
     () => {
+
       closeModal();
-      renderPreview(selectedCase);
+
+      currentWin =
+        null;
+
+      renderPreview(
+        selectedCase
+      );
+
       updateHeroAction();
+
     }
   );
 
+
+
   async function init() {
+
     try {
+
+
       await loadBalances();
+
       await loadCatalog();
+
+
     } catch (error) {
+
+
       showToast(
         error.message,
         5000
       );
+
+
     }
+
   }
+
+
 
   init();
 
