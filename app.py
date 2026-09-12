@@ -30,6 +30,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from telethon import TelegramClient, functions
+from telethon.sessions import StringSession
+
 
 load_dotenv()
 
@@ -1150,6 +1153,220 @@ async def get_cases_for_user():
     )
 
 
+
+# =========================================================
+# TELEGRAM OFFICIAL MARKET
+# =========================================================
+
+_market_client = None
+_market_client_lock = asyncio.Lock()
+_market_price_cache = {}
+MARKET_PRICE_CACHE_TTL = 60
+
+
+def gift_slug_from_url(url):
+    if not url:
+        return ""
+
+    try:
+        parsed = urlparse(str(url).strip())
+        path = parsed.path or ""
+
+        if "/nft/" not in path:
+            return ""
+
+        slug = path.split("/nft/", 1)[1]
+        slug = slug.split("/", 1)[0].strip()
+
+        return slug
+
+    except Exception:
+        return ""
+
+
+async def get_market_client():
+    global _market_client
+
+    if (
+        not TELEGRAM_API_ID
+        or not TELEGRAM_API_HASH
+        or not TELEGRAM_SESSION_STRING
+    ):
+        raise RuntimeError(
+            "Telegram market session is not configured"
+        )
+
+    async with _market_client_lock:
+
+        if _market_client is None:
+            _market_client = TelegramClient(
+                StringSession(
+                    TELEGRAM_SESSION_STRING
+                ),
+                TELEGRAM_API_ID,
+                TELEGRAM_API_HASH
+            )
+
+        if not _market_client.is_connected():
+            await _market_client.connect()
+
+        if not await _market_client.is_user_authorized():
+            raise RuntimeError(
+                "Telegram user session is not authorized"
+            )
+
+        return _market_client
+
+
+def extract_stars_from_resell_amount(amounts):
+    for amount in amounts or []:
+
+        # Telegram StarsAmount for Stars has fields amount + nanos.
+        # TON uses a different constructor without nanos.
+        if hasattr(amount, "nanos"):
+            whole = int(
+                getattr(
+                    amount,
+                    "amount",
+                    0
+                )
+                or 0
+            )
+
+            nanos = int(
+                getattr(
+                    amount,
+                    "nanos",
+                    0
+                )
+                or 0
+            )
+
+            # Internal balance is integer Stars.
+            # Marketplace gift prices are normally integer Stars.
+            if nanos != 0:
+                # Round down only if Telegram ever returns fractional Stars.
+                return max(
+                    0,
+                    whole
+                )
+
+            return max(
+                0,
+                whole
+            )
+
+    return 0
+
+
+async def get_official_market_stars(
+    gift_url
+):
+    slug = gift_slug_from_url(
+        gift_url
+    )
+
+    if not slug:
+        return 0
+
+    now = time.time()
+
+    cached = _market_price_cache.get(
+        slug
+    )
+
+    if (
+        cached
+        and now - cached["time"]
+        < MARKET_PRICE_CACHE_TTL
+    ):
+        return int(
+            cached["price"]
+        )
+
+    client = await get_market_client()
+
+    unique = await client(
+        functions.payments.GetUniqueStarGiftRequest(
+            slug=slug
+        )
+    )
+
+    unique_gift = getattr(
+        unique,
+        "gift",
+        None
+    )
+
+    gift_id = int(
+        getattr(
+            unique_gift,
+            "gift_id",
+            0
+        )
+        or 0
+    )
+
+    if gift_id <= 0:
+        return 0
+
+    resale = await client(
+        functions.payments.GetResaleStarGiftsRequest(
+            gift_id=gift_id,
+            offset="",
+            limit=1,
+            sort_by_price=True,
+            stars_only=True
+        )
+    )
+
+    gifts = getattr(
+        resale,
+        "gifts",
+        []
+    ) or []
+
+    if not gifts:
+        return 0
+
+    first = gifts[0]
+
+    price = extract_stars_from_resell_amount(
+        getattr(
+            first,
+            "resell_amount",
+            None
+        )
+    )
+
+    if price > 0:
+        _market_price_cache[
+            slug
+        ] = {
+            "time": now,
+            "price": price
+        }
+
+    return int(price)
+
+
+async def safe_market_price(
+    gift_url
+):
+    try:
+        return await get_official_market_stars(
+            gift_url
+        )
+
+    except Exception as error:
+        print(
+            "MARKET PRICE ERROR:",
+            gift_url,
+            repr(error)
+        )
+        return 0
+
+
 # =========================================================
 # API MODELS
 # =========================================================
@@ -1368,13 +1585,32 @@ async def me(
         )).fetchall()
 
     for row in case_rows:
+        gift_url = (
+            row["prize_gift_url"]
+            or ""
+        )
+
+        fixed_sell_stars = int(
+            row["sell_stars"]
+            or 0
+        )
+
+        market_sell_stars = 0
+
+        if (
+            fixed_sell_stars <= 0
+            and gift_url
+        ):
+            market_sell_stars = (
+                await safe_market_price(
+                    gift_url
+                )
+            )
+
         gifts.append({
             "id": f"case:{row['id']}",
             "case_win_id": row["id"],
-            "gift_url": (
-                row["prize_gift_url"]
-                or ""
-            ),
+            "gift_url": gift_url,
             "status": "approved",
             "hidden": 0,
             "gift_name": (
@@ -1386,10 +1622,13 @@ async def me(
                 or ""
             ),
             "source": "case",
-            "sell_stars": int(
-                row["sell_stars"]
-                or 0
-            )
+            "sell_stars": (
+                fixed_sell_stars
+                if fixed_sell_stars > 0
+                else market_sell_stars
+            ),
+            "market_sell_stars":
+                market_sell_stars
         })
 
     return {
@@ -1666,11 +1905,8 @@ async def cases_sell(
 
     save_user(user)
 
+    # Read first without locking while market price is fetched.
     with db() as conn:
-        conn.execute(
-            "BEGIN IMMEDIATE"
-        )
-
         row = conn.execute("""
         SELECT *
         FROM case_wins
@@ -1681,39 +1917,95 @@ async def cases_sell(
             user["id"]
         )).fetchone()
 
-        if not row:
+    if not row:
+        raise HTTPException(
+            404,
+            "Выигрыш не найден"
+        )
+
+    if row["status"] != "owned":
+        raise HTTPException(
+            409,
+            "Этот приз уже обработан"
+        )
+
+    fixed_sell_stars = int(
+        row["sell_stars"]
+        or 0
+    )
+
+    market_sell_stars = 0
+
+    if fixed_sell_stars <= 0:
+        gift_url = (
+            row["prize_gift_url"]
+            or ""
+        )
+
+        if not gift_url:
+            raise HTTPException(
+                400,
+                "Для этого приза нет ссылки на Telegram NFT"
+            )
+
+        market_sell_stars = (
+            await safe_market_price(
+                gift_url
+            )
+        )
+
+        if market_sell_stars <= 0:
+            raise HTTPException(
+                503,
+                "Не удалось получить актуальную цену с рынка Telegram"
+            )
+
+    sell_stars = (
+        fixed_sell_stars
+        if fixed_sell_stars > 0
+        else market_sell_stars
+    )
+
+    # Re-check ownership atomically immediately before crediting.
+    with db() as conn:
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
+
+        current = conn.execute("""
+        SELECT *
+        FROM case_wins
+        WHERE id=?
+        AND user_id=?
+        """, (
+            payload.win_id,
+            user["id"]
+        )).fetchone()
+
+        if not current:
             conn.rollback()
             raise HTTPException(
                 404,
                 "Выигрыш не найден"
             )
 
-        if row["status"] != "owned":
+        if current["status"] != "owned":
             conn.rollback()
             raise HTTPException(
                 409,
                 "Этот приз уже обработан"
             )
 
-        sell_stars = int(
-            row["sell_stars"] or 0
-        )
-
-        if sell_stars <= 0:
-            conn.rollback()
-            raise HTTPException(
-                400,
-                "Этот приз нельзя продать за Stars"
-            )
-
         conn.execute("""
         UPDATE case_wins
         SET
             status='sold',
+            sell_stars=?,
             resolved_at=CURRENT_TIMESTAMP
         WHERE id=?
         """, (
-            payload.win_id,
+            sell_stars,
+            payload.win_id
         ))
 
         conn.execute("""
@@ -1750,7 +2042,7 @@ async def cases_sell(
             ?,
             'XTR',
             ?,
-            'case_sell',
+            'case_sell_market',
             ?
         )
         """, (
@@ -1765,6 +2057,11 @@ async def cases_sell(
         "ok": True,
         "credited_stars":
             sell_stars,
+        "price_source": (
+            "fixed"
+            if fixed_sell_stars > 0
+            else "telegram_market_floor"
+        ),
         "balances":
             get_balances(
                 user["id"]
