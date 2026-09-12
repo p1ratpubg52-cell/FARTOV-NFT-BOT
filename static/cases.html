@@ -1645,40 +1645,116 @@
 
 
   document
-    .getElementById(
-      "modalAction"
-    )
-    .addEventListener(
-      "click",
-      () => {
+  .getElementById("modalAction")
+  .addEventListener(
+    "click",
+    async () => {
 
-        if (
-          !selectedCase
-        ) {
-          return;
-        }
+      if (!selectedCase) {
+        return;
+      }
 
+      if (!hasEnough(selectedCase)) {
+        window.location.href =
+          "/?openDeposit=1";
+        return;
+      }
 
-        if (
-          !hasEnough(
-            selectedCase
-          )
-        ) {
-
-          window.location.href =
-            "/?openDeposit=1";
-
-          return;
-
-        }
-
-
-        showToast(
-          "Каталог NFT подключён. Само открытие кейса нужно подключать отдельным серверным действием."
+      const button =
+        document.getElementById(
+          "modalAction"
         );
 
+      const oldText =
+        button.textContent;
+
+      button.disabled = true;
+      button.textContent =
+        "Открываем кейс…";
+
+      try {
+
+        const data =
+          await post(
+            "/api/cases/open",
+            {
+              initData:
+                tg.initData,
+
+              case_id:
+                Number(
+                  selectedCase.id
+                )
+            }
+          );
+
+        const prize =
+          data.prize || {};
+
+        showToast(
+          "🎉 Выпало: " +
+          (
+            prize.name ||
+            "NFT подарок"
+          ),
+          5000
+        );
+
+        if (data.balances) {
+
+          userBalance.stars =
+            parseNumber(
+              data.balances.XTR
+            );
+
+          userBalance.ton =
+            parseNumber(
+              data.balances.TON
+            );
+
+          document
+            .getElementById(
+              "starsBalance"
+            )
+            .textContent =
+              userBalance.stars;
+
+          document
+            .getElementById(
+              "tonBalance"
+            )
+            .textContent =
+              userBalance.ton;
+
+          renderCases();
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Case open error:",
+          error
+        );
+
+        showToast(
+          "Ошибка: " +
+          error.message,
+          5000
+        );
+
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          oldText;
+
       }
-    );
+
+    }
+  );
 
 
   async function init() {
