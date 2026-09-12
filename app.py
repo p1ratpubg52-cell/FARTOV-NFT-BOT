@@ -1313,6 +1313,54 @@ async def me(
 
         gifts.append(item)
 
+    # ==========================================
+    # Добавляем выигрыши из кейсов в инвентарь
+    # ==========================================
+
+    with db() as conn:
+        case_rows = conn.execute("""
+        SELECT
+            id,
+            prize_id,
+            prize_name,
+            prize_image,
+            prize_gift_url,
+            sell_stars,
+            status,
+            created_at
+        FROM case_wins
+        WHERE user_id=?
+        AND status='owned'
+        ORDER BY id DESC
+        """, (
+            user["id"],
+        )).fetchall()
+
+    for row in case_rows:
+        gifts.append({
+            "id": f"case:{row['id']}",
+            "case_win_id": row["id"],
+            "gift_url": (
+                row["prize_gift_url"]
+                or ""
+            ),
+            "status": "approved",
+            "hidden": 0,
+            "gift_name": (
+                row["prize_name"]
+                or "Приз из кейса"
+            ),
+            "gift_image": (
+                row["prize_image"]
+                or ""
+            ),
+            "source": "case",
+            "sell_stars": int(
+                row["sell_stars"]
+                or 0
+            )
+        })
+
     return {
         "user": {
             "id": user["id"],
@@ -1848,6 +1896,12 @@ async def upgrade_inventory(
 
     save_user(user)
 
+    items = []
+
+    # ==========================================
+    # 1. NFT, которые пользователь внёс сам
+    # ==========================================
+
     with db() as conn:
         rows = conn.execute("""
         SELECT
@@ -1864,16 +1918,9 @@ async def upgrade_inventory(
             user["id"],
         )).fetchall()
 
-    items = []
-
     for row in rows:
-        name = row[
-            "gift_name"
-        ]
-
-        image = row[
-            "gift_image"
-        ]
+        name = row["gift_name"]
+        image = row["gift_image"]
 
         if not name:
             meta = await asyncio.to_thread(
@@ -1896,22 +1943,65 @@ async def upgrade_inventory(
                     image,
                     row["id"]
                 ))
-
                 conn.commit()
 
         items.append({
-            "id":
-                str(row["id"]),
-            "name":
-                name
-                or "Telegram Gift",
-            "image_url":
-                image
-                or "",
-            "gift_url":
-                row["gift_url"],
-            "price_ton":
-                0
+            "id": f"deposit:{row['id']}",
+            "source_id": str(row["id"]),
+            "source": "deposit",
+            "name": name or "Telegram Gift",
+            "image_url": image or "",
+            "gift_url": row["gift_url"],
+            "price_ton": 0,
+            "sell_stars": 0
+        })
+
+    # ==========================================
+    # 2. Подарки, выигранные в кейсах
+    # ==========================================
+
+    with db() as conn:
+        wins = conn.execute("""
+        SELECT
+            id,
+            prize_id,
+            prize_name,
+            prize_image,
+            prize_gift_url,
+            sell_stars,
+            status,
+            created_at
+        FROM case_wins
+        WHERE user_id=?
+        AND status='owned'
+        ORDER BY id DESC
+        """, (
+            user["id"],
+        )).fetchall()
+
+    for win in wins:
+        items.append({
+            "id": f"case:{win['id']}",
+            "source_id": str(win["id"]),
+            "source": "case",
+            "name": (
+                win["prize_name"]
+                or "Приз из кейса"
+            ),
+            "image_url": (
+                win["prize_image"]
+                or ""
+            ),
+            "gift_url": (
+                win["prize_gift_url"]
+                or ""
+            ),
+            "price_ton": 0,
+            "sell_stars": int(
+                win["sell_stars"]
+                or 0
+            ),
+            "case_win_id": win["id"]
         })
 
     return {
