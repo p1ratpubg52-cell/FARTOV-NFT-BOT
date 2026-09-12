@@ -130,6 +130,11 @@ CASE_CONFIGS = [
     {"id": 4, "name": "Кейс №4", "stars": 250, "ton": "2.50"},
 ]
 
+# Две карточки «Неудача» в каждом кейсе.
+# 15% суммарно = по 7.5% на каждую карточку.
+FAILURE_TOTAL_CHANCE = 15.0
+FAILURE_CARD_COUNT = 2
+
 CASE1_SPECIAL_PRIZES = [
     {
         "id": "special:bear15",
@@ -958,13 +963,13 @@ async def load_backpack_catalog():
 # CASE HELPERS
 # =========================================================
 
-def assign_equal_chances(items):
+def assign_equal_chances(items, total_chance=100.0):
     if not items:
         return []
 
     count = len(items)
     base = round(
-        100.0 / count,
+        float(total_chance) / count,
         4
     )
     result = []
@@ -975,7 +980,7 @@ def assign_equal_chances(items):
 
         if index == count - 1:
             chance = round(
-                100.0 - running,
+                float(total_chance) - running,
                 4
             )
         else:
@@ -988,86 +993,89 @@ def assign_equal_chances(items):
     return result
 
 
+def build_failure_items(case_id):
+    each = round(
+        FAILURE_TOTAL_CHANCE / FAILURE_CARD_COUNT,
+        4
+    )
+
+    failures = []
+
+    for index in range(FAILURE_CARD_COUNT):
+        failures.append({
+            "id": f"failure:{case_id}:{index + 1}",
+            "name": "Неудача",
+            "image_url": "",
+            "gift_url": "",
+            "sell_stars": 0,
+            "withdrawable": False,
+            "is_failure": True,
+            "chance_percent": each,
+        })
+
+    return failures
+
+
 def build_case_catalog(backpack_items):
     buckets = [[], [], [], []]
 
-    for index, item in enumerate(
-        backpack_items
-    ):
-        buckets[
-            index % 4
-        ].append(
-            dict(item)
-        )
+    for index, item in enumerate(backpack_items):
+        buckets[index % 4].append(dict(item))
 
+    prepared = []
+
+    # Кейс №1: два специальных приза по 15%,
+    # две «Неудачи» суммарно 15%, остальное — NFT из каталога.
     case1_regular = buckets[0]
     case1 = []
 
+    special_total = 0.0
     for special in CASE1_SPECIAL_PRIZES:
         item = dict(special)
-        item["chance_percent"] = float(
-            item.pop("fixed_chance")
-        )
+        chance = float(item.pop("fixed_chance"))
+        item["chance_percent"] = chance
+        special_total += chance
         case1.append(item)
 
-    remaining = 70.0
+    case1.extend(build_failure_items(1))
+
+    regular_budget = max(
+        0.0,
+        100.0 - FAILURE_TOTAL_CHANCE - special_total
+    )
 
     if case1_regular:
-        regular_share = (
-            remaining
-            / len(case1_regular)
+        case1.extend(
+            assign_equal_chances(
+                case1_regular,
+                regular_budget
+            )
         )
-
-        running = 0.0
-
-        for index, item in enumerate(
-            case1_regular
-        ):
-            copy = dict(item)
-
-            if index == len(
-                case1_regular
-            ) - 1:
-                chance = round(
-                    remaining - running,
-                    4
-                )
-            else:
-                chance = round(
-                    regular_share,
-                    4
-                )
-                running += chance
-
-            copy["chance_percent"] = chance
-            case1.append(copy)
-
     else:
-        case1[0]["chance_percent"] = 50.0
-        case1[1]["chance_percent"] = 50.0
+        # Если каталог временно пуст, специальные призы
+        # получают весь оставшийся шанс, чтобы сумма была 100%.
+        special_budget = 100.0 - FAILURE_TOTAL_CHANCE
+        specials = [x for x in case1 if not x.get("is_failure")]
+        failures = [x for x in case1 if x.get("is_failure")]
+        case1 = assign_equal_chances(specials, special_budget) + failures
 
-    case2 = assign_equal_chances(
-        buckets[1]
-    )
-    case3 = assign_equal_chances(
-        buckets[2]
-    )
-    case4 = assign_equal_chances(
-        buckets[3]
-    )
+    prepared.append(case1)
 
-    prepared = [
-        case1,
-        case2,
-        case3,
-        case4
-    ]
+    # Кейсы №2–4: 15% «Неудача», 85% распределяется
+    # между реальными NFT выбранного кейса.
+    for case_id, bucket in enumerate(buckets[1:], start=2):
+        prize_budget = 100.0 - FAILURE_TOTAL_CHANCE
+        prizes = assign_equal_chances(bucket, prize_budget)
+        failures = build_failure_items(case_id)
+
+        if not prizes:
+            failures = assign_equal_chances(failures, 100.0)
+
+        prepared.append(prizes + failures)
 
     cases = []
 
-    for index, config in enumerate(
-        CASE_CONFIGS
-    ):
+    for index, config in enumerate(CASE_CONFIGS):
         cases.append({
             **config,
             "items": prepared[index]
@@ -1354,19 +1362,9 @@ async def safe_market_price(
     gift_url
 ):
     try:
-        return await asyncio.wait_for(
-            get_official_market_stars(
-                gift_url
-            ),
-            timeout=8
-        )
-
-    except asyncio.TimeoutError:
-        print(
-            "MARKET PRICE TIMEOUT:",
+        return await get_official_market_stars(
             gift_url
         )
-        return 0
 
     except Exception as error:
         print(
@@ -1605,6 +1603,18 @@ async def me(
             or 0
         )
 
+        market_sell_stars = 0
+
+        if (
+            fixed_sell_stars <= 0
+            and gift_url
+        ):
+            market_sell_stars = (
+                await safe_market_price(
+                    gift_url
+                )
+            )
+
         gifts.append({
             "id": f"case:{row['id']}",
             "case_win_id": row["id"],
@@ -1620,9 +1630,13 @@ async def me(
                 or ""
             ),
             "source": "case",
-            "sell_stars":
-                fixed_sell_stars,
-            "market_sell_stars": 0
+            "sell_stars": (
+                fixed_sell_stars
+                if fixed_sell_stars > 0
+                else market_sell_stars
+            ),
+            "market_sell_stars":
+                market_sell_stars
         })
 
     return {
@@ -1758,69 +1772,43 @@ async def cases_open(
             case.get("items") or []
         )
 
-        with db() as conn:
-            cursor = conn.execute("""
-            INSERT INTO case_wins(
-                user_id,
-                case_id,
-                prize_id,
-                prize_name,
-                prize_image,
-                prize_gift_url,
-                sell_stars,
-                withdrawable,
-                status,
-                paid_currency,
-                paid_units
-            )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?)
-            """, (
-                user["id"],
-                int(case["id"]),
-                str(
-                    prize.get(
-                        "id",
-                        ""
-                    )
-                ),
-                str(
-                    prize.get(
-                        "name",
-                        "Приз"
-                    )
-                ),
-                str(
-                    prize.get(
-                        "image_url",
-                        ""
-                    )
-                ),
-                str(
-                    prize.get(
-                        "gift_url",
-                        ""
-                    )
-                ),
-                int(
-                    prize.get(
-                        "sell_stars",
-                        0
-                    ) or 0
-                ),
-                1 if prize.get(
-                    "withdrawable",
-                    True
-                ) else 0,
-                "owned",
-                paid_currency,
-                paid_units
-            ))
+        win_id = None
 
-            win_id = (
-                cursor.lastrowid
-            )
+        # «Неудача» списывает стоимость кейса, но не создаёт
+        # предмет в инвентаре и не даёт продажу/вывод.
+        if not prize.get("is_failure"):
+            with db() as conn:
+                cursor = conn.execute("""
+                INSERT INTO case_wins(
+                    user_id,
+                    case_id,
+                    prize_id,
+                    prize_name,
+                    prize_image,
+                    prize_gift_url,
+                    sell_stars,
+                    withdrawable,
+                    status,
+                    paid_currency,
+                    paid_units
+                )
+                VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                """, (
+                    user["id"],
+                    int(case["id"]),
+                    str(prize.get("id", "")),
+                    str(prize.get("name", "Приз")),
+                    str(prize.get("image_url", "")),
+                    str(prize.get("gift_url", "")),
+                    int(prize.get("sell_stars", 0) or 0),
+                    1 if prize.get("withdrawable", True) else 0,
+                    "owned",
+                    paid_currency,
+                    paid_units
+                ))
 
-            conn.commit()
+                win_id = cursor.lastrowid
+                conn.commit()
 
     except Exception:
         credit_balance(
@@ -1878,6 +1866,13 @@ async def cases_open(
                         "withdrawable",
                         True
                     )
+                ),
+            "is_failure":
+                bool(
+                    prize.get(
+                        "is_failure",
+                        False
+                    )
                 )
         },
         "balances":
@@ -1886,87 +1881,6 @@ async def cases_open(
             ),
         "warning":
             warning
-    }
-
-
-@app.post("/api/cases/quote")
-async def cases_quote(
-    payload: CaseWinPayload
-):
-    user = validate_init_data(
-        payload.initData
-    )
-
-    save_user(user)
-
-    with db() as conn:
-        row = conn.execute("""
-        SELECT *
-        FROM case_wins
-        WHERE id=?
-        AND user_id=?
-        """, (
-            payload.win_id,
-            user["id"]
-        )).fetchone()
-
-    if not row:
-        raise HTTPException(
-            404,
-            "Выигрыш не найден"
-        )
-
-    if row["status"] != "owned":
-        raise HTTPException(
-            409,
-            "Этот приз уже обработан"
-        )
-
-    fixed_sell_stars = int(
-        row["sell_stars"]
-        or 0
-    )
-
-    if fixed_sell_stars > 0:
-        return {
-            "ok": True,
-            "sell_stars":
-                fixed_sell_stars,
-            "price_source":
-                "fixed"
-        }
-
-    gift_url = (
-        row["prize_gift_url"]
-        or ""
-    )
-
-    if not gift_url:
-        return {
-            "ok": True,
-            "sell_stars": 0,
-            "price_source":
-                "unavailable"
-        }
-
-    market_sell_stars = (
-        await safe_market_price(
-            gift_url
-        )
-    )
-
-    return {
-        "ok": True,
-        "sell_stars":
-            int(
-                market_sell_stars
-                or 0
-            ),
-        "price_source": (
-            "telegram_market_floor"
-            if market_sell_stars > 0
-            else "unavailable"
-        )
     }
 
 
