@@ -193,7 +193,8 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-      cursor:pointer
+      cursor:pointer;
+      overflow:hidden
     }
 
     .slot.disabled{
@@ -218,7 +219,10 @@
 
     .slot strong{
       color:#28db96;
-      font-size:17px
+      font-size:17px;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis
     }
 
     .slot small{
@@ -227,6 +231,15 @@
       font-size:12px;
       line-height:1.35;
       margin-top:8px
+    }
+
+    .slot-image{
+      width:76px;
+      height:76px;
+      object-fit:cover;
+      border-radius:17px;
+      margin-bottom:8px;
+      background:#252b30
     }
 
     .link{
@@ -508,7 +521,14 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:34px
+      font-size:34px;
+      overflow:hidden
+    }
+
+    .emoji img{
+      width:100%;
+      height:100%;
+      object-fit:cover
     }
 
     .item-name{
@@ -525,7 +545,8 @@
     .item-price{
       color:#2dde9c;
       font-size:14px;
-      font-weight:850
+      font-weight:850;
+      white-space:nowrap
     }
 
     .empty{
@@ -781,8 +802,8 @@
       </button>
 
 
-      <div class="note">
-        Процент и результат должны приходить с сервера.
+      <div class="note" id="note">
+        Выберите подарок и цель. Шанс рассчитывается сервером автоматически.
       </div>
 
     </div>
@@ -923,7 +944,9 @@
 
     quote: null,
 
-    spinning: false
+    spinning: false,
+
+    catalogLoading: false
 
   };
 
@@ -1044,11 +1067,59 @@
   }
 
 
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+  function escapeAttr(value) {
+
+    return escapeHtml(value);
+
+  }
+
+
   function normalize(item) {
 
     return {
 
       id:
+        String(
+          item?.source_id ??
+          item?.id ??
+          item?.gift_id ??
+          item?.nft_id ??
+          ""
+        ),
+
+      targetId:
         String(
           item?.id ??
           item?.gift_id ??
@@ -1063,15 +1134,74 @@
           "NFT"
         ),
 
+      image:
+        String(
+          item?.image_url ??
+          item?.gift_image ??
+          item?.image ??
+          ""
+        ),
+
+      giftUrl:
+        String(
+          item?.gift_url ??
+          ""
+        ),
+
       price:
         Number(
-          item?.price_ton ??
-          item?.value_ton ??
-          item?.floor_ton ??
+          item?.price_stars ??
+          item?.market_stars ??
+          item?.sell_stars ??
           0
+        ),
+
+      source:
+        String(
+          item?.source ??
+          ""
         )
 
     };
+
+  }
+
+
+  function formatStars(value) {
+
+    const number =
+      Number(value) || 0;
+
+    return new Intl.NumberFormat(
+      "ru-RU",
+      {
+        maximumFractionDigits: 0
+      }
+    ).format(
+      number
+    ) + " ⭐";
+
+  }
+
+
+  function giftPicture(item) {
+
+    if (
+      item?.image
+    ) {
+
+      return `
+        <img
+          src="${escapeAttr(item.image)}"
+          alt=""
+          loading="lazy"
+          referrerpolicy="no-referrer"
+        >
+      `;
+
+    }
+
+    return "🎁";
 
   }
 
@@ -1096,7 +1226,7 @@
         )
         .textContent =
 
-          data?.balances?.TON ??
+          data?.balances?.XTR ??
           "0";
 
     } catch (_) {}
@@ -1104,7 +1234,7 @@
   }
 
 
-  async function loadData() {
+  async function loadInventory() {
 
     document.getElementById(
       "sourceList"
@@ -1112,50 +1242,64 @@
       '<div class="empty">Загрузка…</div>';
 
 
+    const inv =
+      await api(
+        "/api/upgrade/inventory",
+        {
+          initData:
+            initData()
+        }
+      );
+
+
+    state.inventory =
+      (
+        inv?.items ??
+        inv?.inventory ??
+        []
+      )
+      .map(
+        normalize
+      )
+      .filter(
+        x => x.id
+      );
+
+
+    renderList(
+      "source",
+      state.inventory
+    );
+
+  }
+
+
+  async function loadCatalog(
+    sourceId = ""
+  ) {
+
+    state.catalogLoading =
+      true;
+
+
     document.getElementById(
       "targetList"
     ).innerHTML =
-      '<div class="empty">Загрузка…</div>';
+      '<div class="empty">Загрузка подарков @fart2_backpack…</div>';
 
 
     try {
 
-      const [
-        inv,
-        cat
-      ] =
-        await Promise.all([
+      const cat =
+        await api(
+          "/api/upgrade/catalog",
+          {
+            initData:
+              initData(),
 
-          api(
-            "/api/upgrade/inventory",
-            {
-              initData:
-                initData()
-            }
-          ),
-
-          api(
-            "/api/upgrade/catalog",
-            {
-              initData:
-                initData()
-            }
-          )
-
-        ]);
-
-
-      state.inventory =
-        (
-          inv?.items ??
-          inv?.inventory ??
-          []
-        )
-        .map(
-          normalize
-        )
-        .filter(
-          x => x.id
+            source_id:
+              sourceId || ""
+          }
         );
 
 
@@ -1169,14 +1313,10 @@
           normalize
         )
         .filter(
-          x => x.id
+          x =>
+            x.targetId &&
+            x.price > 0
         );
-
-
-      renderList(
-        "source",
-        state.inventory
-      );
 
 
       renderList(
@@ -1184,20 +1324,83 @@
         state.catalog
       );
 
-    } catch (e) {
 
-      document.getElementById(
-        "sourceList"
-      ).innerHTML =
+      if (
+        cat?.warning
+      ) {
 
-        '<div class="empty">Не удалось загрузить инвентарь.<br>Нужен /api/upgrade/inventory</div>';
+        document.getElementById(
+          "note"
+        ).textContent =
+          cat.warning;
+
+      } else if (
+        state.source
+      ) {
+
+        document.getElementById(
+          "note"
+        ).textContent =
+          "Показаны только цели дороже выбранного подарка.";
+
+      }
+
+    }
+
+    catch (e) {
+
+      state.catalog = [];
 
 
       document.getElementById(
         "targetList"
       ).innerHTML =
 
-        '<div class="empty">Не удалось загрузить каталог.<br>Нужен /api/upgrade/catalog</div>';
+        `<div class="empty">${escapeHtml(e.message)}</div>`;
+
+    }
+
+    finally {
+
+      state.catalogLoading =
+        false;
+
+    }
+
+  }
+
+
+  async function loadData() {
+
+    state.source = null;
+    state.target = null;
+    state.quote = null;
+
+    disableTarget();
+
+    renderSlots();
+
+    updateWheel(
+      0
+    );
+
+
+    try {
+
+      await Promise.all([
+        loadInventory(),
+        loadCatalog("")
+      ]);
+
+    }
+
+    catch (e) {
+
+      document.getElementById(
+        "sourceList"
+      ).innerHTML =
+
+        `<div class="empty">${escapeHtml(e.message)}</div>`;
 
     }
 
@@ -1225,7 +1428,11 @@
     if (!items.length) {
 
       el.innerHTML =
-        '<div class="empty">Список пока пуст.</div>';
+        type === "source"
+
+          ? '<div class="empty">В инвентаре пока нет доступных подарков.</div>'
+
+          : '<div class="empty">Подходящих целей пока нет. Цель должна быть дороже вашего подарка.</div>';
 
       return;
 
@@ -1241,11 +1448,15 @@
               class="item"
               type="button"
               data-type="${type}"
-              data-id="${item.id}"
+              data-id="${escapeAttr(
+                type === "source"
+                  ? item.id
+                  : item.targetId
+              )}"
             >
 
               <div class="emoji">
-                🎁
+                ${giftPicture(item)}
               </div>
 
               <div>
@@ -1270,18 +1481,7 @@
               </div>
 
               <div class="item-price">
-
-                ${
-                  item.price > 0
-
-                    ? formatTon(
-                        item.price
-                      ) +
-                      " TON"
-
-                    : ""
-                }
-
+                ${formatStars(item.price)}
               </div>
 
             </button>
@@ -1307,7 +1507,7 @@
                 "source"
               ) {
 
-                state.source =
+                const selected =
                   state.inventory
                     .find(
                       x =>
@@ -1315,6 +1515,15 @@
                         btn.dataset.id
                     ) ||
                   null;
+
+
+                if (!selected) {
+                  return;
+                }
+
+
+                state.source =
+                  selected;
 
 
                 state.target =
@@ -1330,23 +1539,7 @@
                 );
 
 
-                document
-                  .getElementById(
-                    "targetSlot"
-                  )
-                  .disabled =
-                    false;
-
-
-                document
-                  .getElementById(
-                    "targetSlot"
-                  )
-                  .classList
-                  .remove(
-                    "disabled"
-                  );
-
+                enableTarget();
 
                 renderSlots();
 
@@ -1354,17 +1547,41 @@
                   0
                 );
 
+
+                document.getElementById(
+                  "play"
+                ).disabled =
+                  true;
+
+
+                await loadCatalog(
+                  state.source.id
+                );
+
               }
 
               else {
 
-                state.target =
+                const selected =
                   state.catalog
                     .find(
                       x =>
-                        x.id ===
+                        x.targetId ===
                         btn.dataset.id
                     ) ||
+                  null;
+
+
+                if (!selected) {
+                  return;
+                }
+
+
+                state.target =
+                  selected;
+
+
+                state.quote =
                   null;
 
 
@@ -1389,6 +1606,37 @@
   }
 
 
+  function slotPicture(item) {
+
+    if (
+      item?.image
+    ) {
+
+      return `
+        <img
+          class="slot-image"
+          src="${escapeAttr(item.image)}"
+          alt=""
+          referrerpolicy="no-referrer"
+        >
+      `;
+
+    }
+
+    return `
+      <div
+        style="
+          font-size:58px;
+          margin-bottom:8px
+        "
+      >
+        🎁
+      </div>
+    `;
+
+  }
+
+
   function renderSlots() {
 
     const source =
@@ -1408,14 +1656,7 @@
 
         ? `
 
-          <div
-            style="
-              font-size:58px;
-              margin-bottom:8px
-            "
-          >
-            🎁
-          </div>
+          ${slotPicture(state.source)}
 
           <strong>
             ${escapeHtml(
@@ -1424,18 +1665,9 @@
           </strong>
 
           <small>
-
-            ${
-              state.source.price > 0
-
-                ? formatTon(
-                    state.source.price
-                  ) +
-                  " TON"
-
-                : ""
-            }
-
+            ${formatStars(
+              state.source.price
+            )}
           </small>
 
         `
@@ -1462,14 +1694,7 @@
 
         ? `
 
-          <div
-            style="
-              font-size:58px;
-              margin-bottom:8px
-            "
-          >
-            🎁
-          </div>
+          ${slotPicture(state.target)}
 
           <strong>
             ${escapeHtml(
@@ -1478,18 +1703,9 @@
           </strong>
 
           <small>
-
-            ${
-              state.target.price > 0
-
-                ? formatTon(
-                    state.target.price
-                  ) +
-                  " TON"
-
-                : ""
-            }
-
+            ${formatStars(
+              state.target.price
+            )}
           </small>
 
         `
@@ -1517,7 +1733,7 @@
             ${
               state.source
 
-                ? "Каталог целей"
+                ? "Подарки @fart2_backpack"
 
                 : "Затем выберите цель"
             }
@@ -1525,6 +1741,44 @@
           </small>
 
         `;
+
+  }
+
+
+  function enableTarget() {
+
+    const target =
+      document.getElementById(
+        "targetSlot"
+      );
+
+
+    target.disabled =
+      false;
+
+
+    target.classList.remove(
+      "disabled"
+    );
+
+  }
+
+
+  function disableTarget() {
+
+    const target =
+      document.getElementById(
+        "targetSlot"
+      );
+
+
+    target.disabled =
+      true;
+
+
+    target.classList.add(
+      "disabled"
+    );
 
   }
 
@@ -1555,6 +1809,12 @@
       "Считаем шанс…";
 
 
+    document.getElementById(
+      "note"
+    ).textContent =
+      "Получаем актуальные цены и рассчитываем шанс…";
+
+
     try {
 
       const data =
@@ -1569,7 +1829,7 @@
               state.source.id,
 
             target_id:
-              state.target.id
+              state.target.targetId
 
           }
         );
@@ -1598,10 +1858,24 @@
       ) {
 
         throw new Error(
-          "Некорректный шанс"
+          "Сервер вернул некорректный шанс"
         );
 
       }
+
+
+      state.source.price =
+        Number(
+          data?.source_price_stars ??
+          state.source.price
+        ) || 0;
+
+
+      state.target.price =
+        Number(
+          data?.target_price_stars ??
+          state.target.price
+        ) || 0;
 
 
       state.quote = {
@@ -1617,9 +1891,18 @@
       };
 
 
+      renderSlots();
+
+
       updateWheel(
         chance
       );
+
+
+      document.getElementById(
+        "note"
+      ).textContent =
+        `${formatStars(state.source.price)} → ${formatStars(state.target.price)} · шанс ${formatChance(chance)}`;
 
 
       play.disabled =
@@ -1627,7 +1910,7 @@
 
     }
 
-    catch (_) {
+    catch (e) {
 
       state.quote =
         null;
@@ -1641,6 +1924,18 @@
       play.disabled =
         true;
 
+
+      document.getElementById(
+        "note"
+      ).textContent =
+        e.message;
+
+
+      alert(
+        "Ошибка: " +
+        e.message
+      );
+
     }
 
     finally {
@@ -1649,6 +1944,23 @@
         "⚡ Запустить Upgrade";
 
     }
+
+  }
+
+
+  function formatChance(
+    value
+  ) {
+
+    const n =
+      Number(value) || 0;
+
+
+    return (
+      Number.isInteger(n)
+        ? n.toFixed(0)
+        : n.toFixed(2).replace(/0+$/, "").replace(/\.$/, "")
+    ) + "%";
 
   }
 
@@ -1684,8 +1996,9 @@
         "chance"
       )
       .textContent =
-        chance.toFixed(1) +
-        "%";
+        formatChance(
+          chance
+        );
 
 
     let level =
@@ -1798,11 +2111,10 @@
               state.source.id,
 
             target_id:
-              state.target.id,
+              state.target.targetId,
 
             quote_id:
-              state.quote.id ||
-              undefined
+              state.quote.id
 
           }
         );
@@ -1885,15 +2197,25 @@
         );
 
 
-      alert(
-
+      if (
         won
+      ) {
 
-          ? "🎉 Upgrade успешен"
+        alert(
+          "🎉 Upgrade успешен!\n\n" +
+          (
+            result?.target?.name ||
+            state.target.name
+          )
+        );
 
-          : "💥 Не повезло"
+      } else {
 
-      );
+        alert(
+          "💥 Не повезло. Подарок использован."
+        );
+
+      }
 
 
       state.source =
@@ -1908,22 +2230,7 @@
         null;
 
 
-      document
-        .getElementById(
-          "targetSlot"
-        )
-        .disabled =
-          true;
-
-
-      document
-        .getElementById(
-          "targetSlot"
-        )
-        .classList
-        .add(
-          "disabled"
-        );
+      disableTarget();
 
 
       renderSlots();
@@ -1933,9 +2240,19 @@
       );
 
 
-      await loadData();
+      document.getElementById(
+        "note"
+      ).textContent =
+        won
+          ? "Выигранный подарок добавлен в инвентарь."
+          : "Попробуйте выбрать другой подарок.";
 
-      await loadBalance();
+
+      await Promise.all([
+        loadInventory(),
+        loadCatalog(""),
+        loadBalance()
+      ]);
 
     }
 
@@ -1945,6 +2262,27 @@
         "Ошибка: " +
         e.message
       );
+
+
+      state.quote =
+        null;
+
+
+      updateWheel(
+        0
+      );
+
+
+      document.getElementById(
+        "note"
+      ).textContent =
+        e.message;
+
+
+      await Promise.all([
+        loadInventory(),
+        loadCatalog("")
+      ]);
 
     }
 
@@ -1962,57 +2300,6 @@
         "⚡ Запустить Upgrade";
 
     }
-
-  }
-
-
-  function escapeHtml(value) {
-
-    return String(value)
-
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-
-  }
-
-
-  function formatTon(value) {
-
-    return Number(value)
-
-      .toFixed(4)
-
-      .replace(
-        /0+$/,
-        ""
-      )
-
-      .replace(
-        /\.$/,
-        ""
-      );
 
   }
 
@@ -2042,7 +2329,8 @@
       () => {
 
         if (
-          state.source
+          state.source &&
+          !state.catalogLoading
         ) {
 
           openModal(
@@ -2139,9 +2427,30 @@
       "click",
       async () => {
 
-        await loadBalance();
+        const btn =
+          document.getElementById(
+            "refresh"
+          );
 
-        await loadData();
+
+        btn.disabled =
+          true;
+
+
+        try {
+
+          await loadBalance();
+
+          await loadData();
+
+        }
+
+        finally {
+
+          btn.disabled =
+            false;
+
+        }
 
       }
     );
