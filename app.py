@@ -45,8 +45,6 @@ ADMIN_ID = int(
 )
 WEBAPP_URL = os.getenv("WEBAPP_URL", "").strip()
 
-# Данные Telegram MTProto для чтения официального рынка.
-# Секреты НЕ храним в GitHub-коде — только в переменных окружения.
 TELEGRAM_API_ID = int(
     os.getenv("TELEGRAM_API_ID", "0") or 0
 )
@@ -56,7 +54,6 @@ TELEGRAM_API_HASH = os.getenv(
     ""
 ).strip()
 
-# Добавим на следующем шаге после одноразовой авторизации аккаунта.
 TELEGRAM_SESSION_STRING = os.getenv(
     "TELEGRAM_SESSION_STRING",
     ""
@@ -130,8 +127,6 @@ CASE_CONFIGS = [
     {"id": 4, "name": "Кейс №4", "stars": 250, "ton": "2.50"},
 ]
 
-# Две карточки «Неудача» в каждом кейсе.
-# 25% суммарно = по 12.5% на каждую карточку.
 FAILURE_TOTAL_CHANCE = 25.0
 FAILURE_CARD_COUNT = 2
 REGULAR_NFT_CHANCE = 5.0
@@ -320,6 +315,22 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'pending',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             reviewed_at DATETIME
+        )
+        """)
+
+        # Новая таблица для будущей админ-панели управления NFT в кейсах.
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS case_admin_items(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            case_id INTEGER NOT NULL,
+            gift_url TEXT NOT NULL,
+            gift_name TEXT NOT NULL,
+            gift_image TEXT,
+            chance_percent REAL NOT NULL DEFAULT 5,
+            sell_stars INTEGER NOT NULL DEFAULT 0,
+            withdrawable INTEGER NOT NULL DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(case_id, gift_url)
         )
         """)
 
@@ -1019,7 +1030,6 @@ def build_failure_items(case_id):
 
 
 def build_case_catalog(backpack_items):
-    # Раскладываем NFT из @fart2_backpack по 4 кейсам.
     buckets = [[], [], [], []]
 
     for index, item in enumerate(backpack_items):
@@ -1027,27 +1037,17 @@ def build_case_catalog(backpack_items):
 
     prepared = []
 
-    # Во ВСЕХ кейсах одинаковая базовая математика:
-    # Мишка — 25%
-    # Сердце — 25%
-    # Неудача — 25% суммарно (2 карточки по 12.5%)
-    # Обычные NFT — по 5% каждый, максимум 5 NFT на кейс.
-    # Итого при 5 обычных NFT: 25 + 25 + 25 + 5*5 = 100%.
     for case_id, bucket in enumerate(buckets, start=1):
         items = []
 
-        # Специальные призы добавляются в каждый кейс.
         for special in CASE1_SPECIAL_PRIZES:
             item = dict(special)
             chance = float(item.pop("fixed_chance"))
             item["chance_percent"] = chance
             items.append(item)
 
-        # Две карточки «Неудача» по 12.5% каждая.
         items.extend(build_failure_items(case_id))
 
-        # Только первые 5 обычных NFT в конкретном кейсе,
-        # каждый строго по 5%.
         regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
 
         for regular in regular_items:
@@ -1055,9 +1055,6 @@ def build_case_catalog(backpack_items):
             item["chance_percent"] = REGULAR_NFT_CHANCE
             items.append(item)
 
-        # Если в конкретном кейсе временно меньше 5 обычных NFT,
-        # недостающий процент добавляем к двум специальным призам
-        # поровну, чтобы общая сумма всегда оставалась ровно 100%.
         missing_slots = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
         if missing_slots > 0:
             missing_chance = missing_slots * REGULAR_NFT_CHANCE
@@ -1160,7 +1157,6 @@ async def get_cases_for_user():
     )
 
 
-
 # =========================================================
 # TELEGRAM OFFICIAL MARKET
 # =========================================================
@@ -1227,9 +1223,6 @@ async def get_market_client():
 
 def extract_stars_from_resell_amount(amounts):
     for amount in amounts or []:
-
-        # Telegram StarsAmount for Stars has fields amount + nanos.
-        # TON uses a different constructor without nanos.
         if hasattr(amount, "nanos"):
             whole = int(
                 getattr(
@@ -1249,10 +1242,7 @@ def extract_stars_from_resell_amount(amounts):
                 or 0
             )
 
-            # Internal balance is integer Stars.
-            # Marketplace gift prices are normally integer Stars.
             if nanos != 0:
-                # Round down only if Telegram ever returns fractional Stars.
                 return max(
                     0,
                     whole
@@ -1568,10 +1558,6 @@ async def me(
 
         gifts.append(item)
 
-    # ==========================================
-    # Добавляем выигрыши из кейсов в инвентарь
-    # ==========================================
-
     with db() as conn:
         case_rows = conn.execute("""
         SELECT
@@ -1773,8 +1759,6 @@ async def cases_open(
 
         win_id = None
 
-        # «Неудача» списывает стоимость кейса, но не создаёт
-        # предмет в инвентаре и не даёт продажу/вывод.
         if not prize.get("is_failure"):
             with db() as conn:
                 cursor = conn.execute("""
@@ -1893,7 +1877,6 @@ async def cases_sell(
 
     save_user(user)
 
-    # Read first without locking while market price is fetched.
     with db() as conn:
         row = conn.execute("""
         SELECT *
@@ -1954,7 +1937,6 @@ async def cases_sell(
         else market_sell_stars
     )
 
-    # Re-check ownership atomically immediately before crediting.
     with db() as conn:
         conn.execute(
             "BEGIN IMMEDIATE"
@@ -2215,10 +2197,6 @@ async def upgrade_inventory(
 
     items = []
 
-    # ==========================================
-    # 1. NFT, которые пользователь внёс сам
-    # ==========================================
-
     with db() as conn:
         rows = conn.execute("""
         SELECT
@@ -2272,10 +2250,6 @@ async def upgrade_inventory(
             "price_ton": 0,
             "sell_stars": 0
         })
-
-    # ==========================================
-    # 2. Подарки, выигранные в кейсах
-    # ==========================================
 
     with db() as conn:
         wins = conn.execute("""
