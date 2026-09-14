@@ -6,732 +6,277 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   >
-
   <title>Инвентарь — FART2</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{
+      width:100%;min-height:100%;background:#07090e;color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif
     }
-
-    html,
-    body {
-      width: 100%;
-      min-height: 100%;
-      background: #07090e;
-      color: #fff;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
+    body{
+      padding:calc(16px + env(safe-area-inset-top)) 16px
+              calc(28px + env(safe-area-inset-bottom))
     }
-
-    body {
-      padding:
-        calc(16px + env(safe-area-inset-top))
-        16px
-        calc(28px + env(safe-area-inset-bottom));
+    button{font-family:inherit;touch-action:manipulation}
+    .wrap{width:100%;max-width:720px;margin:0 auto}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:18px
     }
-
-    button {
-      font-family: inherit;
-      touch-action: manipulation;
+    .back{
+      border:1px solid #323846;background:#171c25;color:#fff;border-radius:16px;
+      padding:11px 14px;font-size:16px;font-weight:800;cursor:pointer
     }
-
-    .wrap {
-      width: 100%;
-      max-width: 720px;
-      margin: 0 auto;
+    .brand{
+      font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:20px
     }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
+    .hero{
+      border-radius:30px;padding:25px 22px;
+      background:linear-gradient(135deg,#25c58f,#147561);margin-bottom:18px
     }
-
-    .back {
-      border: 1px solid #323846;
-      background: #171c25;
-      color: #fff;
-      border-radius: 16px;
-      padding: 11px 14px;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
+    .hero-badge{
+      display:inline-block;background:#fff;color:#218069;border-radius:16px;
+      padding:8px 13px;font-size:15px;font-weight:900;margin-bottom:18px
     }
-
-    .brand {
-      font-family: Georgia, "Times New Roman", serif;
-      font-weight: 800;
-      font-size: 20px;
+    .hero-title{font-size:34px;font-weight:950;line-height:1;margin-bottom:10px}
+    .hero-text{
+      font-size:16px;line-height:1.4;font-weight:700;color:rgba(255,255,255,.94)
     }
-
-    .hero {
-      border-radius: 30px;
-      padding: 25px 22px;
-      background:
-        linear-gradient(
-          135deg,
-          #25c58f,
-          #147561
-        );
-      margin-bottom: 18px;
+    .toolbar{
+      display:flex;align-items:center;justify-content:space-between;margin:4px 2px 14px
     }
-
-    .hero-badge {
-      display: inline-block;
-      background: #fff;
-      color: #218069;
-      border-radius: 16px;
-      padding: 8px 13px;
-      font-size: 15px;
-      font-weight: 900;
-      margin-bottom: 18px;
+    .section-title{font-size:22px;font-weight:900}
+    .count{color:#aeb4bf;font-size:14px;font-weight:700}
+    .grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px
     }
-
-    .hero-title {
-      font-size: 34px;
-      font-weight: 950;
-      line-height: 1;
-      margin-bottom: 10px;
+    .gift-card{
+      background:#12161e;border:1px solid #2d3440;border-radius:22px;overflow:hidden
     }
-
-    .hero-text {
-      font-size: 16px;
-      line-height: 1.4;
-      font-weight: 700;
-      color: rgba(255,255,255,.94);
+    .gift-image-wrap{
+      aspect-ratio:1/1;background:linear-gradient(145deg,#171d26,#0d1117);
+      display:flex;align-items:center;justify-content:center;overflow:hidden
     }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 4px 2px 14px;
+    .gift-image{width:100%;height:100%;object-fit:cover;display:block}
+    .placeholder{font-size:54px}
+    .gift-info{padding:13px}
+    .gift-name{
+      font-size:16px;font-weight:900;line-height:1.25;min-height:40px
     }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 900;
+    .gift-status{
+      display:inline-block;margin-top:9px;padding:6px 9px;border-radius:10px;
+      font-size:12px;font-weight:800
     }
-
-    .count {
-      color: #aeb4bf;
-      font-size: 14px;
-      font-weight: 700;
+    .gift-status.deposit{background:rgba(40,219,150,.15);color:#2dde9c}
+    .gift-status.case{background:rgba(121,92,255,.15);color:#a996ff}
+    .price{
+      margin-top:9px;color:#f3c94f;font-size:14px;font-weight:850
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns:
-        repeat(
-          2,
-          minmax(0, 1fr)
-        );
-      gap: 12px;
+    .action-btn{
+      width:100%;border:none;border-radius:14px;padding:12px;margin-top:10px;
+      color:#fff;font-size:14px;font-weight:850;cursor:pointer
     }
-
-    .gift-card {
-      background: #12161e;
-      border: 1px solid #2d3440;
-      border-radius: 22px;
-      overflow: hidden;
+    .withdraw-btn{background:linear-gradient(135deg,#675cff,#a34dff)}
+    .sell-btn{background:linear-gradient(135deg,#f6a400,#ff7a00)}
+    .upgrade-btn{background:linear-gradient(135deg,#13b875,#28dc96)}
+    .action-btn:disabled{opacity:.55;cursor:default}
+    .empty{
+      display:none;background:#12161e;border:1px solid #2d3440;border-radius:24px;
+      padding:28px 20px;text-align:center;color:#aeb4bf
     }
-
-    .gift-image-wrap {
-      aspect-ratio: 1 / 1;
-      background:
-        linear-gradient(
-          145deg,
-          #171d26,
-          #0d1117
-        );
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    .empty.show{display:block}
+    .loading{text-align:center;color:#9da3ad;padding:24px;font-size:15px}
+    .error{
+      display:none;margin-bottom:14px;padding:13px;border-radius:16px;
+      background:#1b1518;border:1px solid rgba(255,92,92,.5);
+      color:#ffb5b5;line-height:1.4
     }
-
-    .gift-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .error.show{display:block}
+    .toast{
+      position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));
+      transform:translateX(-50%);width:max-content;max-width:90%;
+      padding:12px 16px;border-radius:14px;background:#242a34;color:#fff;
+      font-size:13px;font-weight:700;text-align:center;display:none;z-index:99999
     }
-
-    .placeholder {
-      font-size: 54px;
-    }
-
-    .gift-info {
-      padding: 13px;
-    }
-
-    .gift-name {
-      font-size: 16px;
-      font-weight: 900;
-      line-height: 1.25;
-      min-height: 40px;
-    }
-
-    .gift-status {
-      display: inline-block;
-      margin-top: 9px;
-      padding: 6px 9px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .gift-status.deposit {
-      background:
-        rgba(
-          40,
-          219,
-          150,
-          .15
-        );
-      color: #2dde9c;
-    }
-
-    .gift-status.case {
-      background:
-        rgba(
-          121,
-          92,
-          255,
-          .15
-        );
-      color: #a996ff;
-    }
-
-    .price {
-      margin-top: 9px;
-      color: #f3c94f;
-      font-size: 14px;
-      font-weight: 850;
-    }
-
-    .action-btn {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 12px;
-      margin-top: 10px;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 850;
-      cursor: pointer;
-    }
-
-    .withdraw-btn {
-      background:
-        linear-gradient(
-          135deg,
-          #675cff,
-          #a34dff
-        );
-    }
-
-    .sell-btn {
-      background:
-        linear-gradient(
-          135deg,
-          #f6a400,
-          #ff7a00
-        );
-    }
-
-    .upgrade-btn {
-      background:
-        linear-gradient(
-          135deg,
-          #13b875,
-          #28dc96
-        );
-    }
-
-    .action-btn:disabled {
-      opacity: .55;
-      cursor: default;
-    }
-
-    .empty {
-      display: none;
-      background: #12161e;
-      border: 1px solid #2d3440;
-      border-radius: 24px;
-      padding: 28px 20px;
-      text-align: center;
-      color: #aeb4bf;
-    }
-
-    .empty.show {
-      display: block;
-    }
-
-    .loading {
-      text-align: center;
-      color: #9da3ad;
-      padding: 24px;
-      font-size: 15px;
-    }
-
-    .error {
-      display: none;
-      margin-bottom: 14px;
-      padding: 13px;
-      border-radius: 16px;
-      background: #1b1518;
-      border:
-        1px solid
-        rgba(
-          255,
-          92,
-          92,
-          .5
-        );
-      color: #ffb5b5;
-      line-height: 1.4;
-    }
-
-    .error.show {
-      display: block;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom:
-        calc(
-          24px +
-          env(safe-area-inset-bottom)
-        );
-      transform: translateX(-50%);
-      width: max-content;
-      max-width: 90%;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: #242a34;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      text-align: center;
-      display: none;
-      z-index: 99999;
-    }
-
-    .toast.show {
-      display: block;
-    }
-
-    @media (max-width:390px) {
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-    }
+    .toast.show{display:block}
+    @media(max-width:390px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 
 <body>
 
 <div class="wrap">
-
   <div class="topbar">
-
-    <button
-      class="back"
-      type="button"
-      onclick="window.location.href='/'"
-    >
+    <button class="back" type="button" onclick="window.location.href='/'">
       ← Назад
     </button>
-
-    <div class="brand">
-      FART2 NFT BOT
-    </div>
-
+    <div class="brand">FART2 NFT BOT</div>
     <div style="width:76px"></div>
-
   </div>
 
-
   <section class="hero">
-
-    <div class="hero-badge">
-      🎒 NFT
-    </div>
-
-    <div class="hero-title">
-      ИНВЕНТАРЬ
-    </div>
-
+    <div class="hero-badge">🎒 NFT</div>
+    <div class="hero-title">ИНВЕНТАРЬ</div>
     <div class="hero-text">
       Здесь находятся все ваши подтверждённые подарки и NFT.
     </div>
-
   </section>
 
-
-  <div
-    id="errorBox"
-    class="error"
-  ></div>
-
+  <div id="errorBox" class="error"></div>
 
   <div class="toolbar">
-
-    <div class="section-title">
-      Мои подарки
-    </div>
-
-    <div
-      id="count"
-      class="count"
-    >
-      0 шт.
-    </div>
-
+    <div class="section-title">Мои подарки</div>
+    <div id="count" class="count">0 шт.</div>
   </div>
 
-
-  <div
-    id="loading"
-    class="loading"
-  >
-    Загружаем инвентарь…
-  </div>
-
-
-  <div
-    id="grid"
-    class="grid"
-  ></div>
-
-
-  <div
-    id="empty"
-    class="empty"
-  >
-    Инвентарь пуст
-  </div>
-
+  <div id="loading" class="loading">Загружаем инвентарь…</div>
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty">Инвентарь пуст</div>
 </div>
 
-
-<div
-  id="toast"
-  class="toast"
-></div>
-
+<div id="toast" class="toast"></div>
 
 <script>
-
 (() => {
-
-  const tg =
-    window.Telegram?.WebApp ||
-    null;
-
+  const tg = window.Telegram?.WebApp || null;
 
   try {
-
     tg?.ready();
-
     tg?.expand();
-
-    tg?.setHeaderColor(
-      "#07090e"
-    );
-
-    tg?.setBackgroundColor(
-      "#07090e"
-    );
-
+    tg?.setHeaderColor("#07090e");
+    tg?.setBackgroundColor("#07090e");
   } catch (_) {}
 
-
   function getInitData() {
-
     if (!tg?.initData) {
-
-      throw new Error(
-        "Откройте мини-приложение внутри Telegram"
-      );
-
+      throw new Error("Откройте мини-приложение внутри Telegram");
     }
-
     return tg.initData;
-
   }
-
 
   function showError(message) {
-
-    const box =
-      document.getElementById(
-        "errorBox"
-      );
-
-    box.textContent =
-      message;
-
-    box.classList.add(
-      "show"
-    );
-
+    const box = document.getElementById("errorBox");
+    box.textContent = message;
+    box.classList.add("show");
   }
-
 
   function hideError() {
-
-    document
-      .getElementById(
-        "errorBox"
-      )
-      .classList
-      .remove(
-        "show"
-      );
-
+    document.getElementById("errorBox").classList.remove("show");
   }
 
+  function showToast(message, timeout = 3500) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
 
-  function showToast(
-    message,
-    timeout = 3500
-  ) {
+    clearTimeout(window.inventoryToastTimer);
 
-    const toast =
-      document.getElementById(
-        "toast"
-      );
-
-    toast.textContent =
-      message;
-
-    toast.classList.add(
-      "show"
-    );
-
-
-    clearTimeout(
-      window.inventoryToastTimer
-    );
-
-
-    window.inventoryToastTimer =
-      setTimeout(
-        () => {
-
-          toast.classList.remove(
-            "show"
-          );
-
-        },
-        timeout
-      );
-
+    window.inventoryToastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, timeout);
   }
 
-
-  async function post(
-    url,
-    body
-  ) {
-
-    const controller =
-      new AbortController();
-
-
-    const timer =
-      setTimeout(
-        () =>
-          controller.abort(),
-        20000
-      );
-
+  async function post(url, body) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
 
     try {
-
-      const response =
-        await fetch(
-          url,
-          {
-
-            method:
-              "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify(
-                body
-              ),
-
-            signal:
-              controller.signal
-
-          }
-        );
-
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
 
       let data = {};
 
-
       try {
-
-        data =
-          await response.json();
-
+        data = await response.json();
       } catch (_) {}
 
-
       if (!response.ok) {
-
         throw new Error(
-
           data?.detail ||
-
           data?.error ||
-
           data?.message ||
-
           `Ошибка сервера ${response.status}`
-
         );
-
       }
 
-
       return data;
-
+    } finally {
+      clearTimeout(timer);
     }
-
-    finally {
-
-      clearTimeout(
-        timer
-      );
-
-    }
-
   }
-
 
   function escapeHtml(text) {
-
-    return String(
-      text || ""
-    )
-
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-
+    return String(text || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
-
 
   function isCaseGift(gift) {
-
     return (
       gift?.source === "case" ||
-      String(
-        gift?.id || ""
-      ).startsWith(
-        "case:"
-      )
+      String(gift?.id || "").startsWith("case:")
     );
-
   }
 
+  function getDepositId(gift) {
+    if (gift?.deposit_id) {
+      return Number(gift.deposit_id);
+    }
+
+    if (gift?.source === "deposit") {
+      return Number(gift.id || 0);
+    }
+
+    return 0;
+  }
 
   function renderGift(gift) {
+    const caseGift = isCaseGift(gift);
 
-    const caseGift =
-      isCaseGift(
-        gift
-      );
+    const winId = Number(
+      gift.case_win_id || 0
+    );
 
+    const depositId = getDepositId(gift);
 
-    const winId =
-      Number(
-        gift.case_win_id ||
-        0
-      );
+    const sellStars = Number(
+      gift.sell_stars ||
+      gift.market_sell_stars ||
+      0
+    );
 
+    const priceAvailable = Boolean(
+      gift.price_available ||
+      sellStars > 0
+    );
 
-    const sellStars =
-      Number(
-        gift.sell_stars ||
-        gift.market_sell_stars ||
-        0
-      );
-
-
-    const image =
-      gift.gift_image
-
-        ? `
-          <img
-            class="gift-image"
-            src="${escapeHtml(
-              gift.gift_image
-            )}"
-            alt=""
-            referrerpolicy="no-referrer"
-          >
-        `
-
-        : `
-          <div class="placeholder">
-            🎁
-          </div>
-        `;
-
+    const image = gift.gift_image
+      ? `
+        <img
+          class="gift-image"
+          src="${escapeHtml(gift.gift_image)}"
+          alt=""
+          referrerpolicy="no-referrer"
+        >
+      `
+      : `
+        <div class="placeholder">
+          🎁
+        </div>
+      `;
 
     let actions = "";
 
-
-    if (caseGift) {
-
+    if (caseGift && winId > 0) {
       actions += `
-
         <button
           class="action-btn withdraw-btn"
           type="button"
@@ -739,48 +284,52 @@
         >
           Вывести
         </button>
-
       `;
+    }
 
+    if (priceAvailable && sellStars > 0) {
 
-      if (
-        sellStars > 0
-      ) {
-
+      if (caseGift && winId > 0) {
         actions += `
-
           <button
             class="action-btn sell-btn"
             type="button"
-            data-sell-id="${winId}"
+            data-case-sell-id="${winId}"
             data-sell-price="${sellStars}"
           >
             ⭐ Продать за ${sellStars} Stars
           </button>
-
         `;
+      }
 
-      } else {
-
+      else if (depositId > 0) {
         actions += `
-
           <button
             class="action-btn sell-btn"
             type="button"
-            disabled
+            data-deposit-sell-id="${depositId}"
+            data-sell-price="${sellStars}"
           >
-            Цена рынка недоступна
+            ⭐ Продать за ${sellStars} Stars
           </button>
-
         `;
-
       }
+
+    } else {
+
+      actions += `
+        <button
+          class="action-btn sell-btn"
+          type="button"
+          disabled
+        >
+          Цена в Stars сейчас недоступна
+        </button>
+      `;
 
     }
 
-
     actions += `
-
       <button
         class="action-btn upgrade-btn"
         type="button"
@@ -788,39 +337,30 @@
       >
         ⚡ Использовать в Upgrade
       </button>
-
     `;
 
+    const cardId = caseGift
+      ? `case-${winId}`
+      : `deposit-${depositId}`;
 
     return `
-
       <div
         class="gift-card"
-        data-card-id="${
-          caseGift
-            ? "case-" + winId
-            : "deposit-" + escapeHtml(
-                gift.id
-              )
-        }"
+        data-card-id="${cardId}"
       >
 
         <div class="gift-image-wrap">
           ${image}
         </div>
 
-
         <div class="gift-info">
 
           <div class="gift-name">
-
             ${escapeHtml(
               gift.gift_name ||
               "Telegram Gift"
             )}
-
           </div>
-
 
           <div
             class="gift-status ${
@@ -829,15 +369,12 @@
                 : "deposit"
             }"
           >
-
             ${
               caseGift
                 ? "🎁 Выиграно"
                 : "✅ Подтверждено"
             }
-
           </div>
-
 
           ${
             sellStars > 0
@@ -849,267 +386,294 @@
               : ""
           }
 
-
           ${actions}
 
         </div>
 
       </div>
-
     `;
-
   }
 
-
   function bindUpgradeButtons() {
-
     document
       .querySelectorAll(
         "[data-upgrade]"
       )
-      .forEach(
-        button => {
+      .forEach(button => {
 
-          button.addEventListener(
-            "click",
-            () => {
+        button.addEventListener(
+          "click",
+          () => {
+            window.location.href =
+              "/upgrade";
+          }
+        );
 
-              window.location.href =
-                "/upgrade";
-
-            }
-          );
-
-        }
-      );
-
+      });
   }
 
-
   function bindWithdrawButtons() {
-
     document
       .querySelectorAll(
         "[data-withdraw-id]"
       )
-      .forEach(
-        button => {
+      .forEach(button => {
 
-          button.addEventListener(
-            "click",
-            async () => {
+        button.addEventListener(
+          "click",
+          async () => {
 
-              const winId =
-                Number(
-                  button.dataset
-                    .withdrawId ||
-                  0
-                );
+            const winId = Number(
+              button.dataset.withdrawId ||
+              0
+            );
 
+            if (!winId) {
+              return;
+            }
 
-              if (!winId) {
-                return;
-              }
+            button.disabled = true;
 
+            const old =
+              button.textContent;
 
-              button.disabled =
-                true;
+            button.textContent =
+              "Отправляем…";
 
+            try {
 
-              const old =
-                button.textContent;
+              await post(
+                "/api/cases/withdraw",
+                {
+                  initData:
+                    getInitData(),
 
+                  win_id:
+                    winId
+                }
+              );
+
+              showToast(
+                "Заявка на вывод отправлена"
+              );
+
+              document
+                .querySelector(
+                  `[data-card-id="case-${winId}"]`
+                )
+                ?.remove();
+
+              updateCount();
+
+            } catch (error) {
+
+              button.disabled = false;
 
               button.textContent =
-                "Отправляем…";
+                old;
 
-
-              try {
-
-                await post(
-                  "/api/cases/withdraw",
-                  {
-
-                    initData:
-                      getInitData(),
-
-                    win_id:
-                      winId
-
-                  }
-                );
-
-
-                showToast(
-                  "Заявка на вывод отправлена"
-                );
-
-
-                document
-                  .querySelector(
-                    `[data-card-id="case-${winId}"]`
-                  )
-                  ?.remove();
-
-
-                updateCount();
-
-              }
-
-              catch (error) {
-
-                button.disabled =
-                  false;
-
-
-                button.textContent =
-                  old;
-
-
-                showError(
-                  "Ошибка вывода: " +
-                  error.message
-                );
-
-              }
+              showError(
+                "Ошибка вывода: " +
+                error.message
+              );
 
             }
-          );
 
-        }
-      );
+          }
+        );
 
+      });
   }
 
-
-  function bindSellButtons() {
-
+  function bindCaseSellButtons() {
     document
       .querySelectorAll(
-        "[data-sell-id]"
+        "[data-case-sell-id]"
       )
-      .forEach(
-        button => {
+      .forEach(button => {
 
-          button.addEventListener(
-            "click",
-            async () => {
+        button.addEventListener(
+          "click",
+          async () => {
 
-              const winId =
-                Number(
-                  button.dataset
-                    .sellId ||
-                  0
-                );
+            const winId = Number(
+              button.dataset.caseSellId ||
+              0
+            );
 
+            const shownPrice = Number(
+              button.dataset.sellPrice ||
+              0
+            );
 
-              const shownPrice =
-                Number(
-                  button.dataset
-                    .sellPrice ||
-                  0
-                );
+            if (
+              !winId ||
+              shownPrice <= 0
+            ) {
+              return;
+            }
 
+            const ok = window.confirm(
+              `Продать подарок за ${shownPrice} Stars?`
+            );
 
-              if (
-                !winId ||
-                shownPrice <= 0
-              ) {
+            if (!ok) {
+              return;
+            }
 
-                return;
+            button.disabled = true;
 
-              }
+            const old =
+              button.textContent;
 
+            button.textContent =
+              "Продаём…";
 
-              const ok =
-                window.confirm(
-                  `Продать подарок за ${shownPrice} Stars?`
-                );
+            try {
 
+              const data = await post(
+                "/api/cases/sell",
+                {
+                  initData:
+                    getInitData(),
 
-              if (!ok) {
-                return;
-              }
+                  win_id:
+                    winId
+                }
+              );
 
+              showToast(
+                `⭐ Продано за ${
+                  Number(
+                    data.credited_stars ||
+                    0
+                  )
+                } Stars`
+              );
 
-              button.disabled =
-                true;
+              document
+                .querySelector(
+                  `[data-card-id="case-${winId}"]`
+                )
+                ?.remove();
 
+              updateCount();
 
-              const old =
-                button.textContent;
+            } catch (error) {
 
+              button.disabled = false;
 
               button.textContent =
-                "Продаём…";
+                old;
 
-
-              try {
-
-                const data =
-                  await post(
-                    "/api/cases/sell",
-                    {
-
-                      initData:
-                        getInitData(),
-
-                      win_id:
-                        winId
-
-                    }
-                  );
-
-
-                showToast(
-                  `⭐ Продано за ${
-                    Number(
-                      data.credited_stars ||
-                      0
-                    )
-                  } Stars`
-                );
-
-
-                document
-                  .querySelector(
-                    `[data-card-id="case-${winId}"]`
-                  )
-                  ?.remove();
-
-
-                updateCount();
-
-              }
-
-              catch (error) {
-
-                button.disabled =
-                  false;
-
-
-                button.textContent =
-                  old;
-
-
-                showError(
-                  "Ошибка продажи: " +
-                  error.message
-                );
-
-              }
+              showError(
+                "Ошибка продажи: " +
+                error.message
+              );
 
             }
-          );
 
-        }
-      );
+          }
+        );
 
+      });
   }
 
+  function bindDepositSellButtons() {
+    document
+      .querySelectorAll(
+        "[data-deposit-sell-id]"
+      )
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          async () => {
+
+            const depositId = Number(
+              button.dataset.depositSellId ||
+              0
+            );
+
+            const shownPrice = Number(
+              button.dataset.sellPrice ||
+              0
+            );
+
+            if (
+              !depositId ||
+              shownPrice <= 0
+            ) {
+              return;
+            }
+
+            const ok = window.confirm(
+              `Продать подарок за ${shownPrice} Stars?`
+            );
+
+            if (!ok) {
+              return;
+            }
+
+            button.disabled = true;
+
+            const old =
+              button.textContent;
+
+            button.textContent =
+              "Продаём…";
+
+            try {
+
+              const data = await post(
+                "/api/deposits/sell",
+                {
+                  initData:
+                    getInitData(),
+
+                  deposit_id:
+                    depositId
+                }
+              );
+
+              showToast(
+                `⭐ Продано за ${
+                  Number(
+                    data.credited_stars ||
+                    0
+                  )
+                } Stars`
+              );
+
+              document
+                .querySelector(
+                  `[data-card-id="deposit-${depositId}"]`
+                )
+                ?.remove();
+
+              updateCount();
+
+            } catch (error) {
+
+              button.disabled = false;
+
+              button.textContent =
+                old;
+
+              showError(
+                "Ошибка продажи: " +
+                error.message
+              );
+
+            }
+
+          }
+        );
+
+      });
+  }
 
   function updateCount() {
-
     const cards =
       document
         .querySelectorAll(
@@ -1117,14 +681,12 @@
         )
         .length;
 
-
     document
       .getElementById(
         "count"
       )
       .textContent =
         `${cards} шт.`;
-
 
     document
       .getElementById(
@@ -1135,48 +697,33 @@
         "show",
         cards === 0
       );
-
   }
 
-
   async function loadInventory() {
-
     const loading =
       document.getElementById(
         "loading"
       );
-
 
     const grid =
       document.getElementById(
         "grid"
       );
 
-
     loading.style.display =
       "block";
-
 
     try {
 
       hideError();
 
-
-      const data =
-        await post(
-          "/api/me",
-          {
-            initData:
-              getInitData()
-          }
-        );
-
-
-      /*
-        ВАЖНО:
-        теперь показываем ВСЕ подтверждённые подарки,
-        а не только case:
-      */
+      const data = await post(
+        "/api/me",
+        {
+          initData:
+            getInitData()
+        }
+      );
 
       const gifts =
         (
@@ -1194,30 +741,24 @@
             ) === 0
         );
 
-
       grid.innerHTML =
         gifts
-          .map(
-            renderGift
-          )
+          .map(renderGift)
           .join("");
-
 
       updateCount();
 
-
       bindWithdrawButtons();
 
-      bindSellButtons();
+      bindCaseSellButtons();
+
+      bindDepositSellButtons();
 
       bindUpgradeButtons();
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
       showError(
-
         error.name ===
         "AbortError"
 
@@ -1225,25 +766,19 @@
 
           : "Ошибка: " +
             error.message
-
       );
 
-    }
-
-    finally {
+    } finally {
 
       loading.style.display =
         "none";
 
     }
-
   }
-
 
   loadInventory();
 
 })();
-
 </script>
 
 </body>
