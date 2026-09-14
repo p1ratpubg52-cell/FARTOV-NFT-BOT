@@ -19,6 +19,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    CallbackQuery,
     LabeledPrice,
     Message,
     PreCheckoutQuery,
@@ -4155,6 +4156,68 @@ async def create_deposit(
             "Этот подарок уже зарегистрирован"
         )
 
+    # =====================================================
+    # ADMIN NOTIFICATION
+    # =====================================================
+
+    if ADMIN_ID:
+        try:
+            username = (
+                user.get("username")
+                or ""
+            )
+
+            user_text = (
+                f"@{username}"
+                if username
+                else str(
+                    user["id"]
+                )
+            )
+
+            gift_name = (
+                meta.get("name")
+                or "Telegram Gift"
+            )
+
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="✅ Подтвердить",
+                            callback_data=
+                                f"deposit_approve:{deposit_id}"
+                        ),
+                        InlineKeyboardButton(
+                            text="❌ Отклонить",
+                            callback_data=
+                                f"deposit_reject:{deposit_id}"
+                        )
+                    ]
+                ]
+            )
+
+            await bot.send_message(
+                ADMIN_ID,
+                (
+                    "🎁 <b>НОВАЯ ЗАЯВКА НА ПРОВЕРКУ</b>\n\n"
+                    f"<b>Заявка:</b> #{deposit_id}\n"
+                    f"<b>Пользователь:</b> {html.escape(user_text)}\n"
+                    f"<b>Telegram ID:</b> <code>{user['id']}</code>\n"
+                    f"<b>Подарок:</b> {html.escape(gift_name)}\n"
+                    f"<b>NFT:</b> {html.escape(gift_url)}\n\n"
+                    "⏳ <b>Статус:</b> ожидает проверки."
+                ),
+                parse_mode="HTML",
+                reply_markup=keyboard
+            )
+
+        except Exception as error:
+            print(
+                "ADMIN DEPOSIT NOTIFICATION ERROR:",
+                repr(error)
+            )
+
     return {
         "ok": True,
         "deposit_id":
@@ -4279,6 +4342,280 @@ async def successful_payment(
 
     await message.answer(
         f"⭐ Баланс пополнен на {amount} Stars"
+    )
+
+
+
+# =========================================================
+# DEPOSIT ADMIN CALLBACKS
+# =========================================================
+
+@router.callback_query(
+    F.data.startswith("deposit_approve:")
+)
+async def approve_deposit_callback(
+    query: CallbackQuery
+):
+    if not query.from_user:
+        return
+
+    if int(query.from_user.id) != int(ADMIN_ID):
+        await query.answer(
+            "Нет доступа",
+            show_alert=True
+        )
+        return
+
+    try:
+        deposit_id = int(
+            query.data.split(
+                ":",
+                1
+            )[1]
+        )
+    except Exception:
+        await query.answer(
+            "Неверная заявка",
+            show_alert=True
+        )
+        return
+
+    with db() as conn:
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
+
+        row = conn.execute("""
+        SELECT
+            d.*,
+            u.username,
+            u.first_name
+        FROM deposits d
+        LEFT JOIN users u
+            ON u.user_id=d.user_id
+        WHERE d.id=?
+        """, (
+            deposit_id,
+        )).fetchone()
+
+        if not row:
+            conn.rollback()
+
+            await query.answer(
+                "Заявка не найдена",
+                show_alert=True
+            )
+            return
+
+        if row["status"] != "pending":
+            conn.rollback()
+
+            await query.answer(
+                "Заявка уже обработана",
+                show_alert=True
+            )
+            return
+
+        conn.execute("""
+        UPDATE deposits
+        SET
+            status='approved',
+            hidden=0,
+            reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        """, (
+            deposit_id,
+        ))
+
+        conn.commit()
+
+    try:
+        await bot.send_message(
+            int(row["user_id"]),
+            (
+                "✅ <b>Подарок подтверждён!</b>\n\n"
+                f"{html.escape(row['gift_name'] or 'Telegram Gift')}\n"
+                "Подарок появился в вашем инвентаре."
+            ),
+            parse_mode="HTML"
+        )
+
+    except Exception as error:
+        print(
+            "USER APPROVE NOTIFICATION ERROR:",
+            repr(error)
+        )
+
+    if query.message:
+        try:
+            username = (
+                row["username"]
+                or ""
+            )
+
+            user_text = (
+                f"@{username}"
+                if username
+                else str(
+                    row["user_id"]
+                )
+            )
+
+            await query.message.edit_text(
+                (
+                    "🎁 <b>ЗАЯВКА НА ПРОВЕРКУ</b>\n\n"
+                    f"<b>Заявка:</b> #{deposit_id}\n"
+                    f"<b>Пользователь:</b> {html.escape(user_text)}\n"
+                    f"<b>Telegram ID:</b> <code>{row['user_id']}</code>\n"
+                    f"<b>Подарок:</b> {html.escape(row['gift_name'] or 'Telegram Gift')}\n"
+                    f"<b>NFT:</b> {html.escape(row['gift_url'])}\n\n"
+                    "✅ <b>Статус: подтверждено</b>"
+                ),
+                parse_mode="HTML"
+            )
+
+        except Exception as error:
+            print(
+                "ADMIN APPROVE MESSAGE EDIT ERROR:",
+                repr(error)
+            )
+
+    await query.answer(
+        "Подарок подтверждён"
+    )
+
+
+@router.callback_query(
+    F.data.startswith("deposit_reject:")
+)
+async def reject_deposit_callback(
+    query: CallbackQuery
+):
+    if not query.from_user:
+        return
+
+    if int(query.from_user.id) != int(ADMIN_ID):
+        await query.answer(
+            "Нет доступа",
+            show_alert=True
+        )
+        return
+
+    try:
+        deposit_id = int(
+            query.data.split(
+                ":",
+                1
+            )[1]
+        )
+    except Exception:
+        await query.answer(
+            "Неверная заявка",
+            show_alert=True
+        )
+        return
+
+    with db() as conn:
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
+
+        row = conn.execute("""
+        SELECT
+            d.*,
+            u.username,
+            u.first_name
+        FROM deposits d
+        LEFT JOIN users u
+            ON u.user_id=d.user_id
+        WHERE d.id=?
+        """, (
+            deposit_id,
+        )).fetchone()
+
+        if not row:
+            conn.rollback()
+
+            await query.answer(
+                "Заявка не найдена",
+                show_alert=True
+            )
+            return
+
+        if row["status"] != "pending":
+            conn.rollback()
+
+            await query.answer(
+                "Заявка уже обработана",
+                show_alert=True
+            )
+            return
+
+        conn.execute("""
+        UPDATE deposits
+        SET
+            status='rejected',
+            hidden=1,
+            reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        """, (
+            deposit_id,
+        ))
+
+        conn.commit()
+
+    try:
+        await bot.send_message(
+            int(row["user_id"]),
+            (
+                "❌ <b>Заявка на подарок отклонена.</b>\n\n"
+                f"{html.escape(row['gift_name'] or 'Telegram Gift')}"
+            ),
+            parse_mode="HTML"
+        )
+
+    except Exception as error:
+        print(
+            "USER REJECT NOTIFICATION ERROR:",
+            repr(error)
+        )
+
+    if query.message:
+        try:
+            username = (
+                row["username"]
+                or ""
+            )
+
+            user_text = (
+                f"@{username}"
+                if username
+                else str(
+                    row["user_id"]
+                )
+            )
+
+            await query.message.edit_text(
+                (
+                    "🎁 <b>ЗАЯВКА НА ПРОВЕРКУ</b>\n\n"
+                    f"<b>Заявка:</b> #{deposit_id}\n"
+                    f"<b>Пользователь:</b> {html.escape(user_text)}\n"
+                    f"<b>Telegram ID:</b> <code>{row['user_id']}</code>\n"
+                    f"<b>Подарок:</b> {html.escape(row['gift_name'] or 'Telegram Gift')}\n"
+                    f"<b>NFT:</b> {html.escape(row['gift_url'])}\n\n"
+                    "❌ <b>Статус: отклонено</b>"
+                ),
+                parse_mode="HTML"
+            )
+
+        except Exception as error:
+            print(
+                "ADMIN REJECT MESSAGE EDIT ERROR:",
+                repr(error)
+            )
+
+    await query.answer(
+        "Заявка отклонена"
     )
 
 
