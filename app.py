@@ -334,6 +334,30 @@ def init_db():
         )
         """)
 
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS case_settings(
+            case_id INTEGER PRIMARY KEY,
+            admin_managed INTEGER NOT NULL DEFAULT 0
+        )
+        """)
+
+        for case_cfg in CASE_CONFIGS:
+            conn.execute(
+                "INSERT OR IGNORE INTO case_settings(case_id, admin_managed) VALUES(?,0)",
+                (int(case_cfg["id"]),)
+            )
+
+        # Если NFT уже были добавлены через админку раньше,
+        # автоматически включаем ручное управление для этих кейсов.
+        conn.execute("""
+        UPDATE case_settings
+        SET admin_managed=1
+        WHERE case_id IN (
+            SELECT DISTINCT case_id
+            FROM case_admin_items
+        )
+        """)
+
         conn.commit()
 
 
@@ -1042,38 +1066,109 @@ def build_failure_items(case_id):
     return failures
 
 
+def load_case_admin_state():
+    settings = {
+        int(config["id"]): False
+        for config in CASE_CONFIGS
+    }
+
+    items = {
+        int(config["id"]): []
+        for config in CASE_CONFIGS
+    }
+
+    with db() as conn:
+        setting_rows = conn.execute("""
+        SELECT case_id, admin_managed
+        FROM case_settings
+        """).fetchall()
+
+        for row in setting_rows:
+            case_id = int(row["case_id"])
+            if case_id in settings:
+                settings[case_id] = bool(row["admin_managed"])
+
+        rows = conn.execute("""
+        SELECT
+            id,
+            case_id,
+            gift_url,
+            gift_name,
+            gift_image,
+            chance_percent,
+            sell_stars,
+            withdrawable
+        FROM case_admin_items
+        ORDER BY case_id, id
+        """).fetchall()
+
+    for row in rows:
+        case_id = int(row["case_id"])
+        if case_id not in items:
+            continue
+
+        items[case_id].append({
+            "id": f"admin:{row['id']}",
+            "admin_item_id": int(row["id"]),
+            "name": row["gift_name"] or "Telegram Gift",
+            "image_url": row["gift_image"] or "",
+            "gift_url": row["gift_url"] or "",
+            "sell_stars": int(row["sell_stars"] or 0),
+            "withdrawable": bool(row["withdrawable"]),
+            "special": False,
+            "chance_percent": float(row["chance_percent"] or 0),
+        })
+
+    return settings, items
+
+
 def build_case_catalog(backpack_items):
-    # Пока сохраняем существующую рабочую механику кейсов без изменений.
-    # Подключение case_admin_items к розыгрышу сделаем после готовности панели.
+    # Неуправляемые кейсы продолжают работать по старой автоматической схеме.
     buckets = [[], [], [], []]
 
     for index, item in enumerate(backpack_items):
         buckets[index % 4].append(dict(item))
 
+    admin_managed, admin_items = load_case_admin_state()
     prepared = []
 
     for case_id, bucket in enumerate(buckets, start=1):
         items = []
 
+        # Базовые специальные призы: Мишка и Сердце по 25%.
         for special in CASE1_SPECIAL_PRIZES:
             item = dict(special)
             chance = float(item.pop("fixed_chance"))
             item["chance_percent"] = chance
             items.append(item)
 
+        # Неудача — суммарно 25%.
         items.extend(build_failure_items(case_id))
 
-        regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
+        if admin_managed.get(case_id, False):
+            # Для кейса, включенного в админ-режим, обычные NFT берем ТОЛЬКО из админки.
+            regular_items = admin_items.get(case_id, [])
 
-        for regular in regular_items:
-            item = dict(regular)
-            item["chance_percent"] = REGULAR_NFT_CHANCE
-            items.append(item)
+            regular_total = round(
+                sum(
+                    max(0.0, float(item.get("chance_percent", 0)))
+                    for item in regular_items
+                ),
+                4
+            )
 
-        missing_slots = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
-        if missing_slots > 0:
-            missing_chance = missing_slots * REGULAR_NFT_CHANCE
-            bonus_each = missing_chance / 2.0
+            if regular_total > 25.0001:
+                raise HTTPException(
+                    500,
+                    f"В кейсе №{case_id} сумма шансов NFT больше 25%"
+                )
+
+            for regular in regular_items:
+                items.append(dict(regular))
+
+            # Оставшийся процент из пула 25% делим между Мишкой и Сердцем.
+            remaining = max(0.0, round(25.0 - regular_total, 4))
+            bonus_each = remaining / 2.0
 
             for item in items:
                 if item.get("special"):
@@ -1081,6 +1176,27 @@ def build_case_catalog(backpack_items):
                         float(item["chance_percent"]) + bonus_each,
                         4,
                     )
+
+        else:
+            # Старое поведение для кейсов, которыми админка еще не управляет.
+            regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
+
+            for regular in regular_items:
+                item = dict(regular)
+                item["chance_percent"] = REGULAR_NFT_CHANCE
+                items.append(item)
+
+            missing_slots = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
+            if missing_slots > 0:
+                missing_chance = missing_slots * REGULAR_NFT_CHANCE
+                bonus_each = missing_chance / 2.0
+
+                for item in items:
+                    if item.get("special"):
+                        item["chance_percent"] = round(
+                            float(item["chance_percent"]) + bonus_each,
+                            4,
+                        )
 
         prepared.append(items)
 
@@ -1128,22 +1244,32 @@ def choose_prize(items):
             )
         )
 
-        weight = max(
-            1,
-            int(
-                (
-                    chance
-                    * Decimal("10000")
-                ).quantize(
-                    Decimal("1"),
-                    rounding=ROUND_DOWN
-                )
+        # 0% действительно означает 0%.
+        if chance <= 0:
+            continue
+
+        weight = int(
+            (
+                chance
+                * Decimal("10000")
+            ).quantize(
+                Decimal("1"),
+                rounding=ROUND_DOWN
             )
         )
+
+        if weight <= 0:
+            continue
 
         total += weight
         weighted.append(
             (item, weight)
+        )
+
+    if not weighted or total <= 0:
+        raise HTTPException(
+            409,
+            "Для этого кейса не настроены вероятности"
         )
 
     roll = secrets.randbelow(
@@ -1839,6 +1965,16 @@ async def admin_case_add(
             ))
 
             item_id = cursor.lastrowid
+
+            conn.execute("""
+            INSERT INTO case_settings(case_id, admin_managed)
+            VALUES(?,1)
+            ON CONFLICT(case_id)
+            DO UPDATE SET admin_managed=1
+            """, (
+                case_id,
+            ))
+
             conn.commit()
 
     except sqlite3.IntegrityError:
