@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+
+  <title>Админ — FART2 NFT BOT</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:#07090e;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    }
+
+    body{
+      padding:
+        calc(16px + env(safe-area-inset-top))
+        16px
+        calc(28px + env(safe-area-inset-bottom));
+    }
+
+    button,input{
+      font:inherit;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:760px;
+      margin:0 auto;
+    }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .title{
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .subtitle{
+      margin-top:5px;
+      font-size:13px;
+      color:#8f96a8;
+    }
+
+    .back{
+      border:1px solid #262b38;
+      background:#11151e;
+      color:#fff;
+      border-radius:12px;
+      padding:10px 13px;
+      font-weight:700;
+    }
+
+    .card{
+      background:#10141d;
+      border:1px solid #1f2532;
+      border-radius:18px;
+      padding:16px;
+      margin-bottom:14px;
+    }
+
+    .case-tabs{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+
+    .case-tab{
+      border:1px solid #252c3a;
+      background:#151a24;
+      color:#aeb5c5;
+      min-height:46px;
+      border-radius:13px;
+      font-weight:800;
+    }
+
+    .case-tab.active{
+      color:#fff;
+      border-color:#7b57ff;
+      background:linear-gradient(135deg,#6e49ff,#944cff);
+    }
+
+    .section-title{
+      font-size:16px;
+      font-weight:800;
+      margin-bottom:12px;
+    }
+
+    .field{
+      margin-bottom:12px;
+    }
+
+    .label{
+      display:block;
+      color:#949cad;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:7px;
+    }
+
+    .input{
+      width:100%;
+      border:1px solid #2a3140;
+      background:#0b0f16;
+      color:#fff;
+      border-radius:13px;
+      padding:13px 14px;
+      outline:none;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 140px;
+      gap:10px;
+    }
+
+    .btn{
+      width:100%;
+      border:0;
+      border-radius:14px;
+      padding:13px 15px;
+      font-weight:800;
+    }
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,#6d49ff,#9b4dff);
+    }
+
+    .btn-secondary{
+      color:#fff;
+      background:#171c27;
+      border:1px solid #2b3241;
+    }
+
+    .btn-danger{
+      color:#ff9ca8;
+      background:#241318;
+      border:1px solid #4d202a;
+    }
+
+    .summary{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      font-size:13px;
+    }
+
+    .summary strong{
+      font-size:15px;
+    }
+
+    .ok{
+      color:#70e19b;
+    }
+
+    .warn{
+      color:#ffcb6b;
+    }
+
+    .items{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .empty{
+      color:#8f96a8;
+      font-size:14px;
+      text-align:center;
+      padding:20px 8px 8px;
+    }
+
+    .item{
+      display:grid;
+      grid-template-columns:58px 1fr;
+      gap:12px;
+      background:#0b0f16;
+      border:1px solid #202634;
+      border-radius:15px;
+      padding:10px;
+    }
+
+    .thumb{
+      width:58px;
+      height:58px;
+      border-radius:12px;
+      overflow:hidden;
+      background:#161b25;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#6f778a;
+      font-size:11px;
+    }
+
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .name{
+      font-weight:800;
+      font-size:14px;
+      margin-bottom:3px;
+      word-break:break-word;
+    }
+
+    .url{
+      color:#777f91;
+      font-size:11px;
+      word-break:break-all;
+      margin-bottom:10px;
+    }
+
+    .item-actions{
+      display:grid;
+      grid-template-columns:110px 1fr 1fr;
+      gap:8px;
+    }
+
+    .chance-input{
+      width:100%;
+      border:1px solid #2b3241;
+      background:#121722;
+      color:#fff;
+      border-radius:10px;
+      padding:10px;
+    }
+
+    .small{
+      padding:10px;
+      border-radius:10px;
+      font-size:12px;
+    }
+
+    .message{
+      display:none;
+      margin-bottom:12px;
+      border-radius:13px;
+      padding:12px 13px;
+      font-size:13px;
+    }
+
+    .message.show{
+      display:block;
+    }
+
+    .message.error{
+      background:#29151a;
+      border:1px solid #57242d;
+      color:#ff9ca8;
+    }
+
+    .message.success{
+      background:#10251a;
+      border:1px solid #235b3a;
+      color:#7ee3a3;
+    }
+
+    .loading{
+      opacity:.65;
+      pointer-events:none;
+    }
+
+    @media(max-width:560px){
+      .row{
+        grid-template-columns:1fr;
+      }
+
+      .case-tabs{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .item-actions{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .chance-input{
+        grid-column:1 / -1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <div class="title">Админ-панель</div>
+      <div class="subtitle">Управление NFT в кейсах</div>
+    </div>
+
+    <button class="back" id="backBtn">
+      ← Назад
+    </button>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <div id="content">
+
+    <div class="card">
+      <div class="section-title">Выбери кейс</div>
+
+      <div class="case-tabs">
+        <button class="case-tab active" data-case="1">Кейс №1</button>
+        <button class="case-tab" data-case="2">Кейс №2</button>
+        <button class="case-tab" data-case="3">Кейс №3</button>
+        <button class="case-tab" data-case="4">Кейс №4</button>
+      </div>
+    </div>
+
+    <div class="card">
+
+      <div class="section-title">
+        Добавить NFT
+      </div>
+
+      <div class="field">
+        <label class="label">
+          Ссылка Telegram NFT
+        </label>
+
+        <input
+          class="input"
+          id="giftUrl"
+          type="url"
+          placeholder="https://t.me/nft/..."
+        >
+      </div>
+
+      <div class="row">
+
+        <div class="field">
+          <label class="label">
+            Шанс выпадения, %
+          </label>
+
+          <input
+            class="input"
+            id="chance"
+            type="number"
+            min="0.0001"
+            max="25"
+            step="0.1"
+            placeholder="5"
+          >
+        </div>
+
+        <div
+          class="field"
+          style="display:flex;align-items:flex-end;"
+        >
+          <button
+            class="btn btn-primary"
+            id="addBtn"
+          >
+            Добавить
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="summary">
+        <span>Настроено</span>
+        <strong id="totalText">
+          0% / 25%
+        </strong>
+      </div>
+
+      <div class="summary">
+        <span>Свободно</span>
+        <strong
+          class="ok"
+          id="remainingText"
+        >
+          25%
+        </strong>
+      </div>
+
+      <div
+        class="items"
+        id="items"
+      ></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const tg = window.Telegram?.WebApp;
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+const initData = tg?.initData || "";
+
+let selectedCase = 1;
+
+let dataByCase = {
+  "1": [],
+  "2": [],
+  "3": [],
+  "4": []
+};
+
+const content =
+  document.getElementById("content");
+
+const message =
+  document.getElementById("message");
+
+const itemsBox =
+  document.getElementById("items");
+
+const totalText =
+  document.getElementById("totalText");
+
+const remainingText =
+  document.getElementById("remainingText");
+
+const giftUrl =
+  document.getElementById("giftUrl");
+
+const chance =
+  document.getElementById("chance");
+
+const addBtn =
+  document.getElementById("addBtn");
+
+const backBtn =
+  document.getElementById("backBtn");
+
+
+function showMessage(
+  text,
+  type="error"
+){
+  message.textContent = text;
+
+  message.className =
+    `message show ${type}`;
+
+  setTimeout(() => {
+    message.className = "message";
+  }, 4000);
+}
+
+
+async function post(
+  url,
+  body
+){
+  const response =
+    await fetch(
+      url,
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+  let data = {};
+
+  try{
+    data =
+      await response.json();
+  }catch(e){}
+
+  if(!response.ok){
+    throw new Error(
+      data.detail ||
+      `Ошибка ${response.status}`
+    );
+  }
+
+  return data;
+}
+
+
+function setLoading(value){
+  content.classList.toggle(
+    "loading",
+    value
+  );
+}
+
+
+function getItems(){
+  return (
+    dataByCase[
+      String(selectedCase)
+    ] || []
+  );
+}
+
+
+function calcTotal(){
+  return getItems().reduce(
+    (sum,item) =>
+      sum +
+      Number(
+        item.chance_percent || 0
+      ),
+    0
+  );
+}
+
+
+function formatPercent(value){
+  const n = Number(value || 0);
+
+  if(Number.isInteger(n)){
+    return n + "%";
+  }
+
+  return (
+    n
+      .toFixed(4)
+      .replace(/0+$/,"")
+      .replace(/\.$/,"")
+    + "%"
+  );
+}
+
+
+function renderSummary(){
+
+  const total =
+    calcTotal();
+
+  const remaining =
+    Math.max(
+      0,
+      25-total
+    );
+
+  totalText.textContent =
+    `${formatPercent(total)} / 25%`;
+
+  remainingText.textContent =
+    formatPercent(
+      remaining
+    );
+
+  remainingText.className =
+    remaining <= 0
+      ? "warn"
+      : "ok";
+}
+
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+
+function renderItems(){
+
+  const items =
+    getItems();
+
+  renderSummary();
+
+  if(!items.length){
+
+    itemsBox.innerHTML = `
+      <div class="empty">
+        В этом кейсе пока нет NFT,
+        добавленных через админку.
+      </div>
+    `;
+
+    return;
+  }
+
+  itemsBox.innerHTML =
+    items.map(
+      item => {
+
+        const image =
+          item.gift_image
+          ?
+          `<img src="${escapeHtml(item.gift_image)}">`
+          :
+          "NFT";
+
+        return `
+          <div
+            class="item"
+            data-id="${item.id}"
+          >
+
+            <div class="thumb">
+              ${image}
+            </div>
+
+            <div>
+
+              <div class="name">
+                ${escapeHtml(
+                  item.gift_name ||
+                  "Telegram Gift"
+                )}
+              </div>
+
+              <div class="url">
+                ${escapeHtml(
+                  item.gift_url || ""
+                )}
+              </div>
+
+              <div class="item-actions">
+
+                <input
+                  class="chance-input"
+                  type="number"
+                  min="0.0001"
+                  max="25"
+                  step="0.1"
+                  value="${Number(
+                    item.chance_percent
+                  )}"
+                  data-role="chance"
+                >
+
+                <button
+                  class="btn btn-secondary small"
+                  data-action="save"
+                  data-id="${item.id}"
+                >
+                  Сохранить
+                </button>
+
+                <button
+                  class="btn btn-danger small"
+                  data-action="delete"
+                  data-id="${item.id}"
+                >
+                  Удалить
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }
+    ).join("");
+}
+
+
+async function checkAdmin(){
+
+  if(!initData){
+    throw new Error(
+      "Открой страницу внутри Telegram Mini App."
+    );
+  }
+
+  const result =
+    await post(
+      "/api/admin/status",
+      {
+        initData:initData
+      }
+    );
+
+  if(!result.is_admin){
+    throw new Error(
+      "Доступ запрещён."
+    );
+  }
+}
+
+
+async function loadItems(){
+
+  setLoading(true);
+
+  try{
+
+    const result =
+      await post(
+        "/api/admin/cases/items",
+        {
+          initData:initData
+        }
+      );
+
+    dataByCase =
+      result.cases || {
+        "1":[],
+        "2":[],
+        "3":[],
+        "4":[]
+      };
+
+    renderItems();
+
+  }finally{
+
+    setLoading(false);
+
+  }
+}
+
+
+async function addItem(){
+
+  const url =
+    giftUrl.value.trim();
+
+  const p =
+    Number(
+      chance.value
+    );
+
+  if(!url){
+    showMessage(
+      "Вставь ссылку на NFT."
+    );
+    return;
+  }
+
+  if(
+    !Number.isFinite(p)
+    ||
+    p <= 0
+    ||
+    p > 25
+  ){
+    showMessage(
+      "Шанс должен быть больше 0 и не больше 25%."
+    );
+    return;
+  }
+
+  addBtn.disabled = true;
+
+  try{
+
+    await post(
+      "/api/admin/cases/add",
+      {
+        initData:initData,
+        case_id:selectedCase,
+        gift_url:url,
+        chance_percent:p
+      }
+    );
+
+    giftUrl.value = "";
+    chance.value = "";
+
+    await loadItems();
+
+    showMessage(
+      `NFT добавлен в кейс №${selectedCase}`,
+      "success"
+    );
+
+  }catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }finally{
+
+    addBtn.disabled = false;
+
+  }
+}
+
+
+async function saveChance(
+  itemId,
+  button
+){
+
+  const item =
+    button.closest(
+      ".item"
+    );
+
+  const input =
+    item.querySelector(
+      '[data-role="chance"]'
+    );
+
+  const p =
+    Number(
+      input.value
+    );
+
+  if(
+    !Number.isFinite(p)
+    ||
+    p <= 0
+    ||
+    p > 25
+  ){
+    showMessage(
+      "Неверный процент."
+    );
+    return;
+  }
+
+  try{
+
+    await post(
+      "/api/admin/cases/update",
+      {
+        initData:initData,
+        item_id:Number(itemId),
+        chance_percent:p
+      }
+    );
+
+    await loadItems();
+
+    showMessage(
+      "Процент сохранён.",
+      "success"
+    );
+
+  }catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }
+}
+
+
+async function deleteItem(
+  itemId
+){
+
+  const ok =
+    confirm(
+      "Удалить NFT из кейса?"
+    );
+
+  if(!ok){
+    return;
+  }
+
+  try{
+
+    await post(
+      "/api/admin/cases/delete",
+      {
+        initData:initData,
+        item_id:Number(itemId)
+      }
+    );
+
+    await loadItems();
+
+    showMessage(
+      "NFT удалён.",
+      "success"
+    );
+
+  }catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }
+
+}
+
+
+document
+.querySelectorAll(
+  ".case-tab"
+)
+.forEach(
+  btn => {
+
+    btn.addEventListener(
+      "click",
+      () => {
+
+        selectedCase =
+          Number(
+            btn.dataset.case
+          );
+
+        document
+        .querySelectorAll(
+          ".case-tab"
+        )
+        .forEach(
+          x => {
+
+            x.classList.toggle(
+              "active",
+              Number(
+                x.dataset.case
+              ) === selectedCase
+            );
+
+          }
+        );
+
+        renderItems();
+
+      }
+    );
+
+  }
+);
+
+
+addBtn.addEventListener(
+  "click",
+  addItem
+);
+
+
+itemsBox.addEventListener(
+  "click",
+  event => {
+
+    const button =
+      event.target.closest(
+        "button[data-action]"
+      );
+
+    if(!button){
+      return;
+    }
+
+    const action =
+      button.dataset.action;
+
+    const id =
+      button.dataset.id;
+
+    if(action === "save"){
+      saveChance(
+        id,
+        button
+      );
+    }
+
+    if(action === "delete"){
+      deleteItem(id);
+    }
+
+  }
+);
+
+
+backBtn.addEventListener(
+  "click",
+  () => {
+    window.location.href =
+      "/cases";
+  }
+);
+
+
+(async()=>{
+
+  try{
+
+    await checkAdmin();
+
+    await loadItems();
+
+  }catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }
+
+})();
+
+</script>
+
+</body>
+</html>
