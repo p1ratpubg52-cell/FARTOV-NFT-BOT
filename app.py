@@ -288,6 +288,55 @@ def init_db():
         )
         """)
 
+        upgrade_attempt_columns = [
+            row["name"]
+            for row in conn.execute(
+                "PRAGMA table_info(upgrade_attempts)"
+            ).fetchall()
+        ]
+
+        if "source_type" not in upgrade_attempt_columns:
+            conn.execute("""
+            ALTER TABLE upgrade_attempts
+            ADD COLUMN source_type TEXT
+            """)
+
+        if "source_price_stars" not in upgrade_attempt_columns:
+            conn.execute("""
+            ALTER TABLE upgrade_attempts
+            ADD COLUMN source_price_stars INTEGER NOT NULL DEFAULT 0
+            """)
+
+        if "target_price_stars" not in upgrade_attempt_columns:
+            conn.execute("""
+            ALTER TABLE upgrade_attempts
+            ADD COLUMN target_price_stars INTEGER NOT NULL DEFAULT 0
+            """)
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS upgrade_quotes(
+            quote_id TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            source_ref TEXT NOT NULL,
+            target_id TEXT NOT NULL,
+            source_price_stars INTEGER NOT NULL,
+            target_price_stars INTEGER NOT NULL,
+            chance_percent REAL NOT NULL,
+            expires_at INTEGER NOT NULL,
+            used INTEGER NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS upgrade_target_claims(
+            target_id TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            upgrade_attempt_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
         conn.execute("""
         CREATE TABLE IF NOT EXISTS case_wins(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -318,7 +367,6 @@ def init_db():
         )
         """)
 
-        # Новая таблица для будущей админ-панели управления NFT в кейсах.
         conn.execute("""
         CREATE TABLE IF NOT EXISTS case_admin_items(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -347,8 +395,6 @@ def init_db():
                 (int(case_cfg["id"]),)
             )
 
-        # Если NFT уже были добавлены через админку раньше,
-        # автоматически включаем ручное управление для этих кейсов.
         conn.execute("""
         UPDATE case_settings
         SET admin_managed=1
@@ -541,9 +587,7 @@ def debit_balance(
             currency
         )).fetchone()
 
-        current = int(
-            row["amount_units"]
-        ) if row else 0
+        current = int(row["amount_units"]) if row else 0
 
         if current < amount_units:
             conn.rollback()
@@ -601,9 +645,7 @@ def get_balances(user_id):
     }
 
     for row in rows:
-        result[
-            row["currency"]
-        ] = format_units(
+        result[row["currency"]] = format_units(
             row["currency"],
             row["amount_units"]
         )
@@ -961,10 +1003,8 @@ async def load_backpack_catalog():
             "gifts",
             []
         ):
-            item = (
-                normalize_owned_gift_for_catalog(
-                    owned
-                )
+            item = normalize_owned_gift_for_catalog(
+                owned
             )
 
             if item:
@@ -1123,7 +1163,6 @@ def load_case_admin_state():
 
 
 def build_case_catalog(backpack_items):
-    # Неуправляемые кейсы продолжают работать по старой автоматической схеме.
     buckets = [[], [], [], []]
 
     for index, item in enumerate(backpack_items):
@@ -1135,18 +1174,15 @@ def build_case_catalog(backpack_items):
     for case_id, bucket in enumerate(buckets, start=1):
         items = []
 
-        # Базовые специальные призы: Мишка и Сердце по 25%.
         for special in CASE1_SPECIAL_PRIZES:
             item = dict(special)
             chance = float(item.pop("fixed_chance"))
             item["chance_percent"] = chance
             items.append(item)
 
-        # Неудача — суммарно 25%.
         items.extend(build_failure_items(case_id))
 
         if admin_managed.get(case_id, False):
-            # Для кейса, включенного в админ-режим, обычные NFT берем ТОЛЬКО из админки.
             regular_items = admin_items.get(case_id, [])
 
             regular_total = round(
@@ -1166,7 +1202,6 @@ def build_case_catalog(backpack_items):
             for regular in regular_items:
                 items.append(dict(regular))
 
-            # Оставшийся процент из пула 25% делим между Мишкой и Сердцем.
             remaining = max(0.0, round(25.0 - regular_total, 4))
             bonus_each = remaining / 2.0
 
@@ -1178,7 +1213,6 @@ def build_case_catalog(backpack_items):
                     )
 
         else:
-            # Старое поведение для кейсов, которыми админка еще не управляет.
             regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
 
             for regular in regular_items:
@@ -1244,7 +1278,6 @@ def choose_prize(items):
             )
         )
 
-        # 0% действительно означает 0%.
         if chance <= 0:
             continue
 
@@ -1341,7 +1374,6 @@ async def get_market_client():
         )
 
     async with _market_client_lock:
-
         if _market_client is None:
             _market_client = TelegramClient(
                 StringSession(
@@ -1373,21 +1405,6 @@ def extract_stars_from_resell_amount(amounts):
                 )
                 or 0
             )
-
-            nanos = int(
-                getattr(
-                    amount,
-                    "nanos",
-                    0
-                )
-                or 0
-            )
-
-            if nanos != 0:
-                return max(
-                    0,
-                    whole
-                )
 
             return max(
                 0,
@@ -1530,6 +1547,11 @@ class ManualPayPayload(BaseModel):
     tx_ref: str
 
 
+class UpgradeCatalogPayload(BaseModel):
+    initData: str
+    source_id: str = ""
+
+
 class UpgradeQuotePayload(BaseModel):
     initData: str
     source_id: str
@@ -1551,7 +1573,6 @@ class CaseOpenPayload(BaseModel):
 class CaseWinPayload(BaseModel):
     initData: str
     win_id: int
-
 
 
 class AdminCaseItemCreatePayload(BaseModel):
@@ -1629,7 +1650,6 @@ async def cases_page():
             "cases.html"
         )
     )
-
 
 
 @app.get("/admin")
@@ -2431,6 +2451,17 @@ async def cases_sell(
             payload.win_id
         ))
 
+        if int(current["case_id"] or 0) == 0:
+            conn.execute("""
+            DELETE FROM upgrade_target_claims
+            WHERE target_id=?
+            """, (
+                str(
+                    current["prize_id"]
+                    or ""
+                ),
+            ))
+
         conn.execute("""
         INSERT OR IGNORE INTO balances(
             user_id,
@@ -2638,6 +2669,407 @@ async def cases_withdraw(
 # UPGRADE
 # =========================================================
 
+UPGRADE_HOUSE_FACTOR = Decimal("0.90")
+UPGRADE_QUOTE_TTL = 90
+UPGRADE_MAX_CHANCE = Decimal("90.00")
+
+
+def calculate_upgrade_chance(
+    source_price,
+    target_price
+):
+    try:
+        source_price = Decimal(
+            str(source_price)
+        )
+
+        target_price = Decimal(
+            str(target_price)
+        )
+
+    except Exception:
+        raise HTTPException(
+            400,
+            "Ошибка расчёта стоимости"
+        )
+
+    if source_price <= 0:
+        raise HTTPException(
+            400,
+            "Не удалось определить стоимость вашего подарка"
+        )
+
+    if target_price <= 0:
+        raise HTTPException(
+            400,
+            "Не удалось определить стоимость цели"
+        )
+
+    if target_price <= source_price:
+        raise HTTPException(
+            400,
+            "Цель должна быть дороже вашего подарка"
+        )
+
+    chance = (
+        source_price
+        / target_price
+        * Decimal("100")
+        * UPGRADE_HOUSE_FACTOR
+    )
+
+    if chance > UPGRADE_MAX_CHANCE:
+        chance = UPGRADE_MAX_CHANCE
+
+    if chance <= 0:
+        raise HTTPException(
+            400,
+            "Слишком маленький шанс"
+        )
+
+    chance = chance.quantize(
+        Decimal("0.01"),
+        rounding=ROUND_DOWN
+    )
+
+    return float(chance)
+
+
+def parse_upgrade_source_ref(
+    source_ref
+):
+    source_ref = str(
+        source_ref or ""
+    ).strip()
+
+    if not source_ref:
+        raise HTTPException(
+            400,
+            "Не выбран подарок"
+        )
+
+    if ":" in source_ref:
+        source_type, raw_id = (
+            source_ref.split(
+                ":",
+                1
+            )
+        )
+    else:
+        source_type = "deposit"
+        raw_id = source_ref
+
+    source_type = (
+        source_type
+        .strip()
+        .lower()
+    )
+
+    if source_type not in {
+        "deposit",
+        "case"
+    }:
+        raise HTTPException(
+            400,
+            "Неверный тип подарка"
+        )
+
+    try:
+        source_db_id = int(
+            raw_id
+        )
+    except Exception:
+        raise HTTPException(
+            400,
+            "Неверный ID подарка"
+        )
+
+    if source_db_id <= 0:
+        raise HTTPException(
+            400,
+            "Неверный ID подарка"
+        )
+
+    return (
+        source_type,
+        source_db_id
+    )
+
+
+async def load_upgrade_source(
+    user_id,
+    source_ref
+):
+    source_type, source_db_id = (
+        parse_upgrade_source_ref(
+            source_ref
+        )
+    )
+
+    if source_type == "deposit":
+        with db() as conn:
+            row = conn.execute("""
+            SELECT
+                id,
+                gift_url,
+                gift_name,
+                gift_image
+            FROM deposits
+            WHERE id=?
+            AND user_id=?
+            AND status='approved'
+            AND hidden=0
+            """, (
+                source_db_id,
+                user_id
+            )).fetchone()
+
+        if not row:
+            raise HTTPException(
+                404,
+                "Подарок больше не находится в вашем инвентаре"
+            )
+
+        gift_url = (
+            row["gift_url"]
+            or ""
+        )
+
+        price = await safe_market_price(
+            gift_url
+        )
+
+        if price <= 0:
+            raise HTTPException(
+                503,
+                "Не удалось определить рыночную стоимость вашего подарка"
+            )
+
+        return {
+            "type": "deposit",
+            "db_id": source_db_id,
+            "ref": f"deposit:{source_db_id}",
+            "name": (
+                row["gift_name"]
+                or "Telegram Gift"
+            ),
+            "image_url": (
+                row["gift_image"]
+                or ""
+            ),
+            "gift_url": gift_url,
+            "price_stars": int(price),
+            "prize_id": ""
+        }
+
+    with db() as conn:
+        row = conn.execute("""
+        SELECT
+            id,
+            prize_id,
+            prize_name,
+            prize_image,
+            prize_gift_url,
+            sell_stars
+        FROM case_wins
+        WHERE id=?
+        AND user_id=?
+        AND status='owned'
+        """, (
+            source_db_id,
+            user_id
+        )).fetchone()
+
+    if not row:
+        raise HTTPException(
+            404,
+            "Подарок больше не находится в вашем инвентаре"
+        )
+
+    gift_url = (
+        row["prize_gift_url"]
+        or ""
+    )
+
+    price = 0
+
+    if gift_url:
+        price = await safe_market_price(
+            gift_url
+        )
+
+    if price <= 0:
+        price = int(
+            row["sell_stars"]
+            or 0
+        )
+
+    if price <= 0:
+        raise HTTPException(
+            503,
+            "Для этого подарка пока невозможно определить стоимость"
+        )
+
+    return {
+        "type": "case",
+        "db_id": source_db_id,
+        "ref": f"case:{source_db_id}",
+        "name": (
+            row["prize_name"]
+            or "Telegram Gift"
+        ),
+        "image_url": (
+            row["prize_image"]
+            or ""
+        ),
+        "gift_url": gift_url,
+        "price_stars": int(price),
+        "prize_id": (
+            row["prize_id"]
+            or ""
+        )
+    }
+
+
+def get_claimed_upgrade_targets():
+    with db() as conn:
+        rows = conn.execute("""
+        SELECT target_id
+        FROM upgrade_target_claims
+        """).fetchall()
+
+    return {
+        str(row["target_id"])
+        for row in rows
+    }
+
+
+async def load_upgrade_targets(
+    minimum_price=0
+):
+    catalog, warning = (
+        await load_backpack_catalog()
+    )
+
+    claimed = (
+        get_claimed_upgrade_targets()
+    )
+
+    semaphore = asyncio.Semaphore(
+        6
+    )
+
+    async def enrich(item):
+        item = dict(item)
+
+        target_id = str(
+            item.get("id")
+            or ""
+        )
+
+        if not target_id:
+            return None
+
+        if target_id in claimed:
+            return None
+
+        gift_url = (
+            item.get("gift_url")
+            or ""
+        )
+
+        if not gift_url:
+            return None
+
+        async with semaphore:
+            price = (
+                await safe_market_price(
+                    gift_url
+                )
+            )
+
+        if price <= 0:
+            return None
+
+        item["sell_stars"] = int(price)
+        item["market_stars"] = int(price)
+        item["price_stars"] = int(price)
+
+        return item
+
+    enriched = await asyncio.gather(
+        *(
+            enrich(item)
+            for item in catalog
+        )
+    )
+
+    items = [
+        item
+        for item in enriched
+        if item is not None
+        and int(
+            item.get(
+                "price_stars",
+                0
+            )
+        ) > int(
+            minimum_price or 0
+        )
+    ]
+
+    items.sort(
+        key=lambda item: int(
+            item.get(
+                "price_stars",
+                0
+            )
+        )
+    )
+
+    return (
+        items,
+        warning
+    )
+
+
+async def find_upgrade_target(
+    target_id
+):
+    target_id = str(
+        target_id or ""
+    ).strip()
+
+    if not target_id:
+        raise HTTPException(
+            400,
+            "Цель не выбрана"
+        )
+
+    targets, warning = (
+        await load_upgrade_targets()
+    )
+
+    target = next(
+        (
+            item
+            for item in targets
+            if str(
+                item.get("id")
+            ) == target_id
+        ),
+        None
+    )
+
+    if not target:
+        raise HTTPException(
+            404,
+            "Этот подарок больше недоступен для апгрейда"
+        )
+
+    return target, warning
+
+
 @app.post("/api/upgrade/inventory")
 async def upgrade_inventory(
     payload: InitPayload
@@ -2667,8 +3099,15 @@ async def upgrade_inventory(
         )).fetchall()
 
     for row in rows:
-        name = row["gift_name"]
-        image = row["gift_image"]
+        name = (
+            row["gift_name"]
+            or ""
+        )
+
+        image = (
+            row["gift_image"]
+            or ""
+        )
 
         if not name:
             meta = await asyncio.to_thread(
@@ -2676,8 +3115,15 @@ async def upgrade_inventory(
                 row["gift_url"]
             )
 
-            name = meta["name"]
-            image = meta["image"]
+            name = (
+                meta["name"]
+                or "Telegram Gift"
+            )
+
+            image = (
+                meta["image"]
+                or ""
+            )
 
             with db() as conn:
                 conn.execute("""
@@ -2691,17 +3137,34 @@ async def upgrade_inventory(
                     image,
                     row["id"]
                 ))
+
                 conn.commit()
 
+        price = (
+            await safe_market_price(
+                row["gift_url"]
+            )
+        )
+
         items.append({
-            "id": f"deposit:{row['id']}",
-            "source_id": str(row["id"]),
-            "source": "deposit",
-            "name": name or "Telegram Gift",
-            "image_url": image or "",
-            "gift_url": row["gift_url"],
-            "price_ton": 0,
-            "sell_stars": 0
+            "id":
+                f"deposit:{row['id']}",
+            "source_id":
+                f"deposit:{row['id']}",
+            "source":
+                "deposit",
+            "name":
+                name,
+            "image_url":
+                image,
+            "gift_url":
+                row["gift_url"],
+            "price_ton":
+                0,
+            "sell_stars":
+                int(price or 0),
+            "price_stars":
+                int(price or 0)
         })
 
     with db() as conn:
@@ -2724,28 +3187,57 @@ async def upgrade_inventory(
         )).fetchall()
 
     for win in wins:
+        gift_url = (
+            win["prize_gift_url"]
+            or ""
+        )
+
+        market_price = 0
+
+        if gift_url:
+            market_price = (
+                await safe_market_price(
+                    gift_url
+                )
+            )
+
+        if market_price <= 0:
+            market_price = int(
+                win["sell_stars"]
+                or 0
+            )
+
         items.append({
-            "id": f"case:{win['id']}",
-            "source_id": str(win["id"]),
-            "source": "case",
+            "id":
+                f"case:{win['id']}",
+            "source_id":
+                f"case:{win['id']}",
+            "source":
+                "case",
             "name": (
                 win["prize_name"]
-                or "Приз из кейса"
+                or "Приз"
             ),
             "image_url": (
                 win["prize_image"]
                 or ""
             ),
-            "gift_url": (
-                win["prize_gift_url"]
-                or ""
-            ),
-            "price_ton": 0,
-            "sell_stars": int(
-                win["sell_stars"]
-                or 0
-            ),
-            "case_win_id": win["id"]
+            "gift_url":
+                gift_url,
+            "price_ton":
+                0,
+            "sell_stars":
+                int(
+                    market_price
+                    or 0
+                ),
+            "price_stars":
+                int(
+                    market_price
+                    or 0
+                ),
+            "case_win_id":
+                win["id"]
         })
 
     return {
@@ -2755,7 +3247,7 @@ async def upgrade_inventory(
 
 @app.post("/api/upgrade/catalog")
 async def upgrade_catalog(
-    payload: InitPayload
+    payload: UpgradeCatalogPayload
 ):
     user = validate_init_data(
         payload.initData
@@ -2763,8 +3255,30 @@ async def upgrade_catalog(
 
     save_user(user)
 
+    source_price = 0
+
+    if (
+        payload.source_id
+        and payload.source_id.strip()
+    ):
+        source = (
+            await load_upgrade_source(
+                user["id"],
+                payload.source_id
+            )
+        )
+
+        source_price = int(
+            source[
+                "price_stars"
+            ]
+        )
+
     items, warning = (
-        await load_backpack_catalog()
+        await load_upgrade_targets(
+            minimum_price=
+                source_price
+        )
     )
 
     return {
@@ -2772,7 +3286,9 @@ async def upgrade_catalog(
         "warning": warning,
         "source":
             "@"
-            + DEPOSIT_USERNAME
+            + DEPOSIT_USERNAME,
+        "source_price_stars":
+            source_price
     }
 
 
@@ -2786,70 +3302,124 @@ async def upgrade_quote(
 
     save_user(user)
 
-    try:
-        source_id = int(
-            payload.source_id
-        )
-    except Exception:
-        raise HTTPException(
-            400,
-            "Неверный source_id"
-        )
-
-    with db() as conn:
-        source = conn.execute("""
-        SELECT id
-        FROM deposits
-        WHERE id=?
-        AND user_id=?
-        AND status='approved'
-        AND hidden=0
-        """, (
-            source_id,
-            user["id"]
-        )).fetchone()
-
-    if not source:
-        raise HTTPException(
-            404,
-            "NFT не найден в инвентаре"
-        )
-
-    catalog, _ = (
-        await load_backpack_catalog()
+    source = await load_upgrade_source(
+        user["id"],
+        payload.source_id
     )
 
-    target = next(
-        (
-            item
-            for item in catalog
-            if str(
-                item["id"]
-            ) == str(
-                payload.target_id
-            )
-        ),
-        None
+    target, warning = (
+        await find_upgrade_target(
+            payload.target_id
+        )
     )
 
-    if not target:
-        raise HTTPException(
-            404,
-            "Цель не найдена"
-        )
+    source_price = int(
+        source[
+            "price_stars"
+        ]
+    )
 
-    chance = 50.0
+    target_price = int(
+        target[
+            "price_stars"
+        ]
+    )
+
+    chance = (
+        calculate_upgrade_chance(
+            source_price,
+            target_price
+        )
+    )
 
     quote_id = (
         secrets.token_hex(
-            16
+            24
         )
     )
 
+    expires_at = (
+        int(time.time())
+        + UPGRADE_QUOTE_TTL
+    )
+
+    with db() as conn:
+        conn.execute("""
+        DELETE FROM upgrade_quotes
+        WHERE expires_at < ?
+        OR used=1
+        """, (
+            int(time.time())
+            - 300,
+        ))
+
+        conn.execute("""
+        INSERT INTO upgrade_quotes(
+            quote_id,
+            user_id,
+            source_ref,
+            target_id,
+            source_price_stars,
+            target_price_stars,
+            chance_percent,
+            expires_at,
+            used
+        )
+        VALUES(?,?,?,?,?,?,?,?,0)
+        """, (
+            quote_id,
+            user["id"],
+            source["ref"],
+            str(
+                target["id"]
+            ),
+            source_price,
+            target_price,
+            chance,
+            expires_at
+        ))
+
+        conn.commit()
+
     return {
-        "ok": True,
-        "quote_id": quote_id,
-        "chance_percent": chance
+        "ok":
+            True,
+        "quote_id":
+            quote_id,
+        "chance_percent":
+            chance,
+        "source_price_stars":
+            source_price,
+        "target_price_stars":
+            target_price,
+        "source": {
+            "id":
+                source["ref"],
+            "name":
+                source["name"],
+            "image_url":
+                source["image_url"],
+            "gift_url":
+                source["gift_url"],
+            "price_stars":
+                source_price
+        },
+        "target": {
+            "id":
+                target["id"],
+            "name":
+                target["name"],
+            "image_url":
+                target["image_url"],
+            "gift_url":
+                target["gift_url"],
+            "price_stars":
+                target_price
+        },
+        "expires_at":
+            expires_at,
+        "warning":
+            warning
     }
 
 
@@ -2863,59 +3433,122 @@ async def upgrade_play(
 
     save_user(user)
 
-    try:
-        source_id = int(
-            payload.source_id
-        )
-    except Exception:
-        raise HTTPException(
-            400,
-            "Неверный source_id"
-        )
-
-    with db() as conn:
-        source = conn.execute("""
-        SELECT id
-        FROM deposits
-        WHERE id=?
-        AND user_id=?
-        AND status='approved'
-        AND hidden=0
-        """, (
-            source_id,
-            user["id"]
-        )).fetchone()
-
-    if not source:
-        raise HTTPException(
-            404,
-            "NFT не найден"
-        )
-
-    catalog, _ = (
-        await load_backpack_catalog()
+    source = await load_upgrade_source(
+        user["id"],
+        payload.source_id
     )
 
-    target = next(
-        (
-            item
-            for item in catalog
-            if str(
-                item["id"]
-            ) == str(
-                payload.target_id
+    target, warning = (
+        await find_upgrade_target(
+            payload.target_id
+        )
+    )
+
+    source_price = int(
+        source[
+            "price_stars"
+        ]
+    )
+
+    target_price = int(
+        target[
+            "price_stars"
+        ]
+    )
+
+    chance = None
+    quote_row = None
+
+    if payload.quote_id:
+        with db() as conn:
+            quote_row = conn.execute("""
+            SELECT *
+            FROM upgrade_quotes
+            WHERE quote_id=?
+            AND user_id=?
+            """, (
+                payload.quote_id,
+                user["id"]
+            )).fetchone()
+
+        if not quote_row:
+            raise HTTPException(
+                404,
+                "Расчёт апгрейда устарел. Выберите цель заново."
             )
-        ),
-        None
-    )
 
-    if not target:
-        raise HTTPException(
-            404,
-            "Цель не найдена"
+        if int(
+            quote_row["used"]
+            or 0
+        ):
+            raise HTTPException(
+                409,
+                "Этот апгрейд уже был запущен"
+            )
+
+        if int(
+            quote_row[
+                "expires_at"
+            ]
+        ) < int(time.time()):
+            raise HTTPException(
+                409,
+                "Цена изменилась. Выберите цель ещё раз."
+            )
+
+        if str(
+            quote_row[
+                "source_ref"
+            ]
+        ) != str(
+            source[
+                "ref"
+            ]
+        ):
+            raise HTTPException(
+                409,
+                "Выбран другой подарок"
+            )
+
+        if str(
+            quote_row[
+                "target_id"
+            ]
+        ) != str(
+            target[
+                "id"
+            ]
+        ):
+            raise HTTPException(
+                409,
+                "Выбрана другая цель"
+            )
+
+        source_price = int(
+            quote_row[
+                "source_price_stars"
+            ]
         )
 
-    chance = 50.0
+        target_price = int(
+            quote_row[
+                "target_price_stars"
+            ]
+        )
+
+        chance = float(
+            quote_row[
+                "chance_percent"
+            ]
+        )
+
+    else:
+        chance = (
+            calculate_upgrade_chance(
+                source_price,
+                target_price
+            )
+        )
 
     roll = (
         secrets.randbelow(
@@ -2924,40 +3557,309 @@ async def upgrade_play(
         / 10_000
     )
 
-    won = roll < chance
+    won = (
+        roll < chance
+    )
 
     with db() as conn:
-        conn.execute("""
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
+
+        if source["type"] == "deposit":
+            current_source = conn.execute("""
+            SELECT
+                id,
+                status,
+                hidden
+            FROM deposits
+            WHERE id=?
+            AND user_id=?
+            """, (
+                source["db_id"],
+                user["id"]
+            )).fetchone()
+
+            if (
+                not current_source
+                or current_source["status"]
+                != "approved"
+                or int(
+                    current_source[
+                        "hidden"
+                    ]
+                    or 0
+                ) != 0
+            ):
+                conn.rollback()
+
+                raise HTTPException(
+                    409,
+                    "Этот подарок уже был использован"
+                )
+
+        else:
+            current_source = conn.execute("""
+            SELECT
+                id,
+                prize_id,
+                status
+            FROM case_wins
+            WHERE id=?
+            AND user_id=?
+            """, (
+                source["db_id"],
+                user["id"]
+            )).fetchone()
+
+            if (
+                not current_source
+                or current_source[
+                    "status"
+                ] != "owned"
+            ):
+                conn.rollback()
+
+                raise HTTPException(
+                    409,
+                    "Этот подарок уже был использован"
+                )
+
+        if won:
+            existing_claim = (
+                conn.execute("""
+                SELECT target_id
+                FROM upgrade_target_claims
+                WHERE target_id=?
+                """, (
+                    str(
+                        target[
+                            "id"
+                        ]
+                    ),
+                )).fetchone()
+            )
+
+            if existing_claim:
+                conn.rollback()
+
+                raise HTTPException(
+                    409,
+                    (
+                        "Эту цель только что забрал другой пользователь. "
+                        "Выберите другую."
+                    )
+                )
+
+        cursor = conn.execute("""
         INSERT INTO upgrade_attempts(
             user_id,
             source_id,
+            source_type,
             target_id,
+            source_price_stars,
+            target_price_stars,
             chance_percent,
             roll_percent,
             won
         )
-        VALUES(?,?,?,?,?,?)
+        VALUES(?,?,?,?,?,?,?,?,?)
         """, (
             user["id"],
-            source_id,
+            source["db_id"],
+            source["type"],
             str(
-                payload.target_id
+                target["id"]
             ),
+            source_price,
+            target_price,
             chance,
             roll,
             1 if won else 0
         ))
 
+        attempt_id = (
+            cursor.lastrowid
+        )
+
+        if source["type"] == "deposit":
+            conn.execute("""
+            UPDATE deposits
+            SET
+                status='upgrade_spent',
+                hidden=1,
+                reviewed_at=CURRENT_TIMESTAMP
+            WHERE id=?
+            AND user_id=?
+            """, (
+                source["db_id"],
+                user["id"]
+            ))
+
+        else:
+            conn.execute("""
+            UPDATE case_wins
+            SET
+                status='upgrade_spent',
+                resolved_at=CURRENT_TIMESTAMP
+            WHERE id=?
+            AND user_id=?
+            """, (
+                source["db_id"],
+                user["id"]
+            ))
+
+            if source.get(
+                "prize_id"
+            ):
+                conn.execute("""
+                DELETE FROM upgrade_target_claims
+                WHERE target_id=?
+                """, (
+                    str(
+                        source[
+                            "prize_id"
+                        ]
+                    ),
+                ))
+
+        win_id = None
+
+        if won:
+            try:
+                conn.execute("""
+                INSERT INTO upgrade_target_claims(
+                    target_id,
+                    user_id,
+                    upgrade_attempt_id
+                )
+                VALUES(?,?,?)
+                """, (
+                    str(
+                        target[
+                            "id"
+                        ]
+                    ),
+                    user["id"],
+                    attempt_id
+                ))
+
+            except sqlite3.IntegrityError:
+                conn.rollback()
+
+                raise HTTPException(
+                    409,
+                    (
+                        "Эта цель уже недоступна. "
+                        "Выберите другую."
+                    )
+                )
+
+            win_cursor = conn.execute("""
+            INSERT INTO case_wins(
+                user_id,
+                case_id,
+                prize_id,
+                prize_name,
+                prize_image,
+                prize_gift_url,
+                sell_stars,
+                withdrawable,
+                status,
+                paid_currency,
+                paid_units
+            )
+            VALUES(
+                ?,
+                0,
+                ?,
+                ?,
+                ?,
+                ?,
+                0,
+                1,
+                'owned',
+                'UPGRADE',
+                0
+            )
+            """, (
+                user["id"],
+                str(
+                    target[
+                        "id"
+                    ]
+                ),
+                str(
+                    target.get(
+                        "name"
+                    )
+                    or "Telegram Gift"
+                ),
+                str(
+                    target.get(
+                        "image_url"
+                    )
+                    or ""
+                ),
+                str(
+                    target.get(
+                        "gift_url"
+                    )
+                    or ""
+                )
+            ))
+
+            win_id = (
+                win_cursor.lastrowid
+            )
+
+        if payload.quote_id:
+            conn.execute("""
+            UPDATE upgrade_quotes
+            SET used=1
+            WHERE quote_id=?
+            AND user_id=?
+            """, (
+                payload.quote_id,
+                user["id"]
+            ))
+
         conn.commit()
 
     return {
-        "ok": True,
-        "won": won,
-        "success": won,
+        "ok":
+            True,
+        "won":
+            won,
+        "success":
+            won,
         "chance_percent":
             chance,
         "roll_percent":
-            roll
+            round(
+                roll,
+                4
+            ),
+        "source_price_stars":
+            source_price,
+        "target_price_stars":
+            target_price,
+        "win_id":
+            win_id,
+        "target": {
+            "id":
+                target["id"],
+            "name":
+                target["name"],
+            "image_url":
+                target["image_url"],
+            "gift_url":
+                target["gift_url"],
+            "price_stars":
+                target_price
+        },
+        "warning":
+            warning
     }
 
 
