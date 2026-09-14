@@ -383,6 +383,16 @@ def init_db():
         )
         """)
 
+        # Migration: item_type lets admin manage NFT / Bear / Heart / Failure.
+        case_admin_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(case_admin_items)").fetchall()
+        }
+        if "item_type" not in case_admin_columns:
+            conn.execute(
+                "ALTER TABLE case_admin_items ADD COLUMN item_type TEXT NOT NULL DEFAULT 'nft'"
+            )
+
         conn.execute("""
         CREATE TABLE IF NOT EXISTS case_settings(
             case_id INTEGER PRIMARY KEY,
@@ -1084,88 +1094,64 @@ def assign_equal_chances(items, total_chance=100.0):
     return result
 
 
-def build_failure_items(case_id):
-    each = round(
-        FAILURE_TOTAL_CHANCE / FAILURE_CARD_COUNT,
-        4
-    )
+def make_admin_case_item(row):
+    item_type = str(row["item_type"] or "nft").lower()
+    common = {
+        "id": f"admin:{row['id']}",
+        "admin_item_id": int(row["id"]),
+        "chance_percent": float(row["chance_percent"] or 0),
+        "sell_stars": int(row["sell_stars"] or 0),
+        "withdrawable": bool(row["withdrawable"]),
+        "item_type": item_type,
+    }
 
-    failures = []
+    if item_type == "bear":
+        return {**common, "name": "Мишка", "image_url": "/static/case1-bear-clean.png",
+                "gift_url": "", "sell_stars": 15, "withdrawable": True, "special": True}
+    if item_type == "heart":
+        return {**common, "name": "Сердце", "image_url": "/static/case1-heart-clean.png",
+                "gift_url": "", "sell_stars": 15, "withdrawable": True, "special": True}
+    if item_type == "failure":
+        return {**common, "name": "Неудача", "image_url": "", "gift_url": "",
+                "sell_stars": 0, "withdrawable": False, "is_failure": True}
 
-    for index in range(FAILURE_CARD_COUNT):
-        failures.append({
-            "id": f"failure:{case_id}:{index + 1}",
-            "name": "Неудача",
-            "image_url": "",
-            "gift_url": "",
-            "sell_stars": 0,
-            "withdrawable": False,
-            "is_failure": True,
-            "chance_percent": each,
-        })
-
-    return failures
+    return {
+        **common,
+        "name": row["gift_name"] or "Telegram Gift",
+        "image_url": row["gift_image"] or "",
+        "gift_url": row["gift_url"] or "",
+        "special": False,
+    }
 
 
 def load_case_admin_state():
-    settings = {
-        int(config["id"]): False
-        for config in CASE_CONFIGS
-    }
-
-    items = {
-        int(config["id"]): []
-        for config in CASE_CONFIGS
-    }
+    settings = {int(config["id"]): False for config in CASE_CONFIGS}
+    items = {int(config["id"]): [] for config in CASE_CONFIGS}
 
     with db() as conn:
-        setting_rows = conn.execute("""
-        SELECT case_id, admin_managed
-        FROM case_settings
-        """).fetchall()
-
+        setting_rows = conn.execute("SELECT case_id, admin_managed FROM case_settings").fetchall()
         for row in setting_rows:
             case_id = int(row["case_id"])
             if case_id in settings:
                 settings[case_id] = bool(row["admin_managed"])
 
         rows = conn.execute("""
-        SELECT
-            id,
-            case_id,
-            gift_url,
-            gift_name,
-            gift_image,
-            chance_percent,
-            sell_stars,
-            withdrawable
+        SELECT id, case_id, gift_url, gift_name, gift_image, chance_percent,
+               sell_stars, withdrawable, item_type
         FROM case_admin_items
         ORDER BY case_id, id
         """).fetchall()
 
     for row in rows:
         case_id = int(row["case_id"])
-        if case_id not in items:
-            continue
-
-        items[case_id].append({
-            "id": f"admin:{row['id']}",
-            "admin_item_id": int(row["id"]),
-            "name": row["gift_name"] or "Telegram Gift",
-            "image_url": row["gift_image"] or "",
-            "gift_url": row["gift_url"] or "",
-            "sell_stars": int(row["sell_stars"] or 0),
-            "withdrawable": bool(row["withdrawable"]),
-            "special": False,
-            "chance_percent": float(row["chance_percent"] or 0),
-        })
+        if case_id in items:
+            items[case_id].append(make_admin_case_item(row))
 
     return settings, items
 
 
 def build_case_catalog(backpack_items):
     buckets = [[], [], [], []]
-
     for index, item in enumerate(backpack_items):
         buckets[index % 4].append(dict(item))
 
@@ -1173,77 +1159,45 @@ def build_case_catalog(backpack_items):
     prepared = []
 
     for case_id, bucket in enumerate(buckets, start=1):
-        items = []
-
-        for special in CASE1_SPECIAL_PRIZES:
-            item = dict(special)
-            chance = float(item.pop("fixed_chance"))
-            item["chance_percent"] = chance
-            items.append(item)
-
-        items.extend(build_failure_items(case_id))
-
         if admin_managed.get(case_id, False):
-            regular_items = admin_items.get(case_id, [])
-
-            regular_total = round(
-                sum(
-                    max(0.0, float(item.get("chance_percent", 0)))
-                    for item in regular_items
-                ),
-                4
-            )
-
-            if regular_total > 25.0001:
-                raise HTTPException(
-                    500,
-                    f"В кейсе №{case_id} сумма шансов NFT больше 25%"
-                )
-
-            for regular in regular_items:
-                items.append(dict(regular))
-
-            remaining = max(0.0, round(25.0 - regular_total, 4))
-            bonus_each = remaining / 2.0
-
-            for item in items:
-                if item.get("special"):
-                    item["chance_percent"] = round(
-                        float(item["chance_percent"]) + bonus_each,
-                        4,
-                    )
-
+            items = [dict(x) for x in admin_items.get(case_id, [])]
+            total = round(sum(max(0.0, float(x.get("chance_percent", 0))) for x in items), 4)
+            if total > 100.0001:
+                raise HTTPException(500, f"В кейсе №{case_id} сумма шансов больше 100%")
+            if total < 99.9999:
+                # Unallocated probability becomes a failure, so every spin remains well-defined.
+                items.append({
+                    "id": f"failure:auto:{case_id}", "name": "Неудача", "image_url": "",
+                    "gift_url": "", "sell_stars": 0, "withdrawable": False,
+                    "is_failure": True, "chance_percent": round(100.0 - total, 4),
+                    "item_type": "failure_auto",
+                })
         else:
+            # Preserve the old default behavior until this case is first configured in admin.
+            items = []
+            for special in CASE1_SPECIAL_PRIZES:
+                item = dict(special)
+                item["chance_percent"] = float(item.pop("fixed_chance"))
+                items.append(item)
+            items.extend([
+                {"id": f"failure:{case_id}:1", "name": "Неудача", "image_url": "",
+                 "gift_url": "", "sell_stars": 0, "withdrawable": False,
+                 "is_failure": True, "chance_percent": FAILURE_TOTAL_CHANCE}
+            ])
             regular_items = bucket[:MAX_REGULAR_NFTS_PER_CASE]
-
             for regular in regular_items:
                 item = dict(regular)
                 item["chance_percent"] = REGULAR_NFT_CHANCE
                 items.append(item)
-
-            missing_slots = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
-            if missing_slots > 0:
-                missing_chance = missing_slots * REGULAR_NFT_CHANCE
-                bonus_each = missing_chance / 2.0
-
+            missing = MAX_REGULAR_NFTS_PER_CASE - len(regular_items)
+            if missing > 0:
+                bonus = (missing * REGULAR_NFT_CHANCE) / 2.0
                 for item in items:
                     if item.get("special"):
-                        item["chance_percent"] = round(
-                            float(item["chance_percent"]) + bonus_each,
-                            4,
-                        )
-
+                        item["chance_percent"] = round(float(item["chance_percent"]) + bonus, 4)
         prepared.append(items)
 
-    cases = []
-
-    for index, config in enumerate(CASE_CONFIGS):
-        cases.append({
-            **config,
-            "items": prepared[index]
-        })
-
-    return cases
+    return [{**config, "items": prepared[index]} for index, config in enumerate(CASE_CONFIGS)]
 
 
 def get_case_from_catalog(
@@ -1860,8 +1814,9 @@ class CaseWinPayload(BaseModel):
 class AdminCaseItemCreatePayload(BaseModel):
     initData: str
     case_id: int
-    gift_url: str
+    gift_url: str = ""
     chance_percent: float
+    item_type: str = "nft"
 
 
 class AdminCaseItemUpdatePayload(BaseModel):
@@ -2207,266 +2162,112 @@ async def admin_status(
 
 
 @app.post("/api/admin/cases/items")
-async def admin_case_items(
-    payload: InitPayload
-):
-    require_admin(
-        payload.initData
-    )
-
+async def admin_case_items(payload: InitPayload):
+    require_admin(payload.initData)
     with db() as conn:
         rows = conn.execute("""
-        SELECT
-            id,
-            case_id,
-            gift_url,
-            gift_name,
-            gift_image,
-            chance_percent,
-            sell_stars,
-            withdrawable,
-            created_at
-        FROM case_admin_items
-        ORDER BY case_id, id
+        SELECT id, case_id, gift_url, gift_name, gift_image, chance_percent,
+               sell_stars, withdrawable, item_type, created_at
+        FROM case_admin_items ORDER BY case_id, id
         """).fetchall()
 
-    grouped = {
-        str(config["id"]): []
-        for config in CASE_CONFIGS
-    }
-
+    grouped = {str(config["id"]): [] for config in CASE_CONFIGS}
     for row in rows:
         grouped[str(row["case_id"])].append({
-            "id": row["id"],
-            "case_id": row["case_id"],
-            "gift_url": row["gift_url"],
-            "gift_name": row["gift_name"],
-            "gift_image": row["gift_image"] or "",
+            "id": row["id"], "case_id": row["case_id"], "gift_url": row["gift_url"] or "",
+            "gift_name": row["gift_name"], "gift_image": row["gift_image"] or "",
             "chance_percent": float(row["chance_percent"]),
-            "sell_stars": int(row["sell_stars"] or 0),
-            "withdrawable": bool(row["withdrawable"]),
-            "created_at": row["created_at"]
+            "sell_stars": int(row["sell_stars"] or 0), "withdrawable": bool(row["withdrawable"]),
+            "item_type": row["item_type"] or "nft", "created_at": row["created_at"]
         })
+    return {"ok": True, "cases": grouped}
 
-    return {
-        "ok": True,
-        "cases": grouped
-    }
+
+def validate_case_chance(conn, case_id, chance, exclude_id=None):
+    sql = "SELECT COALESCE(SUM(chance_percent),0) AS total FROM case_admin_items WHERE case_id=?"
+    args = [case_id]
+    if exclude_id is not None:
+        sql += " AND id<>?"
+        args.append(exclude_id)
+    total = float(conn.execute(sql, tuple(args)).fetchone()["total"] or 0)
+    if total + chance > 100.0001:
+        raise HTTPException(400, "Суммарный шанс всех призов в кейсе не может быть больше 100%")
 
 
 @app.post("/api/admin/cases/add")
-async def admin_case_add(
-    payload: AdminCaseItemCreatePayload
-):
-    require_admin(
-        payload.initData
-    )
-
+async def admin_case_add(payload: AdminCaseItemCreatePayload):
+    require_admin(payload.initData)
     case_id = int(payload.case_id)
+    if case_id not in {int(c["id"]) for c in CASE_CONFIGS}:
+        raise HTTPException(400, "Неверный номер кейса")
+    chance = round(float(payload.chance_percent), 4)
+    if chance <= 0 or chance > 100:
+        raise HTTPException(400, "Шанс должен быть больше 0 и не больше 100%")
+    item_type = str(payload.item_type or "nft").strip().lower()
+    if item_type not in {"nft", "bear", "heart", "failure"}:
+        raise HTTPException(400, "Неверный тип приза")
 
-    if case_id not in {
-        int(config["id"])
-        for config in CASE_CONFIGS
-    }:
-        raise HTTPException(
-            400,
-            "Неверный номер кейса"
-        )
+    # Non-NFT types use internal unique keys because the legacy table has UNIQUE(case_id, gift_url).
+    gift_url = f"__special__:{item_type}" if item_type != "nft" else ""
+    gift_name = {"bear":"Мишка", "heart":"Сердце", "failure":"Неудача"}.get(item_type, "Telegram Gift")
+    gift_image = {"bear":"/static/case1-bear-clean.png", "heart":"/static/case1-heart-clean.png"}.get(item_type, "")
+    sell_stars = 15 if item_type in {"bear", "heart"} else 0
+    withdrawable = 0 if item_type == "failure" else 1
 
-    chance = round(
-        float(payload.chance_percent),
-        4
-    )
-
-    if chance <= 0 or chance > 25:
-        raise HTTPException(
-            400,
-            "Шанс должен быть больше 0 и не больше 25%"
-        )
-
-    gift_url = normalize_gift_url(
-        payload.gift_url
-    )
+    if item_type == "nft":
+        gift_url = normalize_gift_url(payload.gift_url)
+        meta = await asyncio.to_thread(fetch_gift_meta, gift_url)
+        gift_name = meta["name"] or "Telegram Gift"
+        gift_image = meta["image"] or ""
 
     with db() as conn:
-        current_total = conn.execute("""
-        SELECT COALESCE(
-            SUM(chance_percent),
-            0
-        ) AS total
-        FROM case_admin_items
-        WHERE case_id=?
-        """, (
-            case_id,
-        )).fetchone()["total"]
-
-    if float(current_total or 0) + chance > 25.0001:
-        raise HTTPException(
-            400,
-            (
-                "Суммарный шанс обычных NFT в кейсе "
-                "не может быть больше 25%"
-            )
-        )
-
-    meta = await asyncio.to_thread(
-        fetch_gift_meta,
-        gift_url
-    )
-
-    try:
-        with db() as conn:
+        validate_case_chance(conn, case_id, chance)
+        if item_type != "nft":
+            exists = conn.execute(
+                "SELECT 1 FROM case_admin_items WHERE case_id=? AND item_type=?",
+                (case_id, item_type)
+            ).fetchone()
+            if exists:
+                raise HTTPException(409, f"{gift_name} уже добавлен в этот кейс")
+        try:
             cursor = conn.execute("""
-            INSERT INTO case_admin_items(
-                case_id,
-                gift_url,
-                gift_name,
-                gift_image,
-                chance_percent,
-                sell_stars,
-                withdrawable
-            )
-            VALUES(?,?,?,?,?,0,1)
-            """, (
-                case_id,
-                gift_url,
-                meta["name"] or "Telegram Gift",
-                meta["image"] or "",
-                chance
-            ))
-
-            item_id = cursor.lastrowid
-
-            conn.execute("""
-            INSERT INTO case_settings(case_id, admin_managed)
-            VALUES(?,1)
-            ON CONFLICT(case_id)
-            DO UPDATE SET admin_managed=1
-            """, (
-                case_id,
-            ))
-
-            conn.commit()
-
-    except sqlite3.IntegrityError:
-        raise HTTPException(
-            409,
-            "Этот NFT уже добавлен в выбранный кейс"
-        )
-
-    return {
-        "ok": True,
-        "item_id": item_id,
-        "gift": {
-            "name": meta["name"],
-            "image_url": meta["image"],
-            "gift_url": gift_url
-        }
-    }
+            INSERT INTO case_admin_items(case_id,gift_url,gift_name,gift_image,chance_percent,
+                                         sell_stars,withdrawable,item_type)
+            VALUES(?,?,?,?,?,?,?,?)
+            """, (case_id, gift_url, gift_name, gift_image, chance, sell_stars, withdrawable, item_type))
+        except sqlite3.IntegrityError:
+            raise HTTPException(409, "Этот NFT уже добавлен в выбранный кейс")
+        conn.execute("""INSERT INTO case_settings(case_id,admin_managed) VALUES(?,1)
+                        ON CONFLICT(case_id) DO UPDATE SET admin_managed=1""", (case_id,))
+        conn.commit()
+    return {"ok": True, "item_id": cursor.lastrowid}
 
 
 @app.post("/api/admin/cases/update")
-async def admin_case_update(
-    payload: AdminCaseItemUpdatePayload
-):
-    require_admin(
-        payload.initData
-    )
-
-    chance = round(
-        float(payload.chance_percent),
-        4
-    )
-
-    if chance <= 0 or chance > 25:
-        raise HTTPException(
-            400,
-            "Шанс должен быть больше 0 и не больше 25%"
-        )
-
+async def admin_case_update(payload: AdminCaseItemUpdatePayload):
+    require_admin(payload.initData)
+    chance = round(float(payload.chance_percent), 4)
+    if chance <= 0 or chance > 100:
+        raise HTTPException(400, "Шанс должен быть больше 0 и не больше 100%")
     with db() as conn:
-        row = conn.execute("""
-        SELECT
-            id,
-            case_id,
-            chance_percent
-        FROM case_admin_items
-        WHERE id=?
-        """, (
-            payload.item_id,
-        )).fetchone()
-
+        row = conn.execute("SELECT id,case_id FROM case_admin_items WHERE id=?", (payload.item_id,)).fetchone()
         if not row:
-            raise HTTPException(
-                404,
-                "Предмет не найден"
-            )
-
-        other_total = conn.execute("""
-        SELECT COALESCE(
-            SUM(chance_percent),
-            0
-        ) AS total
-        FROM case_admin_items
-        WHERE case_id=?
-        AND id<>?
-        """, (
-            row["case_id"],
-            payload.item_id
-        )).fetchone()["total"]
-
-        if float(other_total or 0) + chance > 25.0001:
-            raise HTTPException(
-                400,
-                (
-                    "Суммарный шанс обычных NFT в кейсе "
-                    "не может быть больше 25%"
-                )
-            )
-
-        conn.execute("""
-        UPDATE case_admin_items
-        SET chance_percent=?
-        WHERE id=?
-        """, (
-            chance,
-            payload.item_id
-        ))
-
+            raise HTTPException(404, "Предмет не найден")
+        validate_case_chance(conn, int(row["case_id"]), chance, int(payload.item_id))
+        conn.execute("UPDATE case_admin_items SET chance_percent=? WHERE id=?", (chance, payload.item_id))
         conn.commit()
-
-    return {
-        "ok": True
-    }
+    return {"ok": True}
 
 
 @app.post("/api/admin/cases/delete")
-async def admin_case_delete(
-    payload: AdminCaseItemDeletePayload
-):
-    require_admin(
-        payload.initData
-    )
-
+async def admin_case_delete(payload: AdminCaseItemDeletePayload):
+    require_admin(payload.initData)
     with db() as conn:
-        cursor = conn.execute("""
-        DELETE FROM case_admin_items
-        WHERE id=?
-        """, (
-            payload.item_id,
-        ))
-
+        cursor = conn.execute("DELETE FROM case_admin_items WHERE id=?", (payload.item_id,))
         conn.commit()
-
     if cursor.rowcount <= 0:
-        raise HTTPException(
-            404,
-            "Предмет не найден"
-        )
-
-    return {
-        "ok": True
-    }
+        raise HTTPException(404, "Предмет не найден")
+    return {"ok": True}
 
 
 # =========================================================
