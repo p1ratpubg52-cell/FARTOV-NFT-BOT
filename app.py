@@ -1395,29 +1395,148 @@ async def get_market_client():
         return _market_client
 
 
+def _stars_amount_value(amount):
+    """
+    Convert Telegram StarsAmount to a positive Decimal number of Stars.
+    StarsTonAmount is intentionally ignored because it is TON, not Stars.
+    """
+    if amount is None:
+        return None
+
+    if isinstance(amount, dict):
+        type_name = str(
+            amount.get("_")
+            or amount.get("type")
+            or ""
+        ).lower()
+
+        if "ton" in type_name:
+            return None
+
+        if (
+            "starsamount" not in type_name
+            and "stars_amount" not in type_name
+            and "nanos" not in amount
+        ):
+            return None
+
+        whole = int(
+            amount.get("amount", 0)
+            or 0
+        )
+
+        nanos = int(
+            amount.get("nanos", 0)
+            or 0
+        )
+
+    else:
+        type_name = (
+            type(amount).__name__
+            .lower()
+        )
+
+        if "ton" in type_name:
+            return None
+
+        # Normal Telegram StarsAmount has both amount and nanos.
+        # Do not treat arbitrary objects with only "amount" as Stars.
+        if not hasattr(
+            amount,
+            "nanos"
+        ):
+            return None
+
+        whole = int(
+            getattr(
+                amount,
+                "amount",
+                0
+            )
+            or 0
+        )
+
+        nanos = int(
+            getattr(
+                amount,
+                "nanos",
+                0
+            )
+            or 0
+        )
+
+    value = (
+        Decimal(whole)
+        + (
+            Decimal(nanos)
+            / Decimal("1000000000")
+        )
+    )
+
+    if value <= 0:
+        return None
+
+    return value
+
+
 def extract_stars_from_resell_amount(amounts):
-    for amount in amounts or []:
-        if hasattr(amount, "nanos"):
-            whole = int(
-                getattr(
-                    amount,
-                    "amount",
-                    0
-                )
-                or 0
-            )
+    """
+    Telegram may expose resell_amount as a vector.
+    This function also tolerates a single StarsAmount object.
+    """
+    if amounts is None:
+        return 0
 
-            return max(
-                0,
-                whole
-            )
+    if not isinstance(
+        amounts,
+        (list, tuple)
+    ):
+        amounts = [amounts]
 
-    return 0
+    best = None
+
+    for amount in amounts:
+        value = (
+            _stars_amount_value(
+                amount
+            )
+        )
+
+        if value is None:
+            continue
+
+        if (
+            best is None
+            or value < best
+        ):
+            best = value
+
+    if best is None:
+        return 0
+
+    # Internal balance is integer Stars.
+    return max(
+        1,
+        int(
+            best.quantize(
+                Decimal("1"),
+                rounding=ROUND_DOWN
+            )
+        )
+    )
 
 
 async def get_official_market_stars(
     gift_url
 ):
+    """
+    Returns the lowest current Telegram resale price in Stars
+    for collectible gifts of the same base type.
+
+    Important:
+    - TON listings are NOT converted to Stars.
+    - If there is no current Stars listing, returns 0.
+    """
     slug = gift_slug_from_url(
         gift_url
     )
@@ -1454,6 +1573,21 @@ async def get_official_market_stars(
         None
     )
 
+    if unique_gift is None:
+        return 0
+
+    # If the exact collectible itself exposes a Stars resale amount,
+    # this is valid pricing information and can be used immediately.
+    exact_price = (
+        extract_stars_from_resell_amount(
+            getattr(
+                unique_gift,
+                "resell_amount",
+                None
+            )
+        )
+    )
+
     gift_id = int(
         getattr(
             unique_gift,
@@ -1463,56 +1597,110 @@ async def get_official_market_stars(
         or 0
     )
 
-    if gift_id <= 0:
-        return 0
+    market_price = 0
 
-    resale = await client(
-        functions.payments.GetResaleStarGiftsRequest(
-            gift_id=gift_id,
-            offset="",
-            limit=1,
-            sort_by_price=True,
-            stars_only=True
+    if gift_id > 0:
+        resale = await client(
+            functions.payments.GetResaleStarGiftsRequest(
+                gift_id=gift_id,
+                offset="",
+                limit=10,
+                sort_by_price=True,
+                stars_only=True
+            )
         )
-    )
 
-    gifts = getattr(
-        resale,
-        "gifts",
-        []
-    ) or []
+        gifts = getattr(
+            resale,
+            "gifts",
+            []
+        ) or []
 
-    if not gifts:
-        return 0
+        star_prices = []
 
-    first = gifts[0]
+        for item in gifts:
+            price = (
+                extract_stars_from_resell_amount(
+                    getattr(
+                        item,
+                        "resell_amount",
+                        None
+                    )
+                )
+            )
 
-    price = extract_stars_from_resell_amount(
-        getattr(
-            first,
-            "resell_amount",
-            None
+            if price > 0:
+                star_prices.append(
+                    int(price)
+                )
+
+        if star_prices:
+            market_price = min(
+                star_prices
+            )
+
+    price = 0
+
+    if (
+        exact_price > 0
+        and market_price > 0
+    ):
+        price = min(
+            exact_price,
+            market_price
         )
-    )
+
+    elif market_price > 0:
+        price = market_price
+
+    elif exact_price > 0:
+        price = exact_price
 
     if price > 0:
         _market_price_cache[
             slug
         ] = {
             "time": now,
-            "price": price
+            "price": int(price)
         }
 
     return int(price)
 
 
-async def safe_market_price(
+async def get_gift_price_info(
     gift_url
 ):
+    """
+    Safe pricing helper for UI/API.
+
+    market_stars > 0 only when a real Stars-denominated Telegram
+    resale price was found. No TON->Stars or fiat->Stars conversion
+    is fabricated.
+    """
+    slug = gift_slug_from_url(
+        gift_url
+    )
+
+    if not slug:
+        return {
+            "market_stars": 0,
+            "price_available": False,
+            "price_source": "unavailable",
+            "slug": ""
+        }
+
     try:
-        return await get_official_market_stars(
+        price = await get_official_market_stars(
             gift_url
         )
+
+        if price > 0:
+            return {
+                "market_stars": int(price),
+                "price_available": True,
+                "price_source": "telegram_market_stars",
+                "slug": slug
+            }
 
     except Exception as error:
         print(
@@ -1520,7 +1708,95 @@ async def safe_market_price(
             gift_url,
             repr(error)
         )
-        return 0
+
+    # This method is useful for diagnostics/value data, but its
+    # floor/average/value fields are fiat, not Stars. We therefore
+    # do not pretend they are Stars.
+    try:
+        client = await get_market_client()
+
+        value_info = await client(
+            functions.payments.GetUniqueStarGiftValueInfoRequest(
+                slug=slug
+            )
+        )
+
+        return {
+            "market_stars": 0,
+            "price_available": False,
+            "price_source": "no_stars_listing",
+            "slug": slug,
+            "value_currency": str(
+                getattr(
+                    value_info,
+                    "currency",
+                    ""
+                )
+                or ""
+            ),
+            "value_amount": int(
+                getattr(
+                    value_info,
+                    "value",
+                    0
+                )
+                or 0
+            ),
+            "floor_price": int(
+                getattr(
+                    value_info,
+                    "floor_price",
+                    0
+                )
+                or 0
+            ),
+            "average_price": int(
+                getattr(
+                    value_info,
+                    "average_price",
+                    0
+                )
+                or 0
+            ),
+            "initial_sale_stars": int(
+                getattr(
+                    value_info,
+                    "initial_sale_stars",
+                    0
+                )
+                or 0
+            )
+        }
+
+    except Exception as error:
+        print(
+            "VALUE INFO ERROR:",
+            gift_url,
+            repr(error)
+        )
+
+        return {
+            "market_stars": 0,
+            "price_available": False,
+            "price_source": "unavailable",
+            "slug": slug
+        }
+
+
+async def safe_market_price(
+    gift_url
+):
+    info = await get_gift_price_info(
+        gift_url
+    )
+
+    return int(
+        info.get(
+            "market_stars",
+            0
+        )
+        or 0
+    )
 
 
 # =========================================================
@@ -1534,6 +1810,11 @@ class InitPayload(BaseModel):
 class DepositPayload(BaseModel):
     initData: str
     gift_url: str
+
+
+class DepositSellPayload(BaseModel):
+    initData: str
+    deposit_id: int
 
 
 class StarsInvoicePayload(BaseModel):
@@ -1749,7 +2030,62 @@ async def me(
                 meta["image"]
             )
 
-        gifts.append(item)
+        item["source"] = "deposit"
+        item["deposit_id"] = int(
+            item["id"]
+        )
+
+        if (
+            item["status"] == "approved"
+            and int(
+                item.get(
+                    "hidden",
+                    0
+                )
+                or 0
+            ) == 0
+        ):
+            price_info = (
+                await get_gift_price_info(
+                    item["gift_url"]
+                )
+            )
+
+            item["sell_stars"] = int(
+                price_info.get(
+                    "market_stars",
+                    0
+                )
+                or 0
+            )
+
+            item["market_sell_stars"] = (
+                item["sell_stars"]
+            )
+
+            item["price_available"] = bool(
+                price_info.get(
+                    "price_available",
+                    False
+                )
+            )
+
+            item["price_source"] = (
+                price_info.get(
+                    "price_source",
+                    "unavailable"
+                )
+            )
+
+        else:
+            item["sell_stars"] = 0
+            item["market_sell_stars"] = 0
+            item["price_available"] = False
+            item["price_source"] = "unavailable"
+
+        gifts.append(
+            item
+        )
 
     with db() as conn:
         case_rows = conn.execute("""
@@ -1793,6 +2129,12 @@ async def me(
                 )
             )
 
+        effective_price = (
+            fixed_sell_stars
+            if fixed_sell_stars > 0
+            else market_sell_stars
+        )
+
         gifts.append({
             "id": f"case:{row['id']}",
             "case_win_id": row["id"],
@@ -1808,13 +2150,21 @@ async def me(
                 or ""
             ),
             "source": "case",
-            "sell_stars": (
-                fixed_sell_stars
-                if fixed_sell_stars > 0
-                else market_sell_stars
-            ),
+            "sell_stars":
+                effective_price,
             "market_sell_stars":
-                market_sell_stars
+                market_sell_stars,
+            "price_available":
+                effective_price > 0,
+            "price_source": (
+                "fixed"
+                if fixed_sell_stars > 0
+                else (
+                    "telegram_market_stars"
+                    if market_sell_stars > 0
+                    else "unavailable"
+                )
+            )
         })
 
     return {
@@ -2836,14 +3186,25 @@ async def load_upgrade_source(
             or ""
         )
 
-        price = await safe_market_price(
+        price_info = await get_gift_price_info(
             gift_url
+        )
+
+        price = int(
+            price_info.get(
+                "market_stars",
+                0
+            )
+            or 0
         )
 
         if price <= 0:
             raise HTTPException(
                 503,
-                "Не удалось определить рыночную стоимость вашего подарка"
+                (
+                    "Для этого подарка сейчас нет доступной "
+                    "рыночной цены в Telegram Stars"
+                )
             )
 
         return {
@@ -4224,6 +4585,179 @@ async def create_deposit(
             deposit_id,
         "gift":
             meta
+    }
+
+
+
+@app.post("/api/deposits/sell")
+async def sell_deposit(
+    payload: DepositSellPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
+    save_user(user)
+
+    with db() as conn:
+        row = conn.execute("""
+        SELECT *
+        FROM deposits
+        WHERE id=?
+        AND user_id=?
+        """, (
+            payload.deposit_id,
+            user["id"]
+        )).fetchone()
+
+    if not row:
+        raise HTTPException(
+            404,
+            "Подарок не найден"
+        )
+
+    if (
+        row["status"] != "approved"
+        or int(
+            row["hidden"]
+            or 0
+        ) != 0
+    ):
+        raise HTTPException(
+            409,
+            "Этот подарок уже недоступен"
+        )
+
+    price_info = (
+        await get_gift_price_info(
+            row["gift_url"]
+        )
+    )
+
+    sell_stars = int(
+        price_info.get(
+            "market_stars",
+            0
+        )
+        or 0
+    )
+
+    if sell_stars <= 0:
+        raise HTTPException(
+            503,
+            (
+                "Для этого подарка сейчас нет "
+                "рыночной цены в Telegram Stars"
+            )
+        )
+
+    with db() as conn:
+        conn.execute(
+            "BEGIN IMMEDIATE"
+        )
+
+        current = conn.execute("""
+        SELECT *
+        FROM deposits
+        WHERE id=?
+        AND user_id=?
+        """, (
+            payload.deposit_id,
+            user["id"]
+        )).fetchone()
+
+        if not current:
+            conn.rollback()
+
+            raise HTTPException(
+                404,
+                "Подарок не найден"
+            )
+
+        if (
+            current["status"] != "approved"
+            or int(
+                current["hidden"]
+                or 0
+            ) != 0
+        ):
+            conn.rollback()
+
+            raise HTTPException(
+                409,
+                "Этот подарок уже был обработан"
+            )
+
+        conn.execute("""
+        UPDATE deposits
+        SET
+            status='sold',
+            hidden=1,
+            reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        AND user_id=?
+        """, (
+            payload.deposit_id,
+            user["id"]
+        ))
+
+        conn.execute("""
+        INSERT OR IGNORE INTO balances(
+            user_id,
+            currency,
+            amount_units
+        )
+        VALUES(?, 'XTR', 0)
+        """, (
+            user["id"],
+        ))
+
+        conn.execute("""
+        UPDATE balances
+        SET amount_units =
+            amount_units + ?
+        WHERE user_id=?
+        AND currency='XTR'
+        """, (
+            sell_stars,
+            user["id"]
+        ))
+
+        conn.execute("""
+        INSERT INTO ledger(
+            user_id,
+            currency,
+            delta_units,
+            kind,
+            reference
+        )
+        VALUES(
+            ?,
+            'XTR',
+            ?,
+            'deposit_sell_market',
+            ?
+        )
+        """, (
+            user["id"],
+            sell_stars,
+            f"deposit:{payload.deposit_id}"
+        ))
+
+        conn.commit()
+
+    return {
+        "ok": True,
+        "deposit_id":
+            payload.deposit_id,
+        "credited_stars":
+            sell_stars,
+        "price_source":
+            "telegram_market_stars",
+        "balances":
+            get_balances(
+                user["id"]
+            )
     }
 
 
