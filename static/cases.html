@@ -325,6 +325,11 @@
       margin-bottom:10px
     }
 
+    .case-actions{
+      display:grid;
+      gap:8px
+    }
+
     .case-btn{
       width:100%;
       border:0;
@@ -338,6 +343,21 @@
 
     .case-btn.low{
       background:linear-gradient(135deg,#ff7918,#ff4b4b)
+    }
+
+    .case-view-btn{
+      width:100%;
+      border:1px solid #3b4452;
+      border-radius:16px;
+      padding:12px 8px;
+      font-size:13px;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(145deg,#202630,#151a22)
+    }
+
+    .case-view-btn:active{
+      transform:scale(.97)
     }
 
     .empty{
@@ -443,6 +463,18 @@
       height:100%;
       object-fit:contain;
       display:block
+    }
+
+    .drop-image.failure{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#ff8d8d;
+      font-size:14px;
+      font-weight:950;
+      background:linear-gradient(145deg,#32191f,#1a171c);
+      border:1px solid #6d303b
     }
 
     .drop-name{
@@ -642,7 +674,6 @@
   <div class="balances">
 
     <div class="balance-card">
-
       <div class="balance-label">
         Telegram Stars
       </div>
@@ -653,11 +684,9 @@
       >
         0
       </div>
-
     </div>
 
     <div class="balance-card">
-
       <div class="balance-label">
         TON
       </div>
@@ -668,11 +697,9 @@
       >
         0
       </div>
-
     </div>
 
   </div>
-
 
   <div class="hero">
 
@@ -684,14 +711,12 @@
       id="previewStrip"
       class="preview-strip"
     >
-
       <div
         id="rouletteTrack"
         class="roulette-track"
       ></div>
 
       <div class="preview-line"></div>
-
     </div>
 
     <button
@@ -703,7 +728,6 @@
     </button>
 
   </div>
-
 
   <div class="section-title">
     Выбери кейс
@@ -717,17 +741,12 @@
 </div>
 
 
-<!-- МОДАЛЬНОЕ ОКНО -->
-
 <div
   id="caseModal"
   class="modal"
 >
 
   <div class="sheet">
-
-
-    <!-- ИНФОРМАЦИЯ О КЕЙСЕ -->
 
     <div id="caseContent">
 
@@ -756,7 +775,7 @@
       ></div>
 
       <div class="drop-heading">
-        Что может выпасть
+        Что можно выбить
       </div>
 
       <div
@@ -774,8 +793,6 @@
 
     </div>
 
-
-    <!-- РЕЗУЛЬТАТ -->
 
     <div
       id="winResult"
@@ -798,20 +815,16 @@
 
       </div>
 
-
       <div
         id="resultImageBox"
         class="result-image"
       >
-
         <img
           id="resultImage"
           src=""
           alt=""
         >
-
       </div>
-
 
       <div class="result-label">
         Ваш приз
@@ -822,12 +835,10 @@
         class="result-name"
       ></div>
 
-
       <div
         id="resultStatus"
         class="status-box"
       ></div>
-
 
       <div class="win-actions">
 
@@ -839,7 +850,6 @@
           Вывести NFT
         </button>
 
-
         <button
           id="sellPrize"
           class="sell-btn"
@@ -848,7 +858,6 @@
         >
           ⭐ Продать за 15 Stars
         </button>
-
 
         <button
           id="playAgain"
@@ -879,46 +888,29 @@
   const tg =
     window.Telegram?.WebApp || null;
 
-
   let userBalance = {
     stars:0,
     ton:0
   };
 
-
   let CASES = [];
-
   let selectedCase = null;
-
   let currentWin = null;
-
   let rouletteBusy = false;
 
 
-
   try {
-
     tg?.ready();
-
     tg?.expand();
-
-    tg?.setHeaderColor(
-      "#07090e"
-    );
-
-    tg?.setBackgroundColor(
-      "#07090e"
-    );
-
+    tg?.setHeaderColor("#07090e");
+    tg?.setBackgroundColor("#07090e");
   } catch (_) {}
-
 
 
   function showToast(
     message,
     timeout = 3500
   ) {
-
     const el =
       document.getElementById(
         "toast"
@@ -931,27 +923,20 @@
       "show"
     );
 
-
     clearTimeout(
       window.toastTimer
     );
 
-
     window.toastTimer =
       setTimeout(() => {
-
         el.classList.remove(
           "show"
         );
-
       }, timeout);
-
   }
 
 
-
   function parseNumber(value) {
-
     const n =
       Number(
         String(
@@ -965,13 +950,10 @@
     return Number.isFinite(n)
       ? n
       : 0;
-
   }
 
 
-
   function hasEnough(item) {
-
     return (
       userBalance.stars >=
         Number(item?.stars || 0)
@@ -979,45 +961,34 @@
       userBalance.ton >=
         Number(item?.ton || 0)
     );
-
   }
 
 
-
   function hasEnoughStars(item) {
-
     return (
       userBalance.stars >=
       Number(
         item?.stars || 0
       )
     );
-
   }
-
 
 
   function requireInitData() {
-
     if (!tg?.initData) {
-
       throw new Error(
         "Откройте мини-приложение внутри Telegram"
       );
-
     }
 
     return tg.initData;
-
   }
-
 
 
   async function post(
     url,
     body
   ) {
-
     const response =
       await fetch(
         url,
@@ -1036,37 +1007,26 @@
         }
       );
 
-
     let data = {};
 
-
     try {
-
       data =
         await response.json();
-
     } catch (_) {}
 
-
     if (!response.ok) {
-
       throw new Error(
         data?.detail ||
         data?.message ||
         `Ошибка ${response.status}`
       );
-
     }
 
-
     return data;
-
   }
 
 
-
   function giftImage(item) {
-
     if (
       item?.is_failure
     ) {
@@ -1079,51 +1039,24 @@
       item?.photo_url ||
       "/static/nft-gift.png"
     );
-
   }
-
 
 
   function safeText(value) {
-
     return String(
       value ?? ""
     )
-
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
 
-
   function setBalances(data) {
-
     const balances =
       data || {};
-
 
     userBalance.stars =
       parseNumber(
@@ -1132,7 +1065,6 @@
         0
       );
 
-
     userBalance.ton =
       parseNumber(
         balances.TON ??
@@ -1140,33 +1072,26 @@
         0
       );
 
-
     document.getElementById(
       "starsBalance"
     ).textContent =
       userBalance.stars;
-
 
     document.getElementById(
       "tonBalance"
     ).textContent =
       userBalance.ton;
 
-
     updateHeroAction();
-
   }
-
 
 
   function rouletteItemHtml(
     item
   ) {
-
     if (
       item?.is_failure
     ) {
-
       return `
         <div
           class="preview-item failure"
@@ -1175,38 +1100,30 @@
           НЕУДАЧА
         </div>
       `;
-
     }
-
 
     return `
       <div
         class="preview-item"
         data-prize-id="${safeText(item?.id || "")}"
       >
-
         <img
           src="${safeText(giftImage(item))}"
           alt="${safeText(item?.name || "Приз")}"
           onerror="this.onerror=null;this.src='/static/nft-gift.png'"
         >
-
       </div>
     `;
-
   }
-
 
 
   function renderPreview(
     item = selectedCase
   ) {
-
     const track =
       document.getElementById(
         "rouletteTrack"
       );
-
 
     const items =
       Array.isArray(
@@ -1215,16 +1132,13 @@
         ? item.items
         : [];
 
-
     track.style.transition =
       "none";
 
     track.style.transform =
       "translateX(0px)";
 
-
     if (!items.length) {
-
       track.innerHTML = `
         <div class="preview-item failure">
           ВЫБЕРИ КЕЙС
@@ -1232,25 +1146,19 @@
       `;
 
       return;
-
     }
 
-
     const repeated = [];
-
 
     for (
       let i = 0;
       i < 3;
       i++
     ) {
-
       repeated.push(
         ...items
       );
-
     }
-
 
     track.innerHTML =
       repeated
@@ -1258,24 +1166,18 @@
           rouletteItemHtml
         )
         .join("");
-
   }
 
 
-
   function updateHeroAction() {
-
     const button =
       document.getElementById(
         "depositBtn"
       );
 
-
     if (!button) return;
 
-
     if (!selectedCase) {
-
       button.textContent =
         "+ Пополнить баланс";
 
@@ -1284,16 +1186,13 @@
       );
 
       return;
-
     }
-
 
     if (
       hasEnoughStars(
         selectedCase
       )
     ) {
-
       button.textContent =
         `Крутить за ${selectedCase.stars} ⭐`;
 
@@ -1302,28 +1201,22 @@
       );
 
     } else {
-
       button.textContent =
         "+ Пополнить баланс";
 
       button.classList.add(
         "low"
       );
-
     }
-
   }
 
 
-
   function selectCase(item) {
-
     selectedCase =
       item;
 
     currentWin =
       null;
-
 
     renderPreview(
       item
@@ -1333,7 +1226,6 @@
 
     updateHeroAction();
 
-
     document
       .querySelector(
         ".hero"
@@ -1342,18 +1234,14 @@
         behavior:"smooth",
         block:"center"
       });
-
   }
-
 
 
   function casePreviewHtml(
     items
   ) {
-
     const preview =
       Array.isArray(items)
-
         ? items
             .filter(
               x =>
@@ -1363,58 +1251,44 @@
               0,
               3
             )
-
         : [];
-
 
     if (
       !preview.length
     ) {
-
       return `
         <div class="case-thumb">
-
           <img
             src="/static/nft-gift.png"
             alt=""
           >
-
         </div>
       `;
-
     }
-
 
     return preview
       .map(
         item => `
           <div class="case-thumb">
-
             <img
               src="${safeText(giftImage(item))}"
               alt=""
               onerror="this.onerror=null;this.src='/static/nft-gift.png'"
             >
-
           </div>
         `
       )
       .join("");
-
   }
 
 
-
   function renderCases() {
-
     const root =
       document.getElementById(
         "cases"
       );
 
-
     if (!CASES.length) {
-
       root.innerHTML = `
         <div class="empty">
           В кейсах пока нет доступных призов.
@@ -1422,9 +1296,7 @@
       `;
 
       return;
-
     }
-
 
     root.innerHTML =
       CASES.map(
@@ -1438,7 +1310,6 @@
             Number(
               item.id
             );
-
 
           return `
 
@@ -1459,45 +1330,47 @@
 
               </div>
 
-
               <div class="case-name">
                 ${safeText(item.name)}
               </div>
 
-
               <div class="case-price">
-
                 ${item.stars} Stars /
-
                 ${Number(
                   item.ton || 0
                 ).toFixed(2)} TON
-
               </div>
 
+              <div class="case-actions">
 
-              <button
-                type="button"
-                class="case-btn"
-                data-action="${item.id}"
-              >
+                <button
+                  type="button"
+                  class="case-btn"
+                  data-action="${item.id}"
+                >
+                  ${
+                    active
+                      ? "✓ Выбрано"
+                      : "Выбрать"
+                  }
+                </button>
 
-                ${
-                  active
-                    ? "✓ Выбрано"
-                    : "Выбрать"
-                }
+                <button
+                  type="button"
+                  class="case-view-btn"
+                  data-view="${item.id}"
+                >
+                  Посмотреть
+                </button>
 
-              </button>
+              </div>
 
             </div>
 
           `;
-
         }
       )
       .join("");
-
 
 
     document
@@ -1513,12 +1386,11 @@
 
               if (
                 event.target.closest(
-                  "[data-action]"
+                  "[data-action], [data-view]"
                 )
               ) {
                 return;
               }
-
 
               const item =
                 CASES.find(
@@ -1530,21 +1402,15 @@
                     )
                 );
 
-
               if (item) {
-
                 selectCase(
                   item
                 );
-
               }
-
             }
           );
-
         }
       );
-
 
 
     document
@@ -1560,7 +1426,6 @@
 
               event.stopPropagation();
 
-
               const item =
                 CASES.find(
                   x =>
@@ -1571,39 +1436,63 @@
                     )
                 );
 
-
               if (item) {
-
                 selectCase(
                   item
                 );
-
               }
-
             }
           );
-
         }
       );
 
+
+    document
+      .querySelectorAll(
+        "[data-view]"
+      )
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            "click",
+            event => {
+
+              event.stopPropagation();
+
+              const item =
+                CASES.find(
+                  x =>
+                    Number(x.id)
+                    ===
+                    Number(
+                      button.dataset.view
+                    )
+                );
+
+              if (item) {
+                openCase(
+                  item
+                );
+              }
+            }
+          );
+        }
+      );
   }
 
 
-
   function openCase(item) {
-
     selectedCase =
       item;
 
     currentWin =
       null;
 
-
     document.getElementById(
       "caseContent"
     ).style.display =
       "block";
-
 
     document.getElementById(
       "winResult"
@@ -1611,24 +1500,20 @@
       "show"
     );
 
-
     document.getElementById(
       "modalTitle"
     ).textContent =
       item.name;
-
 
     document.getElementById(
       "modalPrice"
     ).textContent =
       `${item.stars} Stars / ${Number(item.ton || 0).toFixed(2)} TON`;
 
-
     const drops =
       document.getElementById(
         "drops"
       );
-
 
     if (
       !Array.isArray(
@@ -1637,7 +1522,6 @@
       ||
       !item.items.length
     ) {
-
       drops.innerHTML = `
         <div class="empty">
           В этом кейсе пока нет доступных призов.
@@ -1645,7 +1529,6 @@
       `;
 
     } else {
-
 
       drops.innerHTML =
         item.items
@@ -1658,6 +1541,27 @@
                   0
                 );
 
+              if (
+                gift?.is_failure
+              ) {
+                return `
+                  <div class="drop">
+
+                    <div class="drop-image failure">
+                      НЕУДАЧА
+                    </div>
+
+                    <div class="drop-name">
+                      ${safeText(gift.name || "Неудача")}
+                    </div>
+
+                    <div class="drop-chance">
+                      Шанс: ${chance}%
+                    </div>
+
+                  </div>
+                `;
+              }
 
               return `
                 <div class="drop">
@@ -1696,24 +1600,19 @@
 
                 </div>
               `;
-
             }
           )
           .join("");
-
     }
-
 
     const action =
       document.getElementById(
         "modalAction"
       );
 
-
     if (
       hasEnough(item)
     ) {
-
       action.classList.remove(
         "low"
       );
@@ -1722,44 +1621,34 @@
         `Крутить за ${item.stars} ⭐`;
 
     } else {
-
       action.classList.add(
         "low"
       );
 
       action.textContent =
         "Пополнить баланс";
-
     }
-
 
     document.getElementById(
       "caseModal"
     ).classList.add(
       "active"
     );
-
   }
 
 
-
   function closeModal() {
-
     document.getElementById(
       "caseModal"
     ).classList.remove(
       "active"
     );
-
   }
 
 
-
   async function loadBalances() {
-
     const initData =
       requireInitData();
-
 
     const data =
       await post(
@@ -1769,27 +1658,21 @@
         }
       );
 
-
     setBalances(
       data?.balances ||
       {}
     );
-
   }
 
 
-
   async function loadCatalog() {
-
     const initData =
       requireInitData();
-
 
     const warning =
       document.getElementById(
         "catalogWarning"
       );
-
 
     try {
 
@@ -1801,7 +1684,6 @@
           }
         );
 
-
       CASES =
         Array.isArray(
           data?.cases
@@ -1809,11 +1691,9 @@
           ? data.cases
           : [];
 
-
       if (
         data?.warning
       ) {
-
         warning.textContent =
           data.warning;
 
@@ -1822,25 +1702,19 @@
         );
 
       } else {
-
         warning.classList.remove(
           "show"
         );
-
       }
-
 
       if (
         !selectedCase
         &&
         CASES.length
       ) {
-
         selectedCase =
           CASES[0];
-
       }
-
 
       renderPreview(
         selectedCase
@@ -1857,32 +1731,24 @@
         +
         error.message;
 
-
       warning.classList.add(
         "show"
       );
 
-
       CASES = [];
 
-
       renderCases();
-
     }
-
   }
-
 
 
   async function animateRouletteTo(
     prize
   ) {
-
     const track =
       document.getElementById(
         "rouletteTrack"
       );
-
 
     const items =
       Array.isArray(
@@ -1891,65 +1757,44 @@
         ? selectedCase.items
         : [];
 
-
     if (!items.length) {
-
       return;
-
     }
 
-
     const sequence = [];
-
-
-    // длинная лента перед выигрышем
 
     for (
       let i = 0;
       i < 10;
       i++
     ) {
-
       sequence.push(
         ...items
       );
-
     }
-
-
-    // именно сюда станет выигрыш
 
     const targetIndex =
       sequence.length;
 
-
     sequence.push(
       prize
     );
-
-
-    // элементы после выигрыша
 
     for (
       let i = 0;
       i < 8;
       i++
     ) {
-
       sequence.push(
         ...items
       );
-
     }
-
 
     track.style.transition =
       "none";
 
-
     track.style.transform =
       "translateX(0px)";
-
 
     track.innerHTML =
       sequence
@@ -1958,140 +1803,106 @@
         )
         .join("");
 
-
     await new Promise(
       resolve =>
-
         requestAnimationFrame(
           () =>
-
             requestAnimationFrame(
               resolve
             )
-
         )
-
     );
-
 
     const cards =
       [
         ...track.children
       ];
 
-
     const target =
       cards[
         targetIndex
       ];
-
 
     const strip =
       document.getElementById(
         "previewStrip"
       );
 
-
     if (
       !target ||
       !strip
     ) {
-
       return;
-
     }
-
 
     const targetCenter =
       target.offsetLeft
       +
       target.offsetWidth / 2;
 
-
     const stripCenter =
       strip.clientWidth / 2;
-
 
     const translate =
       stripCenter
       -
       targetCenter;
 
-
     track.style.transition =
       "transform 4.2s cubic-bezier(.08,.72,.12,1)";
-
 
     track.style.transform =
       `translateX(${translate}px)`;
 
-
     await new Promise(
       resolve =>
-
         setTimeout(
           resolve,
           4350
         )
-
     );
-
   }
 
 
-
   async function openSelectedCase() {
-
     if (
       !selectedCase ||
       rouletteBusy
     ) {
-
       return;
-
     }
-
 
     if (
       !hasEnoughStars(
         selectedCase
       )
     ) {
-
       window.location.href =
         "/?openDeposit=1";
 
       return;
-
     }
-
 
     const button =
       document.getElementById(
         "depositBtn"
       );
 
-
     rouletteBusy =
       true;
-
 
     button.disabled =
       true;
 
-
     button.textContent =
       "Крутим…";
 
-
     try {
-
 
       const data =
         await post(
           "/api/cases/open",
           {
-
             initData:
               requireInitData(),
 
@@ -2099,125 +1910,88 @@
               Number(
                 selectedCase.id
               )
-
           }
         );
-
 
       if (
         !data?.prize
       ) {
-
         throw new Error(
           "Сервер не вернул приз"
         );
-
       }
 
-
       currentWin = {
-
         win_id:
           data.win_id,
 
         prize:
           data.prize
-
       };
-
 
       await animateRouletteTo(
         data.prize
       );
 
-
       if (
         data?.balances
       ) {
-
         setBalances(
           data.balances
         );
 
       } else {
-
         try {
-
           await loadBalances();
-
         } catch (_) {}
-
       }
-
-
-      // ВАЖНО:
-      // ПОСЛЕ РУЛЕТКИ ОТКРЫВАЕМ
-      // РЕЗУЛЬТАТ В МОДАЛЬНОМ ОКНЕ
 
       showWin(
         data.prize
       );
 
-
       renderCases();
 
-
     } catch (error) {
-
 
       showToast(
         error.message,
         5000
       );
 
-
       renderPreview(
         selectedCase
       );
 
-
     } finally {
-
 
       rouletteBusy =
         false;
 
-
       button.disabled =
         false;
 
-
       updateHeroAction();
-
     }
-
   }
-
 
 
   function showWin(
     prize
   ) {
-
     const modal =
       document.getElementById(
         "caseModal"
       );
 
-
-    // ГЛАВНОЕ ИСПРАВЛЕНИЕ:
-    // МОДАЛКА ТЕПЕРЬ ОБЯЗАТЕЛЬНО ОТКРЫВАЕТСЯ
-
     modal.classList.add(
       "active"
     );
-
 
     document.getElementById(
       "caseContent"
     ).style.display =
       "none";
-
 
     document.getElementById(
       "winResult"
@@ -2225,100 +1999,74 @@
       "show"
     );
 
-
     const image =
       document.getElementById(
         "resultImage"
       );
-
 
     const imageBox =
       document.getElementById(
         "resultImageBox"
       );
 
-
     const failed =
       Boolean(
         prize?.is_failure
       );
 
-
     if (failed) {
-
 
       image.removeAttribute(
         "src"
       );
 
-
       image.style.display =
         "none";
 
-
       imageBox.style.display =
         "none";
-
 
     } else {
 
-
       imageBox.style.display =
         "block";
 
-
       image.style.display =
         "block";
-
 
       image.src =
         giftImage(
           prize
         );
 
-
       image.alt =
         prize?.name ||
         "Приз";
 
-
       image.onerror =
         () => {
-
           image.onerror =
             null;
 
           image.src =
             "/static/nft-gift.png";
-
         };
-
     }
-
 
     document.getElementById(
       "resultName"
     ).textContent =
-
       failed
-
         ? "Неудача — в этот раз без приза"
-
         : (
             prize?.name ||
             "Приз"
           );
 
-
     const sellButton =
       document.getElementById(
         "sellPrize"
       );
-
-
-    // Берём цену продажи от сервера.
-    // Если сервер её пока не присылает —
-    // показываем 15 Stars.
 
     let sellStars =
       Number(
@@ -2328,198 +2076,138 @@
         0
       );
 
-
     if (
       !failed &&
       sellStars <= 0
     ) {
-
       sellStars = 15;
-
     }
-
 
     if (
       !failed &&
       sellStars > 0
     ) {
 
-
       sellButton.style.display =
         "block";
 
-
       sellButton.textContent =
         `⭐ Продать за ${sellStars} Stars`;
-
 
       sellButton.dataset.sellStars =
         String(
           sellStars
         );
 
-
     } else {
-
 
       sellButton.style.display =
         "none";
 
-
       delete sellButton.dataset.sellStars;
-
     }
-
-
 
     const withdrawButton =
       document.getElementById(
         "withdrawPrize"
       );
 
-
     if (
       failed ||
       prize?.withdrawable === false
     ) {
-
-
       withdrawButton.style.display =
         "none";
 
-
     } else {
-
-
       withdrawButton.style.display =
         "block";
 
-
       withdrawButton.textContent =
         "Вывести NFT";
-
     }
-
-
 
     const status =
       document.getElementById(
         "resultStatus"
       );
 
-
     status.classList.remove(
       "show"
     );
 
-
     status.textContent =
       "";
 
-
-
-    // ВИБРАЦИЯ
-
     try {
-
-
       if (failed) {
-
-
         tg?.HapticFeedback
           ?.notificationOccurred(
             "error"
           );
 
-
       } else {
-
-
         tg?.HapticFeedback
           ?.notificationOccurred(
             "success"
           );
-
-
       }
-
-
     } catch (_) {}
-
   }
 
 
-
   async function sellCurrentPrize() {
-
     if (
       !currentWin?.win_id
     ) {
-
       showToast(
         "Не найден ID выигрыша",
         4000
       );
 
       return;
-
     }
-
 
     const button =
       document.getElementById(
         "sellPrize"
       );
 
-
     const oldText =
       button.textContent;
-
 
     button.disabled =
       true;
 
-
     button.textContent =
       "Продаём…";
 
-
     try {
-
 
       const data =
         await post(
           "/api/cases/sell",
           {
-
             initData:
               requireInitData(),
 
             win_id:
               currentWin.win_id
-
           }
         );
-
 
       if (
         data?.balances
       ) {
-
         setBalances(
           data.balances
         );
 
       } else {
-
         try {
-
           await loadBalances();
-
         } catch (_) {}
-
       }
-
 
       const creditedStars =
         Number(
@@ -2529,189 +2217,143 @@
           15
         );
 
-
       const status =
         document.getElementById(
           "resultStatus"
         );
 
-
       status.textContent =
         `Продано. На баланс начислено ${creditedStars} Stars.`;
-
 
       status.classList.add(
         "show"
       );
 
-
       button.style.display =
         "none";
-
 
       document.getElementById(
         "withdrawPrize"
       ).style.display =
         "none";
 
-
       currentWin.sold =
         true;
 
-
       try {
-
         tg?.HapticFeedback
           ?.notificationOccurred(
             "success"
           );
-
       } catch (_) {}
-
 
       renderCases();
 
-
     } catch (error) {
-
 
       button.textContent =
         oldText;
-
 
       showToast(
         error.message,
         5000
       );
 
-
     } finally {
-
 
       button.disabled =
         false;
-
     }
-
   }
 
 
-
   async function withdrawCurrentPrize() {
-
     if (
       !currentWin?.win_id
     ) {
-
       showToast(
         "Не найден ID выигрыша",
         4000
       );
 
       return;
-
     }
-
 
     const button =
       document.getElementById(
         "withdrawPrize"
       );
 
-
     button.disabled =
       true;
-
 
     const oldText =
       button.textContent;
 
-
     button.textContent =
       "Отправляем заявку…";
 
-
     try {
-
 
       const data =
         await post(
           "/api/cases/withdraw",
           {
-
             initData:
               requireInitData(),
 
             win_id:
               currentWin.win_id
-
           }
         );
-
 
       const status =
         document.getElementById(
           "resultStatus"
         );
 
-
       status.textContent =
         data?.message ||
         "Заявка на вывод отправлена.";
-
 
       status.classList.add(
         "show"
       );
 
-
       button.style.display =
         "none";
-
 
       document.getElementById(
         "sellPrize"
       ).style.display =
         "none";
 
-
       currentWin.withdrawn =
         true;
 
-
       try {
-
         tg?.HapticFeedback
           ?.notificationOccurred(
             "success"
           );
-
       } catch (_) {}
 
-
     } catch (error) {
-
 
       showToast(
         error.message,
         5000
       );
 
-
       button.textContent =
         oldText;
 
-
     } finally {
-
 
       button.disabled =
         false;
-
     }
-
   }
-
 
 
   document.getElementById(
@@ -2720,13 +2362,10 @@
   .addEventListener(
     "click",
     () => {
-
       window.location.href =
         "/";
-
     }
   );
-
 
 
   document.getElementById(
@@ -2742,19 +2381,14 @@
           selectedCase
         )
       ) {
-
         openSelectedCase();
 
       } else {
-
         window.location.href =
           "/?openDeposit=1";
-
       }
-
     }
   );
-
 
 
   document.getElementById(
@@ -2766,7 +2400,6 @@
   );
 
 
-
   document.getElementById(
     "closeResult"
   )
@@ -2774,7 +2407,6 @@
     "click",
     closeModal
   );
-
 
 
   document.getElementById(
@@ -2788,14 +2420,10 @@
         event.target.id ===
         "caseModal"
       ) {
-
         closeModal();
-
       }
-
     }
   );
-
 
 
   document.getElementById(
@@ -2811,21 +2439,16 @@
           selectedCase
         )
       ) {
-
         closeModal();
 
         openSelectedCase();
 
       } else {
-
         window.location.href =
           "/?openDeposit=1";
-
       }
-
     }
   );
-
 
 
   document.getElementById(
@@ -2837,7 +2460,6 @@
   );
 
 
-
   document.getElementById(
     "withdrawPrize"
   )
@@ -2845,7 +2467,6 @@
     "click",
     withdrawCurrentPrize
   );
-
 
 
   document.getElementById(
@@ -2865,35 +2486,25 @@
       );
 
       updateHeroAction();
-
     }
   );
 
 
-
   async function init() {
-
     try {
-
 
       await loadBalances();
 
       await loadCatalog();
 
-
     } catch (error) {
-
 
       showToast(
         error.message,
         5000
       );
-
-
     }
-
   }
-
 
 
   init();
