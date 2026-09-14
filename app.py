@@ -701,6 +701,19 @@ def save_user(user):
     )
 
 
+def require_admin(init_data):
+    user = validate_init_data(init_data)
+
+    if int(user["id"]) != int(ADMIN_ID):
+        raise HTTPException(
+            403,
+            "Доступ только для администратора"
+        )
+
+    save_user(user)
+    return user
+
+
 # =========================================================
 # NFT META
 # =========================================================
@@ -1030,6 +1043,8 @@ def build_failure_items(case_id):
 
 
 def build_case_catalog(backpack_items):
+    # Пока сохраняем существующую рабочую механику кейсов без изменений.
+    # Подключение case_admin_items к розыгрышу сделаем после готовности панели.
     buckets = [[], [], [], []]
 
     for index, item in enumerate(backpack_items):
@@ -1412,6 +1427,25 @@ class CaseWinPayload(BaseModel):
     win_id: int
 
 
+
+class AdminCaseItemCreatePayload(BaseModel):
+    initData: str
+    case_id: int
+    gift_url: str
+    chance_percent: float
+
+
+class AdminCaseItemUpdatePayload(BaseModel):
+    initData: str
+    item_id: int
+    chance_percent: float
+
+
+class AdminCaseItemDeletePayload(BaseModel):
+    initData: str
+    item_id: int
+
+
 # =========================================================
 # WEB PAGES
 # =========================================================
@@ -1467,6 +1501,18 @@ async def cases_page():
             APP_DIR,
             "static",
             "cases.html"
+        )
+    )
+
+
+
+@app.get("/admin")
+async def admin_page():
+    return FileResponse(
+        os.path.join(
+            APP_DIR,
+            "static",
+            "admin.html"
         )
     )
 
@@ -1642,6 +1688,277 @@ async def me(
             "@"
             + DEPOSIT_USERNAME,
         "deposits": gifts
+    }
+
+
+# =========================================================
+# ADMIN CASE API
+# =========================================================
+
+@app.post("/api/admin/status")
+async def admin_status(
+    payload: InitPayload
+):
+    user = validate_init_data(
+        payload.initData
+    )
+
+    return {
+        "ok": True,
+        "is_admin": int(user["id"]) == int(ADMIN_ID)
+    }
+
+
+@app.post("/api/admin/cases/items")
+async def admin_case_items(
+    payload: InitPayload
+):
+    require_admin(
+        payload.initData
+    )
+
+    with db() as conn:
+        rows = conn.execute("""
+        SELECT
+            id,
+            case_id,
+            gift_url,
+            gift_name,
+            gift_image,
+            chance_percent,
+            sell_stars,
+            withdrawable,
+            created_at
+        FROM case_admin_items
+        ORDER BY case_id, id
+        """).fetchall()
+
+    grouped = {
+        str(config["id"]): []
+        for config in CASE_CONFIGS
+    }
+
+    for row in rows:
+        grouped[str(row["case_id"])].append({
+            "id": row["id"],
+            "case_id": row["case_id"],
+            "gift_url": row["gift_url"],
+            "gift_name": row["gift_name"],
+            "gift_image": row["gift_image"] or "",
+            "chance_percent": float(row["chance_percent"]),
+            "sell_stars": int(row["sell_stars"] or 0),
+            "withdrawable": bool(row["withdrawable"]),
+            "created_at": row["created_at"]
+        })
+
+    return {
+        "ok": True,
+        "cases": grouped
+    }
+
+
+@app.post("/api/admin/cases/add")
+async def admin_case_add(
+    payload: AdminCaseItemCreatePayload
+):
+    require_admin(
+        payload.initData
+    )
+
+    case_id = int(payload.case_id)
+
+    if case_id not in {
+        int(config["id"])
+        for config in CASE_CONFIGS
+    }:
+        raise HTTPException(
+            400,
+            "Неверный номер кейса"
+        )
+
+    chance = round(
+        float(payload.chance_percent),
+        4
+    )
+
+    if chance <= 0 or chance > 25:
+        raise HTTPException(
+            400,
+            "Шанс должен быть больше 0 и не больше 25%"
+        )
+
+    gift_url = normalize_gift_url(
+        payload.gift_url
+    )
+
+    with db() as conn:
+        current_total = conn.execute("""
+        SELECT COALESCE(
+            SUM(chance_percent),
+            0
+        ) AS total
+        FROM case_admin_items
+        WHERE case_id=?
+        """, (
+            case_id,
+        )).fetchone()["total"]
+
+    if float(current_total or 0) + chance > 25.0001:
+        raise HTTPException(
+            400,
+            (
+                "Суммарный шанс обычных NFT в кейсе "
+                "не может быть больше 25%"
+            )
+        )
+
+    meta = await asyncio.to_thread(
+        fetch_gift_meta,
+        gift_url
+    )
+
+    try:
+        with db() as conn:
+            cursor = conn.execute("""
+            INSERT INTO case_admin_items(
+                case_id,
+                gift_url,
+                gift_name,
+                gift_image,
+                chance_percent,
+                sell_stars,
+                withdrawable
+            )
+            VALUES(?,?,?,?,?,0,1)
+            """, (
+                case_id,
+                gift_url,
+                meta["name"] or "Telegram Gift",
+                meta["image"] or "",
+                chance
+            ))
+
+            item_id = cursor.lastrowid
+            conn.commit()
+
+    except sqlite3.IntegrityError:
+        raise HTTPException(
+            409,
+            "Этот NFT уже добавлен в выбранный кейс"
+        )
+
+    return {
+        "ok": True,
+        "item_id": item_id,
+        "gift": {
+            "name": meta["name"],
+            "image_url": meta["image"],
+            "gift_url": gift_url
+        }
+    }
+
+
+@app.post("/api/admin/cases/update")
+async def admin_case_update(
+    payload: AdminCaseItemUpdatePayload
+):
+    require_admin(
+        payload.initData
+    )
+
+    chance = round(
+        float(payload.chance_percent),
+        4
+    )
+
+    if chance <= 0 or chance > 25:
+        raise HTTPException(
+            400,
+            "Шанс должен быть больше 0 и не больше 25%"
+        )
+
+    with db() as conn:
+        row = conn.execute("""
+        SELECT
+            id,
+            case_id,
+            chance_percent
+        FROM case_admin_items
+        WHERE id=?
+        """, (
+            payload.item_id,
+        )).fetchone()
+
+        if not row:
+            raise HTTPException(
+                404,
+                "Предмет не найден"
+            )
+
+        other_total = conn.execute("""
+        SELECT COALESCE(
+            SUM(chance_percent),
+            0
+        ) AS total
+        FROM case_admin_items
+        WHERE case_id=?
+        AND id<>?
+        """, (
+            row["case_id"],
+            payload.item_id
+        )).fetchone()["total"]
+
+        if float(other_total or 0) + chance > 25.0001:
+            raise HTTPException(
+                400,
+                (
+                    "Суммарный шанс обычных NFT в кейсе "
+                    "не может быть больше 25%"
+                )
+            )
+
+        conn.execute("""
+        UPDATE case_admin_items
+        SET chance_percent=?
+        WHERE id=?
+        """, (
+            chance,
+            payload.item_id
+        ))
+
+        conn.commit()
+
+    return {
+        "ok": True
+    }
+
+
+@app.post("/api/admin/cases/delete")
+async def admin_case_delete(
+    payload: AdminCaseItemDeletePayload
+):
+    require_admin(
+        payload.initData
+    )
+
+    with db() as conn:
+        cursor = conn.execute("""
+        DELETE FROM case_admin_items
+        WHERE id=?
+        """, (
+            payload.item_id,
+        ))
+
+        conn.commit()
+
+    if cursor.rowcount <= 0:
+        raise HTTPException(
+            404,
+            "Предмет не найден"
+        )
+
+    return {
+        "ok": True
     }
 
 
