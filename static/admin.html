@@ -101,6 +101,29 @@
       background:linear-gradient(135deg,#6e49ff,#944cff);
     }
 
+    .type-tabs{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-bottom:14px;
+    }
+
+    .type-tab{
+      border:1px solid #2a3140;
+      background:#0b0f16;
+      color:#aeb5c5;
+      border-radius:12px;
+      padding:11px 6px;
+      font-weight:800;
+      font-size:12px;
+    }
+
+    .type-tab.active{
+      color:#fff;
+      border-color:#7b57ff;
+      background:#242038;
+    }
+
     .section-title{
       font-size:16px;
       font-weight:800;
@@ -214,6 +237,7 @@
       justify-content:center;
       color:#6f778a;
       font-size:11px;
+      text-align:center;
     }
 
     .thumb img{
@@ -295,6 +319,10 @@
         grid-template-columns:repeat(2,1fr);
       }
 
+      .type-tabs{
+        grid-template-columns:repeat(2,1fr);
+      }
+
       .item-actions{
         grid-template-columns:1fr 1fr;
       }
@@ -313,7 +341,7 @@
   <div class="top">
     <div>
       <div class="title">Админ-панель</div>
-      <div class="subtitle">Управление NFT в кейсах</div>
+      <div class="subtitle">Управление призами и шансами в кейсах</div>
     </div>
 
     <button class="back" id="backBtn">
@@ -338,11 +366,16 @@
 
     <div class="card">
 
-      <div class="section-title">
-        Добавить NFT
+      <div class="section-title">Добавить приз</div>
+
+      <div class="type-tabs">
+        <button class="type-tab active" data-type="nft">NFT</button>
+        <button class="type-tab" data-type="bear">🐻 Мишка</button>
+        <button class="type-tab" data-type="heart">❤️ Сердце</button>
+        <button class="type-tab" data-type="failure">❌ Неудача</button>
       </div>
 
-      <div class="field">
+      <div class="field" id="giftUrlField">
         <label class="label">
           Ссылка Telegram NFT
         </label>
@@ -367,7 +400,7 @@
             id="chance"
             type="number"
             min="0.0001"
-            max="25"
+            max="100"
             step="0.1"
             placeholder="5"
           >
@@ -394,7 +427,7 @@
       <div class="summary">
         <span>Настроено</span>
         <strong id="totalText">
-          0% / 25%
+          0% / 100%
         </strong>
       </div>
 
@@ -404,7 +437,7 @@
           class="ok"
           id="remainingText"
         >
-          25%
+          100%
         </strong>
       </div>
 
@@ -431,6 +464,7 @@ if (tg) {
 const initData = tg?.initData || "";
 
 let selectedCase = 1;
+let selectedType = "nft";
 
 let dataByCase = {
   "1": [],
@@ -456,6 +490,9 @@ const remainingText =
 
 const giftUrl =
   document.getElementById("giftUrl");
+
+const giftUrlField =
+  document.getElementById("giftUrlField");
 
 const chance =
   document.getElementById("chance");
@@ -571,11 +608,11 @@ function renderSummary(){
   const remaining =
     Math.max(
       0,
-      25-total
+      100-total
     );
 
   totalText.textContent =
-    `${formatPercent(total)} / 25%`;
+    `${formatPercent(total)} / 100%`;
 
   remainingText.textContent =
     formatPercent(
@@ -613,8 +650,7 @@ function renderItems(){
 
     itemsBox.innerHTML = `
       <div class="empty">
-        В этом кейсе пока нет NFT,
-        добавленных через админку.
+        В этом кейсе пока нет призов, добавленных через админку.
       </div>
     `;
 
@@ -625,12 +661,31 @@ function renderItems(){
     items.map(
       item => {
 
+        const type =
+          item.item_type || "nft";
+
+        const typeLabel = {
+          nft:"NFT",
+          bear:"🐻 Мишка",
+          heart:"❤️ Сердце",
+          failure:"❌ Неудача"
+        }[type] || "NFT";
+
+        const fallbackImage =
+          type === "bear"
+            ? "/static/case1-bear-clean.png"
+            : type === "heart"
+              ? "/static/case1-heart-clean.png"
+              : "";
+
+        const imageUrl =
+          item.gift_image ||
+          fallbackImage;
+
         const image =
-          item.gift_image
-          ?
-          `<img src="${escapeHtml(item.gift_image)}">`
-          :
-          "NFT";
+          imageUrl
+            ? `<img src="${escapeHtml(imageUrl)}">`
+            : typeLabel;
 
         return `
           <div
@@ -646,8 +701,7 @@ function renderItems(){
 
               <div class="name">
                 ${escapeHtml(
-                  item.gift_name ||
-                  "Telegram Gift"
+                  item.gift_name || typeLabel
                 )}
               </div>
 
@@ -663,7 +717,7 @@ function renderItems(){
                   class="chance-input"
                   type="number"
                   min="0.0001"
-                  max="25"
+                  max="100"
                   step="0.1"
                   value="${Number(
                     item.chance_percent
@@ -754,6 +808,54 @@ async function loadItems(){
 }
 
 
+function selectType(type){
+
+  selectedType = type;
+
+  document
+  .querySelectorAll(
+    ".type-tab"
+  )
+  .forEach(
+    btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.type === type
+      );
+
+    }
+  );
+
+  giftUrlField.style.display =
+    type === "nft"
+      ? "block"
+      : "none";
+}
+
+
+document
+.querySelectorAll(
+  ".type-tab"
+)
+.forEach(
+  btn => {
+
+    btn.addEventListener(
+      "click",
+      () => {
+
+        selectType(
+          btn.dataset.type
+        );
+
+      }
+    );
+
+  }
+);
+
+
 async function addItem(){
 
   const url =
@@ -764,10 +866,15 @@ async function addItem(){
       chance.value
     );
 
-  if(!url){
+  if(
+    selectedType === "nft"
+    &&
+    !url
+  ){
     showMessage(
       "Вставь ссылку на NFT."
     );
+
     return;
   }
 
@@ -776,11 +883,12 @@ async function addItem(){
     ||
     p <= 0
     ||
-    p > 25
+    p > 100
   ){
     showMessage(
-      "Шанс должен быть больше 0 и не больше 25%."
+      "Шанс должен быть больше 0 и не больше 100%."
     );
+
     return;
   }
 
@@ -794,7 +902,8 @@ async function addItem(){
         initData:initData,
         case_id:selectedCase,
         gift_url:url,
-        chance_percent:p
+        chance_percent:p,
+        item_type:selectedType
       }
     );
 
@@ -804,7 +913,7 @@ async function addItem(){
     await loadItems();
 
     showMessage(
-      `NFT добавлен в кейс №${selectedCase}`,
+      `Приз добавлен в кейс №${selectedCase}`,
       "success"
     );
 
@@ -847,11 +956,12 @@ async function saveChance(
     ||
     p <= 0
     ||
-    p > 25
+    p > 100
   ){
     showMessage(
-      "Неверный процент."
+      "Неверный процент. Допустимо от 0 до 100%."
     );
+
     return;
   }
 
@@ -889,7 +999,7 @@ async function deleteItem(
 
   const ok =
     confirm(
-      "Удалить NFT из кейса?"
+      "Удалить приз из кейса?"
     );
 
   if(!ok){
@@ -909,7 +1019,7 @@ async function deleteItem(
     await loadItems();
 
     showMessage(
-      "NFT удалён.",
+      "Приз удалён.",
       "success"
     );
 
@@ -999,7 +1109,9 @@ itemsBox.addEventListener(
     }
 
     if(action === "delete"){
-      deleteItem(id);
+      deleteItem(
+        id
+      );
     }
 
   }
@@ -1009,8 +1121,10 @@ itemsBox.addEventListener(
 backBtn.addEventListener(
   "click",
   () => {
+
     window.location.href =
       "/cases";
+
   }
 );
 
