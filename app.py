@@ -1830,6 +1830,14 @@ class AdminCaseItemDeletePayload(BaseModel):
     item_id: int
 
 
+class AdminUserBalancePayload(BaseModel):
+    initData: str
+    user_id: int
+    currency: str
+    operation: str
+    amount: str
+
+
 # =========================================================
 # WEB PAGES
 # =========================================================
@@ -2140,6 +2148,93 @@ async def me(
             "@"
             + DEPOSIT_USERNAME,
         "deposits": gifts
+    }
+
+
+# =========================================================
+# ADMIN USERS API
+# =========================================================
+
+@app.post("/api/admin/users")
+async def admin_users(payload: InitPayload):
+    require_admin(payload.initData)
+    with db() as conn:
+        rows = conn.execute("""
+        SELECT u.user_id, u.username, u.first_name, u.created_at
+        FROM users u
+        ORDER BY u.created_at ASC, u.user_id ASC
+        """).fetchall()
+        users = []
+        for player_number, row in enumerate(rows, start=1):
+            balance_rows = conn.execute("""
+            SELECT currency, amount_units FROM balances WHERE user_id=?
+            """, (row["user_id"],)).fetchall()
+            balances = {currency: "0" for currency in CURRENCY_DECIMALS}
+            for balance_row in balance_rows:
+                currency = balance_row["currency"]
+                if currency in CURRENCY_DECIMALS:
+                    balances[currency] = format_units(currency, int(balance_row["amount_units"] or 0))
+            users.append({
+                "player_number": player_number,
+                "user_id": int(row["user_id"]),
+                "username": row["username"] or "",
+                "first_name": row["first_name"] or "",
+                "created_at": row["created_at"],
+                "balances": balances
+            })
+    return {"ok": True, "users": users, "count": len(users)}
+
+
+@app.post("/api/admin/users/balance")
+async def admin_user_balance(payload: AdminUserBalancePayload):
+    admin = require_admin(payload.initData)
+    user_id = int(payload.user_id)
+    currency = payload.currency.upper().strip()
+    operation = payload.operation.lower().strip()
+    if currency not in CURRENCY_DECIMALS:
+        raise HTTPException(400, "Неизвестная валюта")
+    if operation not in {"add", "subtract", "set"}:
+        raise HTTPException(400, "Неверная операция")
+    with db() as conn:
+        user_row = conn.execute("SELECT user_id FROM users WHERE user_id=?", (user_id,)).fetchone()
+    if not user_row:
+        raise HTTPException(404, "Пользователь не найден")
+    try:
+        amount_decimal = Decimal(str(payload.amount).replace(",", ".").strip())
+    except InvalidOperation:
+        raise HTTPException(400, "Неверная сумма")
+    if not amount_decimal.is_finite() or amount_decimal < 0:
+        raise HTTPException(400, "Сумма должна быть неотрицательным числом")
+    factor = Decimal(currency_factor(currency))
+    amount_units = int((amount_decimal * factor).quantize(Decimal("1"), rounding=ROUND_DOWN))
+    if operation in {"add", "subtract"} and amount_units <= 0:
+        raise HTTPException(400, "Сумма должна быть больше нуля")
+    ensure_balances(user_id)
+    with db() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute("SELECT amount_units FROM balances WHERE user_id=? AND currency=?", (user_id, currency)).fetchone()
+        current_units = int(row["amount_units"] if row else 0)
+        if operation == "add":
+            new_units, delta_units, kind = current_units + amount_units, amount_units, "admin_credit"
+        elif operation == "subtract":
+            if current_units < amount_units:
+                conn.rollback()
+                raise HTTPException(400, "На балансе пользователя недостаточно средств")
+            new_units, delta_units, kind = current_units - amount_units, -amount_units, "admin_debit"
+        else:
+            new_units = amount_units
+            delta_units = new_units - current_units
+            kind = "admin_set"
+        conn.execute("UPDATE balances SET amount_units=? WHERE user_id=? AND currency=?", (new_units, user_id, currency))
+        conn.execute("""
+        INSERT INTO ledger(user_id,currency,delta_units,kind,reference) VALUES(?,?,?,?,?)
+        """, (user_id, currency, delta_units, kind, f"admin:{admin['id']}:{operation}"))
+        conn.commit()
+    return {
+        "ok": True, "user_id": user_id, "currency": currency, "operation": operation,
+        "old_balance": format_units(currency, current_units),
+        "new_balance": format_units(currency, new_units),
+        "balances": get_balances(user_id)
     }
 
 
