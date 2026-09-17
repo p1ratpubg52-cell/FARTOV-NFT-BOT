@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -34,7 +35,7 @@
         calc(28px + env(safe-area-inset-bottom));
     }
 
-    button,input{
+    button,input,select{
       font:inherit;
     }
 
@@ -72,12 +73,48 @@
       font-weight:700;
     }
 
+    .main-tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .main-tab{
+      border:1px solid #252c3a;
+      background:#11151e;
+      color:#9da5b7;
+      padding:14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+
+    .main-tab.active{
+      color:#fff;
+      border-color:#7b57ff;
+      background:linear-gradient(135deg,#6e49ff,#944cff);
+    }
+
+    .page{
+      display:none;
+    }
+
+    .page.active{
+      display:block;
+    }
+
     .card{
       background:#10141d;
       border:1px solid #1f2532;
       border-radius:18px;
       padding:16px;
       margin-bottom:14px;
+    }
+
+    .section-title{
+      font-size:16px;
+      font-weight:800;
+      margin-bottom:12px;
     }
 
     .case-tabs{
@@ -124,12 +161,6 @@
       background:#242038;
     }
 
-    .section-title{
-      font-size:16px;
-      font-weight:800;
-      margin-bottom:12px;
-    }
-
     .field{
       margin-bottom:12px;
     }
@@ -142,7 +173,8 @@
       margin-bottom:7px;
     }
 
-    .input{
+    .input,
+    .select{
       width:100%;
       border:1px solid #2a3140;
       background:#0b0f16;
@@ -164,6 +196,7 @@
       border-radius:14px;
       padding:13px 15px;
       font-weight:800;
+      cursor:pointer;
     }
 
     .btn-primary{
@@ -213,7 +246,7 @@
       color:#8f96a8;
       font-size:14px;
       text-align:center;
-      padding:20px 8px 8px;
+      padding:20px 8px;
     }
 
     .item{
@@ -310,7 +343,137 @@
       pointer-events:none;
     }
 
+    /* USERS */
+
+    .user-count{
+      color:#8f96a8;
+      font-size:13px;
+      margin-top:9px;
+    }
+
+    .users{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .user-card{
+      background:#10141d;
+      border:1px solid #1f2532;
+      border-radius:18px;
+      padding:15px;
+    }
+
+    .user-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:13px;
+    }
+
+    .player-number{
+      font-size:17px;
+      font-weight:900;
+    }
+
+    .username{
+      margin-top:4px;
+      font-size:13px;
+      color:#aeb5c5;
+    }
+
+    .tg-id{
+      color:#737c90;
+      font-size:11px;
+      text-align:right;
+      word-break:break-all;
+    }
+
+    .balances-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .balance-box{
+      background:#0b0f16;
+      border:1px solid #232a38;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .balance-label{
+      color:#7f8798;
+      font-size:11px;
+      margin-bottom:4px;
+    }
+
+    .balance-value{
+      font-size:15px;
+      font-weight:900;
+      word-break:break-word;
+    }
+
+    .user-date{
+      color:#737c90;
+      font-size:11px;
+      margin-bottom:11px;
+    }
+
+    .editor{
+      display:none;
+      border-top:1px solid #202634;
+      padding-top:12px;
+      margin-top:12px;
+    }
+
+    .editor.open{
+      display:block;
+    }
+
+    .editor-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .editor-actions{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .operation{
+      border:1px solid #2b3241;
+      background:#171c27;
+      color:#fff;
+      border-radius:11px;
+      padding:11px 5px;
+      font-weight:800;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    .operation.add{
+      border-color:#235b3a;
+      color:#7ee3a3;
+    }
+
+    .operation.subtract{
+      border-color:#57242d;
+      color:#ff9ca8;
+    }
+
+    .operation.set{
+      border-color:#6248b7;
+      color:#bba9ff;
+    }
+
     @media(max-width:560px){
+
       .row{
         grid-template-columns:1fr;
       }
@@ -330,6 +493,14 @@
       .chance-input{
         grid-column:1 / -1;
       }
+
+      .editor-grid{
+        grid-template-columns:1fr;
+      }
+
+      .editor-actions{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -339,111 +510,277 @@
 <div class="wrap">
 
   <div class="top">
+
     <div>
-      <div class="title">Админ-панель</div>
-      <div class="subtitle">Управление призами и шансами в кейсах</div>
+      <div class="title">
+        Админ-панель
+      </div>
+
+      <div class="subtitle">
+        FART2 NFT BOT
+      </div>
     </div>
 
-    <button class="back" id="backBtn">
+    <button
+      class="back"
+      id="backBtn"
+    >
       ← Назад
     </button>
+
   </div>
 
-  <div id="message" class="message"></div>
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+
+  <div class="main-tabs">
+
+    <button
+      class="main-tab active"
+      data-page="cases"
+    >
+      🎁 Кейсы
+    </button>
+
+    <button
+      class="main-tab"
+      data-page="users"
+    >
+      👥 Пользователи
+    </button>
+
+  </div>
+
 
   <div id="content">
 
-    <div class="card">
-      <div class="section-title">Выбери кейс</div>
+    <!-- ==========================
+         КЕЙСЫ
+    =========================== -->
 
-      <div class="case-tabs">
-        <button class="case-tab active" data-case="1">Кейс №1</button>
-        <button class="case-tab" data-case="2">Кейс №2</button>
-        <button class="case-tab" data-case="3">Кейс №3</button>
-        <button class="case-tab" data-case="4">Кейс №4</button>
+    <div
+      class="page active"
+      id="casesPage"
+    >
+
+      <div class="card">
+
+        <div class="section-title">
+          Выбери кейс
+        </div>
+
+        <div class="case-tabs">
+
+          <button
+            class="case-tab active"
+            data-case="1"
+          >
+            Кейс №1
+          </button>
+
+          <button
+            class="case-tab"
+            data-case="2"
+          >
+            Кейс №2
+          </button>
+
+          <button
+            class="case-tab"
+            data-case="3"
+          >
+            Кейс №3
+          </button>
+
+          <button
+            class="case-tab"
+            data-case="4"
+          >
+            Кейс №4
+          </button>
+
+        </div>
+
       </div>
-    </div>
 
-    <div class="card">
 
-      <div class="section-title">Добавить приз</div>
+      <div class="card">
 
-      <div class="type-tabs">
-        <button class="type-tab active" data-type="nft">NFT</button>
-        <button class="type-tab" data-type="bear">🐻 Мишка</button>
-        <button class="type-tab" data-type="heart">❤️ Сердце</button>
-        <button class="type-tab" data-type="failure">❌ Неудача</button>
-      </div>
+        <div class="section-title">
+          Добавить приз
+        </div>
 
-      <div class="field" id="giftUrlField">
-        <label class="label">
-          Ссылка Telegram NFT
-        </label>
+        <div class="type-tabs">
 
-        <input
-          class="input"
-          id="giftUrl"
-          type="url"
-          placeholder="https://t.me/nft/..."
+          <button
+            class="type-tab active"
+            data-type="nft"
+          >
+            NFT
+          </button>
+
+          <button
+            class="type-tab"
+            data-type="bear"
+          >
+            🐻 Мишка
+          </button>
+
+          <button
+            class="type-tab"
+            data-type="heart"
+          >
+            ❤️ Сердце
+          </button>
+
+          <button
+            class="type-tab"
+            data-type="failure"
+          >
+            ❌ Неудача
+          </button>
+
+        </div>
+
+
+        <div
+          class="field"
+          id="giftUrlField"
         >
-      </div>
 
-      <div class="row">
-
-        <div class="field">
           <label class="label">
-            Шанс выпадения, %
+            Ссылка Telegram NFT
           </label>
 
           <input
             class="input"
-            id="chance"
-            type="number"
-            min="0.0001"
-            max="100"
-            step="0.1"
-            placeholder="5"
+            id="giftUrl"
+            type="url"
+            placeholder="https://t.me/nft/..."
           >
+
         </div>
 
-        <div
-          class="field"
-          style="display:flex;align-items:flex-end;"
-        >
-          <button
-            class="btn btn-primary"
-            id="addBtn"
+
+        <div class="row">
+
+          <div class="field">
+
+            <label class="label">
+              Шанс выпадения, %
+            </label>
+
+            <input
+              class="input"
+              id="chance"
+              type="number"
+              min="0.0001"
+              max="100"
+              step="0.1"
+              placeholder="5"
+            >
+
+          </div>
+
+
+          <div
+            class="field"
+            style="display:flex;align-items:flex-end;"
           >
-            Добавить
-          </button>
+
+            <button
+              class="btn btn-primary"
+              id="addBtn"
+            >
+              Добавить
+            </button>
+
+          </div>
+
         </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="summary">
+
+          <span>
+            Настроено
+          </span>
+
+          <strong id="totalText">
+            0% / 100%
+          </strong>
+
+        </div>
+
+
+        <div class="summary">
+
+          <span>
+            Свободно
+          </span>
+
+          <strong
+            class="ok"
+            id="remainingText"
+          >
+            100%
+          </strong>
+
+        </div>
+
+
+        <div
+          class="items"
+          id="items"
+        ></div>
 
       </div>
 
     </div>
 
-    <div class="card">
 
-      <div class="summary">
-        <span>Настроено</span>
-        <strong id="totalText">
-          0% / 100%
-        </strong>
-      </div>
+    <!-- ==========================
+         ПОЛЬЗОВАТЕЛИ
+    =========================== -->
 
-      <div class="summary">
-        <span>Свободно</span>
-        <strong
-          class="ok"
-          id="remainingText"
+    <div
+      class="page"
+      id="usersPage"
+    >
+
+      <div class="card">
+
+        <div class="section-title">
+          Пользователи
+        </div>
+
+        <input
+          class="input"
+          id="userSearch"
+          type="text"
+          placeholder="Поиск: № игрока, @username, имя или Telegram ID"
         >
-          100%
-        </strong>
+
+        <div
+          class="user-count"
+          id="userCount"
+        >
+          Загрузка...
+        </div>
+
       </div>
+
 
       <div
-        class="items"
-        id="items"
+        class="users"
+        id="usersBox"
       ></div>
 
     </div>
@@ -452,26 +789,33 @@
 
 </div>
 
+
 <script>
 
-const tg = window.Telegram?.WebApp;
+const tg =
+  window.Telegram?.WebApp;
 
-if (tg) {
+if(tg){
   tg.ready();
   tg.expand();
 }
 
-const initData = tg?.initData || "";
+const initData =
+  tg?.initData || "";
+
 
 let selectedCase = 1;
 let selectedType = "nft";
 
 let dataByCase = {
-  "1": [],
-  "2": [],
-  "3": [],
-  "4": []
+  "1":[],
+  "2":[],
+  "3":[],
+  "4":[]
 };
+
+let usersData = [];
+
 
 const content =
   document.getElementById("content");
@@ -503,19 +847,34 @@ const addBtn =
 const backBtn =
   document.getElementById("backBtn");
 
+const usersBox =
+  document.getElementById("usersBox");
+
+const userSearch =
+  document.getElementById("userSearch");
+
+const userCount =
+  document.getElementById("userCount");
+
 
 function showMessage(
   text,
   type="error"
 ){
-  message.textContent = text;
+
+  message.textContent =
+    text;
 
   message.className =
     `message show ${type}`;
 
-  setTimeout(() => {
-    message.className = "message";
-  }, 4000);
+  setTimeout(
+    ()=>{
+      message.className =
+        "message";
+    },
+    4000
+  );
 }
 
 
@@ -523,31 +882,41 @@ async function post(
   url,
   body
 ){
+
   const response =
     await fetch(
       url,
       {
         method:"POST",
+
         headers:{
           "Content-Type":
             "application/json"
         },
-        body:JSON.stringify(body)
+
+        body:
+          JSON.stringify(body)
       }
     );
+
 
   let data = {};
 
   try{
+
     data =
       await response.json();
+
   }catch(e){}
 
+
   if(!response.ok){
+
     throw new Error(
       data.detail ||
       `Ошибка ${response.status}`
     );
+
   }
 
   return data;
@@ -555,38 +924,138 @@ async function post(
 
 
 function setLoading(value){
+
   content.classList.toggle(
     "loading",
     value
   );
+
 }
 
 
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   ГЛАВНЫЕ ВКЛАДКИ
+========================================================= */
+
+document
+.querySelectorAll(
+  ".main-tab"
+)
+.forEach(
+  btn=>{
+
+    btn.addEventListener(
+      "click",
+      async()=>{
+
+        const page =
+          btn.dataset.page;
+
+
+        document
+        .querySelectorAll(
+          ".main-tab"
+        )
+        .forEach(
+          x=>{
+
+            x.classList.toggle(
+              "active",
+              x === btn
+            );
+
+          }
+        );
+
+
+        document
+        .querySelectorAll(
+          ".page"
+        )
+        .forEach(
+          x=>{
+            x.classList.remove(
+              "active"
+            );
+          }
+        );
+
+
+        document
+        .getElementById(
+          page === "users"
+            ? "usersPage"
+            : "casesPage"
+        )
+        .classList.add(
+          "active"
+        );
+
+
+        if(
+          page === "users"
+        ){
+          await loadUsers();
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   КЕЙСЫ
+========================================================= */
+
 function getItems(){
+
   return (
     dataByCase[
       String(selectedCase)
     ] || []
   );
+
 }
 
 
 function calcTotal(){
+
   return getItems().reduce(
-    (sum,item) =>
+    (sum,item)=>
       sum +
       Number(
         item.chance_percent || 0
       ),
     0
   );
+
 }
 
 
 function formatPercent(value){
-  const n = Number(value || 0);
 
-  if(Number.isInteger(n)){
+  const n =
+    Number(value || 0);
+
+  if(
+    Number.isInteger(n)
+  ){
     return n + "%";
   }
 
@@ -597,6 +1066,7 @@ function formatPercent(value){
       .replace(/\.$/,"")
     + "%"
   );
+
 }
 
 
@@ -611,31 +1081,22 @@ function renderSummary(){
       100-total
     );
 
+
   totalText.textContent =
     `${formatPercent(total)} / 100%`;
+
 
   remainingText.textContent =
     formatPercent(
       remaining
     );
 
+
   remainingText.className =
     remaining <= 0
       ? "warn"
       : "ok";
-}
 
-
-function escapeHtml(value){
-
-  return String(
-    value ?? ""
-  )
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
 }
 
 
@@ -646,7 +1107,10 @@ function renderItems(){
 
   renderSummary();
 
-  if(!items.length){
+
+  if(
+    !items.length
+  ){
 
     itemsBox.innerHTML = `
       <div class="empty">
@@ -657,12 +1121,15 @@ function renderItems(){
     return;
   }
 
+
   itemsBox.innerHTML =
     items.map(
-      item => {
+      item=>{
 
         const type =
-          item.item_type || "nft";
+          item.item_type ||
+          "nft";
+
 
         const typeLabel = {
           nft:"NFT",
@@ -671,21 +1138,29 @@ function renderItems(){
           failure:"❌ Неудача"
         }[type] || "NFT";
 
+
         const fallbackImage =
           type === "bear"
             ? "/static/case1-bear-clean.png"
+
             : type === "heart"
               ? "/static/case1-heart-clean.png"
+
               : "";
+
 
         const imageUrl =
           item.gift_image ||
           fallbackImage;
 
+
         const image =
           imageUrl
+
             ? `<img src="${escapeHtml(imageUrl)}">`
+
             : typeLabel;
+
 
         return `
           <div
@@ -697,19 +1172,28 @@ function renderItems(){
               ${image}
             </div>
 
+
             <div>
 
               <div class="name">
+
                 ${escapeHtml(
-                  item.gift_name || typeLabel
+                  item.gift_name ||
+                  typeLabel
                 )}
+
               </div>
 
+
               <div class="url">
+
                 ${escapeHtml(
-                  item.gift_url || ""
+                  item.gift_url ||
+                  ""
                 )}
+
               </div>
+
 
               <div class="item-actions">
 
@@ -725,6 +1209,7 @@ function renderItems(){
                   data-role="chance"
                 >
 
+
                 <button
                   class="btn btn-secondary small"
                   data-action="save"
@@ -732,6 +1217,7 @@ function renderItems(){
                 >
                   Сохранить
                 </button>
+
 
                 <button
                   class="btn btn-danger small"
@@ -747,18 +1233,25 @@ function renderItems(){
 
           </div>
         `;
+
       }
     ).join("");
+
 }
 
 
 async function checkAdmin(){
 
-  if(!initData){
+  if(
+    !initData
+  ){
+
     throw new Error(
       "Открой страницу внутри Telegram Mini App."
     );
+
   }
+
 
   const result =
     await post(
@@ -768,11 +1261,17 @@ async function checkAdmin(){
       }
     );
 
-  if(!result.is_admin){
+
+  if(
+    !result.is_admin
+  ){
+
     throw new Error(
       "Доступ запрещён."
     );
+
   }
+
 }
 
 
@@ -790,6 +1289,7 @@ async function loadItems(){
         }
       );
 
+
     dataByCase =
       result.cases || {
         "1":[],
@@ -798,6 +1298,7 @@ async function loadItems(){
         "4":[]
       };
 
+
     renderItems();
 
   }finally{
@@ -805,19 +1306,22 @@ async function loadItems(){
     setLoading(false);
 
   }
+
 }
 
 
 function selectType(type){
 
-  selectedType = type;
+  selectedType =
+    type;
+
 
   document
   .querySelectorAll(
     ".type-tab"
   )
   .forEach(
-    btn => {
+    btn=>{
 
       btn.classList.toggle(
         "active",
@@ -827,10 +1331,12 @@ function selectType(type){
     }
   );
 
+
   giftUrlField.style.display =
     type === "nft"
       ? "block"
       : "none";
+
 }
 
 
@@ -839,11 +1345,11 @@ document
   ".type-tab"
 )
 .forEach(
-  btn => {
+  btn=>{
 
     btn.addEventListener(
       "click",
-      () => {
+      ()=>{
 
         selectType(
           btn.dataset.type
@@ -861,22 +1367,26 @@ async function addItem(){
   const url =
     giftUrl.value.trim();
 
+
   const p =
     Number(
       chance.value
     );
+
 
   if(
     selectedType === "nft"
     &&
     !url
   ){
+
     showMessage(
       "Вставь ссылку на NFT."
     );
 
     return;
   }
+
 
   if(
     !Number.isFinite(p)
@@ -885,6 +1395,7 @@ async function addItem(){
     ||
     p > 100
   ){
+
     showMessage(
       "Шанс должен быть больше 0 и не больше 100%."
     );
@@ -892,7 +1403,10 @@ async function addItem(){
     return;
   }
 
-  addBtn.disabled = true;
+
+  addBtn.disabled =
+    true;
+
 
   try{
 
@@ -907,10 +1421,13 @@ async function addItem(){
       }
     );
 
+
     giftUrl.value = "";
     chance.value = "";
 
+
     await loadItems();
+
 
     showMessage(
       `Приз добавлен в кейс №${selectedCase}`,
@@ -925,9 +1442,11 @@ async function addItem(){
 
   }finally{
 
-    addBtn.disabled = false;
+    addBtn.disabled =
+      false;
 
   }
+
 }
 
 
@@ -941,15 +1460,18 @@ async function saveChance(
       ".item"
     );
 
+
   const input =
     item.querySelector(
       '[data-role="chance"]'
     );
 
+
   const p =
     Number(
       input.value
     );
+
 
   if(
     !Number.isFinite(p)
@@ -958,12 +1480,14 @@ async function saveChance(
     ||
     p > 100
   ){
+
     showMessage(
-      "Неверный процент. Допустимо от 0 до 100%."
+      "Неверный процент."
     );
 
     return;
   }
+
 
   try{
 
@@ -976,7 +1500,9 @@ async function saveChance(
       }
     );
 
+
     await loadItems();
+
 
     showMessage(
       "Процент сохранён.",
@@ -990,6 +1516,7 @@ async function saveChance(
     );
 
   }
+
 }
 
 
@@ -997,14 +1524,14 @@ async function deleteItem(
   itemId
 ){
 
-  const ok =
-    confirm(
+  if(
+    !confirm(
       "Удалить приз из кейса?"
-    );
-
-  if(!ok){
+    )
+  ){
     return;
   }
+
 
   try{
 
@@ -1016,7 +1543,9 @@ async function deleteItem(
       }
     );
 
+
     await loadItems();
+
 
     showMessage(
       "Приз удалён.",
@@ -1039,23 +1568,24 @@ document
   ".case-tab"
 )
 .forEach(
-  btn => {
+  btn=>{
 
     btn.addEventListener(
       "click",
-      () => {
+      ()=>{
 
         selectedCase =
           Number(
             btn.dataset.case
           );
 
+
         document
         .querySelectorAll(
           ".case-tab"
         )
         .forEach(
-          x => {
+          x=>{
 
             x.classList.toggle(
               "active",
@@ -1066,6 +1596,7 @@ document
 
           }
         );
+
 
         renderItems();
 
@@ -1084,16 +1615,20 @@ addBtn.addEventListener(
 
 itemsBox.addEventListener(
   "click",
-  event => {
+  event=>{
 
     const button =
       event.target.closest(
         "button[data-action]"
       );
 
-    if(!button){
+
+    if(
+      !button
+    ){
       return;
     }
+
 
     const action =
       button.dataset.action;
@@ -1101,26 +1636,624 @@ itemsBox.addEventListener(
     const id =
       button.dataset.id;
 
-    if(action === "save"){
+
+    if(
+      action === "save"
+    ){
+
       saveChance(
         id,
         button
       );
+
     }
 
-    if(action === "delete"){
+
+    if(
+      action === "delete"
+    ){
+
       deleteItem(
         id
       );
+
     }
 
   }
 );
 
 
+/* =========================================================
+   ПОЛЬЗОВАТЕЛИ
+========================================================= */
+
+async function loadUsers(){
+
+  setLoading(true);
+
+
+  try{
+
+    const result =
+      await post(
+        "/api/admin/users",
+        {
+          initData:initData
+        }
+      );
+
+
+    usersData =
+      result.users || [];
+
+
+    renderUsers();
+
+  }catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }finally{
+
+    setLoading(false);
+
+  }
+
+}
+
+
+function renderUsers(){
+
+  const query =
+    userSearch.value
+      .trim()
+      .toLowerCase()
+      .replace(/^@/,"");
+
+
+  const filtered =
+    usersData.filter(
+      user=>{
+
+        if(
+          !query
+        ){
+          return true;
+        }
+
+
+        const values = [
+
+          String(
+            user.player_number
+          ),
+
+          String(
+            user.user_id
+          ),
+
+          String(
+            user.username || ""
+          ).toLowerCase(),
+
+          String(
+            user.first_name || ""
+          ).toLowerCase()
+
+        ];
+
+
+        return values.some(
+          value=>
+            value.includes(
+              query
+            )
+        );
+
+      }
+    );
+
+
+  userCount.textContent =
+    query
+
+      ? `Найдено: ${filtered.length} из ${usersData.length}`
+
+      : `Всего игроков: ${usersData.length}`;
+
+
+  if(
+    !filtered.length
+  ){
+
+    usersBox.innerHTML = `
+      <div class="card empty">
+        Пользователи не найдены.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  usersBox.innerHTML =
+    filtered.map(
+      user=>{
+
+        const username =
+          user.username
+
+            ? "@" +
+              escapeHtml(
+                user.username
+              )
+
+            : "без username";
+
+
+        const firstName =
+          user.first_name
+
+            ? escapeHtml(
+                user.first_name
+              )
+
+            : "";
+
+
+        const b =
+          user.balances ||
+          {};
+
+
+        return `
+          <div
+            class="user-card"
+            data-user-id="${user.user_id}"
+          >
+
+            <div class="user-head">
+
+              <div>
+
+                <div class="player-number">
+                  Игрок №${user.player_number}
+                </div>
+
+
+                <div class="username">
+
+                  ${username}
+
+                  ${
+                    firstName
+                      ? " · " + firstName
+                      : ""
+                  }
+
+                </div>
+
+              </div>
+
+
+              <div class="tg-id">
+
+                Telegram ID
+                <br>
+
+                ${user.user_id}
+
+              </div>
+
+            </div>
+
+
+            <div class="balances-grid">
+
+              <div class="balance-box">
+
+                <div class="balance-label">
+                  ⭐ Stars
+                </div>
+
+                <div class="balance-value">
+                  ${escapeHtml(
+                    b.XTR || "0"
+                  )}
+                </div>
+
+              </div>
+
+
+              <div class="balance-box">
+
+                <div class="balance-label">
+                  TON
+                </div>
+
+                <div class="balance-value">
+                  ${escapeHtml(
+                    b.TON || "0"
+                  )}
+                </div>
+
+              </div>
+
+
+              <div class="balance-box">
+
+                <div class="balance-label">
+                  USDT
+                </div>
+
+                <div class="balance-value">
+                  ${escapeHtml(
+                    b.USDT || "0"
+                  )}
+                </div>
+
+              </div>
+
+
+              <div class="balance-box">
+
+                <div class="balance-label">
+                  GRAM
+                </div>
+
+                <div class="balance-value">
+                  ${escapeHtml(
+                    b.GRAM || "0"
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="user-date">
+
+              Регистрация:
+              ${escapeHtml(
+                user.created_at ||
+                "—"
+              )}
+
+            </div>
+
+
+            <button
+              class="btn btn-secondary"
+              data-user-action="toggle"
+            >
+              Изменить баланс
+            </button>
+
+
+            <div class="editor">
+
+              <div class="editor-grid">
+
+                <div>
+
+                  <label class="label">
+                    Валюта
+                  </label>
+
+
+                  <select
+                    class="select"
+                    data-role="currency"
+                  >
+
+                    <option value="XTR">
+                      ⭐ Stars
+                    </option>
+
+                    <option value="TON">
+                      TON
+                    </option>
+
+                    <option value="USDT">
+                      USDT
+                    </option>
+
+                    <option value="GRAM">
+                      GRAM
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+                <div>
+
+                  <label class="label">
+                    Сумма
+                  </label>
+
+
+                  <input
+                    class="input"
+                    data-role="amount"
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="100"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="editor-actions">
+
+                <button
+                  class="operation add"
+                  data-user-action="balance"
+                  data-operation="add"
+                >
+                  + Начислить
+                </button>
+
+
+                <button
+                  class="operation subtract"
+                  data-user-action="balance"
+                  data-operation="subtract"
+                >
+                  − Списать
+                </button>
+
+
+                <button
+                  class="operation set"
+                  data-user-action="balance"
+                  data-operation="set"
+                >
+                  = Установить
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+userSearch.addEventListener(
+  "input",
+  renderUsers
+);
+
+
+usersBox.addEventListener(
+  "click",
+  async event=>{
+
+    const button =
+      event.target.closest(
+        "[data-user-action]"
+      );
+
+
+    if(
+      !button
+    ){
+      return;
+    }
+
+
+    const card =
+      button.closest(
+        ".user-card"
+      );
+
+
+    if(
+      !card
+    ){
+      return;
+    }
+
+
+    const userId =
+      Number(
+        card.dataset.userId
+      );
+
+
+    const action =
+      button.dataset.userAction;
+
+
+    if(
+      action === "toggle"
+    ){
+
+      const editor =
+        card.querySelector(
+          ".editor"
+        );
+
+
+      editor.classList.toggle(
+        "open"
+      );
+
+
+      return;
+    }
+
+
+    if(
+      action !== "balance"
+    ){
+      return;
+    }
+
+
+    const operation =
+      button.dataset.operation;
+
+
+    const currency =
+      card.querySelector(
+        '[data-role="currency"]'
+      ).value;
+
+
+    const amountInput =
+      card.querySelector(
+        '[data-role="amount"]'
+      );
+
+
+    const amount =
+      amountInput.value.trim();
+
+
+    if(
+      amount === ""
+    ){
+
+      showMessage(
+        "Укажи сумму."
+      );
+
+      return;
+    }
+
+
+    const amountNumber =
+      Number(
+        amount
+      );
+
+
+    if(
+      !Number.isFinite(
+        amountNumber
+      )
+      ||
+      amountNumber < 0
+    ){
+
+      showMessage(
+        "Укажи правильную сумму."
+      );
+
+      return;
+    }
+
+
+    let actionText =
+      "изменить";
+
+
+    if(
+      operation === "add"
+    ){
+      actionText =
+        "начислить";
+    }
+
+
+    if(
+      operation === "subtract"
+    ){
+      actionText =
+        "списать";
+    }
+
+
+    if(
+      operation === "set"
+    ){
+      actionText =
+        "установить баланс";
+    }
+
+
+    const confirmed =
+      confirm(
+        `${actionText} ${amount} ${currency} игроку ${userId}?`
+      );
+
+
+    if(
+      !confirmed
+    ){
+      return;
+    }
+
+
+    button.disabled =
+      true;
+
+
+    try{
+
+      const result =
+        await post(
+          "/api/admin/users/balance",
+          {
+            initData:initData,
+            user_id:userId,
+            currency:currency,
+            operation:operation,
+            amount:amount
+          }
+        );
+
+
+      amountInput.value =
+        "";
+
+
+      await loadUsers();
+
+
+      showMessage(
+        `Готово. Новый баланс ${currency}: ${result.new_balance}`,
+        "success"
+      );
+
+    }catch(error){
+
+      showMessage(
+        error.message
+      );
+
+    }finally{
+
+      button.disabled =
+        false;
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   НАЗАД
+========================================================= */
+
 backBtn.addEventListener(
   "click",
-  () => {
+  ()=>{
 
     window.location.href =
       "/cases";
@@ -1128,6 +2261,10 @@ backBtn.addEventListener(
   }
 );
 
+
+/* =========================================================
+   ЗАПУСК
+========================================================= */
 
 (async()=>{
 
