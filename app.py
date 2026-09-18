@@ -339,6 +339,14 @@ def init_db():
         """)
 
         conn.execute("""
+        CREATE TABLE IF NOT EXISTS upgrade_target_prices(
+            target_id TEXT PRIMARY KEY,
+            price_stars INTEGER NOT NULL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        conn.execute("""
         CREATE TABLE IF NOT EXISTS case_wins(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -1838,6 +1846,17 @@ class AdminUserBalancePayload(BaseModel):
     amount: str
 
 
+class AdminUpgradePricePayload(BaseModel):
+    initData: str
+    target_id: str
+    price_stars: int
+
+
+class AdminUpgradePriceResetPayload(BaseModel):
+    initData: str
+    target_id: str
+
+
 # =========================================================
 # WEB PAGES
 # =========================================================
@@ -2363,6 +2382,118 @@ async def admin_case_delete(payload: AdminCaseItemDeletePayload):
     if cursor.rowcount <= 0:
         raise HTTPException(404, "Предмет не найден")
     return {"ok": True}
+
+
+# =========================================================
+# ADMIN UPGRADE API
+# =========================================================
+
+@app.post("/api/admin/upgrade/items")
+async def admin_upgrade_items(payload: InitPayload):
+    require_admin(payload.initData)
+
+    catalog, warning = await load_backpack_catalog()
+    overrides = get_upgrade_target_price_overrides()
+    claimed = get_claimed_upgrade_targets()
+    semaphore = asyncio.Semaphore(6)
+
+    async def enrich(item):
+        item = dict(item)
+        target_id = str(item.get("id") or "").strip()
+        gift_url = str(item.get("gift_url") or "").strip()
+
+        if not target_id or not gift_url:
+            return None
+
+        async with semaphore:
+            market_price = await safe_market_price(gift_url)
+
+        custom_price = int(overrides.get(target_id, 0) or 0)
+        effective_price = custom_price if custom_price > 0 else int(market_price or 0)
+
+        return {
+            "id": target_id,
+            "name": str(item.get("name") or "Telegram Gift"),
+            "image_url": str(item.get("image_url") or ""),
+            "gift_url": gift_url,
+            "market_price_stars": int(market_price or 0),
+            "custom_price_stars": custom_price,
+            "price_stars": int(effective_price or 0),
+            "price_source": "admin" if custom_price > 0 else "telegram_market_stars",
+            "claimed": target_id in claimed,
+        }
+
+    items = [
+        item
+        for item in await asyncio.gather(*(enrich(item) for item in catalog))
+        if item is not None
+    ]
+
+    items.sort(key=lambda item: (item["name"].lower(), item["id"]))
+
+    return {
+        "ok": True,
+        "items": items,
+        "warning": warning,
+        "count": len(items),
+    }
+
+
+@app.post("/api/admin/upgrade/price")
+async def admin_upgrade_price(payload: AdminUpgradePricePayload):
+    require_admin(payload.initData)
+
+    target_id = str(payload.target_id or "").strip()
+    if not target_id:
+        raise HTTPException(400, "Не выбран предмет")
+
+    price_stars = int(payload.price_stars)
+    if price_stars <= 0:
+        raise HTTPException(400, "Цена должна быть больше 0 Stars")
+    if price_stars > 10_000_000:
+        raise HTTPException(400, "Слишком большая цена")
+
+    catalog, _ = await load_backpack_catalog()
+    exists = any(str(item.get("id") or "") == target_id for item in catalog)
+    if not exists:
+        raise HTTPException(404, "Этот предмет больше не найден в @fart2_backpack")
+
+    with db() as conn:
+        conn.execute("""
+        INSERT INTO upgrade_target_prices(target_id, price_stars, updated_at)
+        VALUES(?,?,CURRENT_TIMESTAMP)
+        ON CONFLICT(target_id) DO UPDATE SET
+            price_stars=excluded.price_stars,
+            updated_at=CURRENT_TIMESTAMP
+        """, (target_id, price_stars))
+        conn.commit()
+
+    return {
+        "ok": True,
+        "target_id": target_id,
+        "price_stars": price_stars,
+    }
+
+
+@app.post("/api/admin/upgrade/price/reset")
+async def admin_upgrade_price_reset(payload: AdminUpgradePriceResetPayload):
+    require_admin(payload.initData)
+
+    target_id = str(payload.target_id or "").strip()
+    if not target_id:
+        raise HTTPException(400, "Не выбран предмет")
+
+    with db() as conn:
+        conn.execute(
+            "DELETE FROM upgrade_target_prices WHERE target_id=?",
+            (target_id,)
+        )
+        conn.commit()
+
+    return {
+        "ok": True,
+        "target_id": target_id,
+    }
 
 
 # =========================================================
@@ -3189,6 +3320,35 @@ async def load_upgrade_source(
     }
 
 
+def get_upgrade_target_price_overrides():
+    with db() as conn:
+        rows = conn.execute("""
+        SELECT target_id, price_stars
+        FROM upgrade_target_prices
+        """).fetchall()
+
+    return {
+        str(row["target_id"]): int(row["price_stars"] or 0)
+        for row in rows
+        if int(row["price_stars"] or 0) > 0
+    }
+
+
+def get_upgrade_target_price_override(target_id):
+    target_id = str(target_id or "").strip()
+    if not target_id:
+        return 0
+
+    with db() as conn:
+        row = conn.execute("""
+        SELECT price_stars
+        FROM upgrade_target_prices
+        WHERE target_id=?
+        """, (target_id,)).fetchone()
+
+    return int(row["price_stars"] or 0) if row else 0
+
+
 def get_claimed_upgrade_targets():
     with db() as conn:
         rows = conn.execute("""
@@ -3211,6 +3371,10 @@ async def load_upgrade_targets(
 
     claimed = (
         get_claimed_upgrade_targets()
+    )
+
+    overrides = (
+        get_upgrade_target_price_overrides()
     )
 
     semaphore = asyncio.Semaphore(
@@ -3239,19 +3403,42 @@ async def load_upgrade_targets(
         if not gift_url:
             return None
 
-        async with semaphore:
-            price = (
-                await safe_market_price(
-                    gift_url
-                )
+        custom_price = int(
+            overrides.get(
+                target_id,
+                0
             )
+            or 0
+        )
 
-        if price <= 0:
+        market_price = 0
+
+        if custom_price <= 0:
+            async with semaphore:
+                market_price = (
+                    await safe_market_price(
+                        gift_url
+                    )
+                )
+
+        effective_price = (
+            custom_price
+            if custom_price > 0
+            else int(market_price or 0)
+        )
+
+        if effective_price <= 0:
             return None
 
-        item["sell_stars"] = int(price)
-        item["market_stars"] = int(price)
-        item["price_stars"] = int(price)
+        item["sell_stars"] = int(effective_price)
+        item["market_stars"] = int(market_price or 0)
+        item["custom_price_stars"] = int(custom_price or 0)
+        item["price_stars"] = int(effective_price)
+        item["price_source"] = (
+            "admin"
+            if custom_price > 0
+            else "telegram_market_stars"
+        )
 
         return item
 
