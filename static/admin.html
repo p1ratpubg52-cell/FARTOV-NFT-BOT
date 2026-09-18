@@ -2,11 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
   <title>Админ — FART2 NFT BOT</title>
 
@@ -37,6 +33,10 @@
 
     button,input,select{
       font:inherit;
+    }
+
+    button{
+      cursor:pointer;
     }
 
     .wrap{
@@ -75,7 +75,7 @@
 
     .main-tabs{
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:repeat(3,1fr);
       gap:10px;
       margin-bottom:14px;
     }
@@ -84,7 +84,7 @@
       border:1px solid #252c3a;
       background:#11151e;
       color:#9da5b7;
-      padding:14px;
+      padding:14px 8px;
       border-radius:14px;
       font-weight:800;
     }
@@ -196,7 +196,6 @@
       border-radius:14px;
       padding:13px 15px;
       font-weight:800;
-      cursor:pointer;
     }
 
     .btn-primary{
@@ -236,7 +235,9 @@
       color:#ffcb6b;
     }
 
-    .items{
+    .items,
+    .users,
+    .upgrade-items{
       display:flex;
       flex-direction:column;
       gap:10px;
@@ -343,21 +344,15 @@
       pointer-events:none;
     }
 
-    /* USERS */
-
-    .user-count{
+    .user-count,
+    .upgrade-count{
       color:#8f96a8;
       font-size:13px;
       margin-top:9px;
     }
 
-    .users{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .user-card{
+    .user-card,
+    .upgrade-card{
       background:#10141d;
       border:1px solid #1f2532;
       border-radius:18px;
@@ -454,7 +449,6 @@
       padding:11px 5px;
       font-weight:800;
       font-size:12px;
-      cursor:pointer;
     }
 
     .operation.add{
@@ -472,7 +466,110 @@
       color:#bba9ff;
     }
 
+    .upgrade-toolbar{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:9px;
+      align-items:end;
+    }
+
+    .refresh-upgrade{
+      width:auto;
+      padding:13px 16px;
+    }
+
+    .upgrade-main{
+      display:grid;
+      grid-template-columns:66px 1fr;
+      gap:12px;
+    }
+
+    .upgrade-thumb{
+      width:66px;
+      height:66px;
+      border-radius:14px;
+      overflow:hidden;
+      background:#0b0f16;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+    }
+
+    .upgrade-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .upgrade-name{
+      font-size:15px;
+      font-weight:900;
+    }
+
+    .upgrade-id{
+      font-size:10px;
+      color:#727a8d;
+      margin-top:3px;
+      word-break:break-all;
+    }
+
+    .price-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .price-box{
+      background:#0b0f16;
+      border:1px solid #232a38;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .price-title{
+      font-size:11px;
+      color:#81899a;
+      margin-bottom:4px;
+    }
+
+    .price-value{
+      font-size:16px;
+      font-weight:900;
+    }
+
+    .admin-price{
+      color:#8effb6;
+    }
+
+    .claimed{
+      color:#ffcb6b;
+      font-size:11px;
+      margin-top:5px;
+    }
+
+    .upgrade-edit{
+      display:grid;
+      grid-template-columns:1fr 120px 120px;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .price-input{
+      width:100%;
+      border:1px solid #2b3241;
+      background:#121722;
+      color:#fff;
+      border-radius:11px;
+      padding:11px;
+    }
+
     @media(max-width:560px){
+
+      .main-tabs{
+        grid-template-columns:1fr;
+      }
 
       .row{
         grid-template-columns:1fr;
@@ -491,15 +588,28 @@
       }
 
       .chance-input{
-        grid-column:1 / -1;
+        grid-column:1/-1;
       }
 
-      .editor-grid{
-        grid-template-columns:1fr;
-      }
-
+      .editor-grid,
       .editor-actions{
         grid-template-columns:1fr;
+      }
+
+      .upgrade-edit{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .upgrade-edit .price-input{
+        grid-column:1/-1;
+      }
+
+      .upgrade-toolbar{
+        grid-template-columns:1fr;
+      }
+
+      .refresh-upgrade{
+        width:100%;
       }
     }
   </style>
@@ -512,6 +622,7 @@
   <div class="top">
 
     <div>
+
       <div class="title">
         Админ-панель
       </div>
@@ -519,6 +630,7 @@
       <div class="subtitle">
         FART2 NFT BOT
       </div>
+
     </div>
 
     <button
@@ -529,6 +641,7 @@
     </button>
 
   </div>
+
 
   <div
     id="message"
@@ -547,6 +660,13 @@
 
     <button
       class="main-tab"
+      data-page="upgrade"
+    >
+      ⚡ Upgrade
+    </button>
+
+    <button
+      class="main-tab"
       data-page="users"
     >
       👥 Пользователи
@@ -557,9 +677,10 @@
 
   <div id="content">
 
-    <!-- ==========================
+
+    <!-- =============================
          КЕЙСЫ
-    =========================== -->
+    ============================== -->
 
     <div
       class="page active"
@@ -675,7 +796,7 @@
 
             <input
               class="input"
-              id="chance"
+              id="chanceInput"
               type="number"
               min="0.0001"
               max="100"
@@ -688,7 +809,7 @@
 
           <div
             class="field"
-            style="display:flex;align-items:flex-end;"
+            style="display:flex;align-items:flex-end"
           >
 
             <button
@@ -746,9 +867,71 @@
     </div>
 
 
-    <!-- ==========================
+    <!-- =============================
+         UPGRADE
+    ============================== -->
+
+    <div
+      class="page"
+      id="upgradePage"
+    >
+
+      <div class="card">
+
+        <div class="section-title">
+          Цены целей Upgrade
+        </div>
+
+
+        <div class="upgrade-toolbar">
+
+          <div>
+
+            <label class="label">
+              Поиск NFT
+            </label>
+
+            <input
+              id="upgradeSearch"
+              class="input"
+              type="text"
+              placeholder="Название или ID подарка"
+            >
+
+          </div>
+
+
+          <button
+            id="upgradeRefresh"
+            class="btn btn-secondary refresh-upgrade"
+          >
+            ↻ Обновить
+          </button>
+
+        </div>
+
+
+        <div
+          id="upgradeCount"
+          class="upgrade-count"
+        >
+          Загрузка...
+        </div>
+
+      </div>
+
+
+      <div
+        id="upgradeItems"
+        class="upgrade-items"
+      ></div>
+
+    </div>
+
+
+    <!-- =============================
          ПОЛЬЗОВАТЕЛИ
-    =========================== -->
+    ============================== -->
 
     <div
       class="page"
@@ -795,66 +978,98 @@
 const tg =
   window.Telegram?.WebApp;
 
+
 if(tg){
+
   tg.ready();
+
   tg.expand();
+
 }
+
 
 const initData =
   tg?.initData || "";
 
 
 let selectedCase = 1;
+
 let selectedType = "nft";
 
+
 let dataByCase = {
+
   "1":[],
+
   "2":[],
+
   "3":[],
+
   "4":[]
+
 };
+
 
 let usersData = [];
 
+let upgradeData = [];
+
+
+const $ =
+  id =>
+    document.getElementById(id);
+
 
 const content =
-  document.getElementById("content");
+  $("content");
 
 const message =
-  document.getElementById("message");
+  $("message");
 
 const itemsBox =
-  document.getElementById("items");
+  $("items");
 
 const totalText =
-  document.getElementById("totalText");
+  $("totalText");
 
 const remainingText =
-  document.getElementById("remainingText");
+  $("remainingText");
 
 const giftUrl =
-  document.getElementById("giftUrl");
+  $("giftUrl");
 
 const giftUrlField =
-  document.getElementById("giftUrlField");
+  $("giftUrlField");
 
-const chance =
-  document.getElementById("chance");
+const chanceInput =
+  $("chanceInput");
 
 const addBtn =
-  document.getElementById("addBtn");
+  $("addBtn");
 
 const backBtn =
-  document.getElementById("backBtn");
+  $("backBtn");
 
 const usersBox =
-  document.getElementById("usersBox");
+  $("usersBox");
 
 const userSearch =
-  document.getElementById("userSearch");
+  $("userSearch");
 
 const userCount =
-  document.getElementById("userCount");
+  $("userCount");
+
+const upgradeItems =
+  $("upgradeItems");
+
+const upgradeSearch =
+  $("upgradeSearch");
+
+const upgradeCount =
+  $("upgradeCount");
+
+const upgradeRefresh =
+  $("upgradeRefresh");
 
 
 function showMessage(
@@ -865,8 +1080,10 @@ function showMessage(
   message.textContent =
     text;
 
+
   message.className =
     `message show ${type}`;
+
 
   setTimeout(
     ()=>{
@@ -875,6 +1092,7 @@ function showMessage(
     },
     4000
   );
+
 }
 
 
@@ -887,6 +1105,7 @@ async function post(
     await fetch(
       url,
       {
+
         method:"POST",
 
         headers:{
@@ -896,11 +1115,13 @@ async function post(
 
         body:
           JSON.stringify(body)
+
       }
     );
 
 
   let data = {};
+
 
   try{
 
@@ -910,20 +1131,33 @@ async function post(
   }catch(e){}
 
 
-  if(!response.ok){
+  if(
+    !response.ok
+  ){
 
     throw new Error(
+
       data.detail ||
+
+      data.error ||
+
+      data.message ||
+
       `Ошибка ${response.status}`
+
     );
 
   }
 
+
   return data;
+
 }
 
 
-function setLoading(value){
+function setLoading(
+  value
+){
 
   content.classList.toggle(
     "loading",
@@ -933,16 +1167,73 @@ function setLoading(value){
 }
 
 
-function escapeHtml(value){
+function esc(
+  value
+){
 
   return String(
     value ?? ""
   )
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
+
+  .replaceAll(
+    "&",
+    "&amp;"
+  )
+
+  .replaceAll(
+    "<",
+    "&lt;"
+  )
+
+  .replaceAll(
+    ">",
+    "&gt;"
+  )
+
+  .replaceAll(
+    '"',
+    "&quot;"
+  )
+
+  .replaceAll(
+    "'",
+    "&#039;"
+  );
+
+}
+
+
+async function checkAdmin(){
+
+  if(
+    !initData
+  ){
+
+    throw new Error(
+      "Открой страницу внутри Telegram Mini App."
+    );
+
+  }
+
+
+  const result =
+    await post(
+      "/api/admin/status",
+      {
+        initData:initData
+      }
+    );
+
+
+  if(
+    !result.is_admin
+  ){
+
+    throw new Error(
+      "Доступ запрещён."
+    );
+
+  }
 
 }
 
@@ -988,20 +1279,20 @@ document
         )
         .forEach(
           x=>{
+
             x.classList.remove(
               "active"
             );
+
           }
         );
 
 
-        document
-        .getElementById(
-          page === "users"
-            ? "usersPage"
-            : "casesPage"
+        $(
+          page + "Page"
         )
-        .classList.add(
+        .classList
+        .add(
           "active"
         );
 
@@ -1009,7 +1300,18 @@ document
         if(
           page === "users"
         ){
+
           await loadUsers();
+
+        }
+
+
+        if(
+          page === "upgrade"
+        ){
+
+          await loadUpgrade();
+
         }
 
       }
@@ -1037,35 +1339,45 @@ function getItems(){
 function calcTotal(){
 
   return getItems().reduce(
-    (sum,item)=>
+    (
+      sum,
+      item
+    )=>
+
       sum +
       Number(
-        item.chance_percent || 0
+        item.chance_percent ||
+        0
       ),
+
     0
   );
 
 }
 
 
-function formatPercent(value){
+function fmtPct(
+  value
+){
 
   const n =
-    Number(value || 0);
+    Number(
+      value || 0
+    );
 
-  if(
-    Number.isInteger(n)
-  ){
-    return n + "%";
-  }
 
   return (
-    n
-      .toFixed(4)
-      .replace(/0+$/,"")
-      .replace(/\.$/,"")
-    + "%"
-  );
+
+    Number.isInteger(n)
+
+      ? n
+
+      : n
+        .toFixed(4)
+        .replace(/0+$/,"")
+        .replace(/\.$/,"")
+
+  ) + "%";
 
 }
 
@@ -1075,6 +1387,7 @@ function renderSummary(){
   const total =
     calcTotal();
 
+
   const remaining =
     Math.max(
       0,
@@ -1083,11 +1396,11 @@ function renderSummary(){
 
 
   totalText.textContent =
-    `${formatPercent(total)} / 100%`;
+    `${fmtPct(total)} / 100%`;
 
 
   remainingText.textContent =
-    formatPercent(
+    fmtPct(
       remaining
     );
 
@@ -1105,6 +1418,7 @@ function renderItems(){
   const items =
     getItems();
 
+
   renderSummary();
 
 
@@ -1119,6 +1433,7 @@ function renderItems(){
     `;
 
     return;
+
   }
 
 
@@ -1131,35 +1446,35 @@ function renderItems(){
           "nft";
 
 
-        const typeLabel = {
+        const label = {
+
           nft:"NFT",
+
           bear:"🐻 Мишка",
+
           heart:"❤️ Сердце",
+
           failure:"❌ Неудача"
+
         }[type] || "NFT";
 
 
-        const fallbackImage =
+        const fallback =
+
           type === "bear"
+
             ? "/static/case1-bear-clean.png"
 
             : type === "heart"
+
               ? "/static/case1-heart-clean.png"
 
               : "";
 
 
-        const imageUrl =
-          item.gift_image ||
-          fallbackImage;
-
-
         const image =
-          imageUrl
-
-            ? `<img src="${escapeHtml(imageUrl)}">`
-
-            : typeLabel;
+          item.gift_image ||
+          fallback;
 
 
         return `
@@ -1169,7 +1484,15 @@ function renderItems(){
           >
 
             <div class="thumb">
-              ${image}
+
+              ${
+                image
+
+                  ? `<img src="${esc(image)}">`
+
+                  : label
+              }
+
             </div>
 
 
@@ -1177,9 +1500,9 @@ function renderItems(){
 
               <div class="name">
 
-                ${escapeHtml(
+                ${esc(
                   item.gift_name ||
-                  typeLabel
+                  label
                 )}
 
               </div>
@@ -1187,7 +1510,7 @@ function renderItems(){
 
               <div class="url">
 
-                ${escapeHtml(
+                ${esc(
                   item.gift_url ||
                   ""
                 )}
@@ -1235,49 +1558,18 @@ function renderItems(){
         `;
 
       }
-    ).join("");
-
-}
-
-
-async function checkAdmin(){
-
-  if(
-    !initData
-  ){
-
-    throw new Error(
-      "Открой страницу внутри Telegram Mini App."
-    );
-
-  }
-
-
-  const result =
-    await post(
-      "/api/admin/status",
-      {
-        initData:initData
-      }
-    );
-
-
-  if(
-    !result.is_admin
-  ){
-
-    throw new Error(
-      "Доступ запрещён."
-    );
-
-  }
+    )
+    .join("");
 
 }
 
 
 async function loadItems(){
 
-  setLoading(true);
+  setLoading(
+    true
+  );
+
 
   try{
 
@@ -1292,25 +1584,36 @@ async function loadItems(){
 
     dataByCase =
       result.cases || {
+
         "1":[],
+
         "2":[],
+
         "3":[],
+
         "4":[]
+
       };
 
 
     renderItems();
 
-  }finally{
+  }
 
-    setLoading(false);
+  finally{
+
+    setLoading(
+      false
+    );
 
   }
 
 }
 
 
-function selectType(type){
+function selectType(
+  type
+){
 
   selectedType =
     type;
@@ -1370,7 +1673,7 @@ async function addItem(){
 
   const p =
     Number(
-      chance.value
+      chanceInput.value
     );
 
 
@@ -1385,6 +1688,7 @@ async function addItem(){
     );
 
     return;
+
   }
 
 
@@ -1401,6 +1705,7 @@ async function addItem(){
     );
 
     return;
+
   }
 
 
@@ -1413,17 +1718,31 @@ async function addItem(){
     await post(
       "/api/admin/cases/add",
       {
+
         initData:initData,
-        case_id:selectedCase,
-        gift_url:url,
-        chance_percent:p,
-        item_type:selectedType
+
+        case_id:
+          selectedCase,
+
+        gift_url:
+          url,
+
+        chance_percent:
+          p,
+
+        item_type:
+          selectedType
+
       }
     );
 
 
-    giftUrl.value = "";
-    chance.value = "";
+    giftUrl.value =
+      "";
+
+
+    chanceInput.value =
+      "";
 
 
     await loadItems();
@@ -1434,13 +1753,17 @@ async function addItem(){
       "success"
     );
 
-  }catch(error){
+  }
+
+  catch(error){
 
     showMessage(
       error.message
     );
 
-  }finally{
+  }
+
+  finally{
 
     addBtn.disabled =
       false;
@@ -1486,6 +1809,7 @@ async function saveChance(
     );
 
     return;
+
   }
 
 
@@ -1494,9 +1818,15 @@ async function saveChance(
     await post(
       "/api/admin/cases/update",
       {
+
         initData:initData,
-        item_id:Number(itemId),
-        chance_percent:p
+
+        item_id:
+          Number(itemId),
+
+        chance_percent:
+          p
+
       }
     );
 
@@ -1509,7 +1839,9 @@ async function saveChance(
       "success"
     );
 
-  }catch(error){
+  }
+
+  catch(error){
 
     showMessage(
       error.message
@@ -1529,7 +1861,9 @@ async function deleteItem(
       "Удалить приз из кейса?"
     )
   ){
+
     return;
+
   }
 
 
@@ -1538,8 +1872,12 @@ async function deleteItem(
     await post(
       "/api/admin/cases/delete",
       {
+
         initData:initData,
-        item_id:Number(itemId)
+
+        item_id:
+          Number(itemId)
+
       }
     );
 
@@ -1552,7 +1890,9 @@ async function deleteItem(
       "success"
     );
 
-  }catch(error){
+  }
+
+  catch(error){
 
     showMessage(
       error.message
@@ -1588,10 +1928,13 @@ document
           x=>{
 
             x.classList.toggle(
+
               "active",
+
               Number(
                 x.dataset.case
               ) === selectedCase
+
             );
 
           }
@@ -1626,23 +1969,19 @@ itemsBox.addEventListener(
     if(
       !button
     ){
+
       return;
+
     }
 
 
-    const action =
-      button.dataset.action;
-
-    const id =
-      button.dataset.id;
-
-
     if(
-      action === "save"
+      button.dataset.action ===
+      "save"
     ){
 
       saveChance(
-        id,
+        button.dataset.id,
         button
       );
 
@@ -1650,12 +1989,489 @@ itemsBox.addEventListener(
 
 
     if(
-      action === "delete"
+      button.dataset.action ===
+      "delete"
     ){
 
       deleteItem(
-        id
+        button.dataset.id
       );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   UPGRADE
+========================================================= */
+
+async function loadUpgrade(){
+
+  setLoading(
+    true
+  );
+
+
+  upgradeItems.innerHTML = `
+    <div class="card empty">
+      Загрузка NFT и цен…
+    </div>
+  `;
+
+
+  try{
+
+    const result =
+      await post(
+        "/api/admin/upgrade/items",
+        {
+          initData:initData
+        }
+      );
+
+
+    upgradeData =
+      result.items ||
+      [];
+
+
+    renderUpgrade();
+
+
+    if(
+      result.warning
+    ){
+
+      showMessage(
+        result.warning
+      );
+
+    }
+
+  }
+
+  catch(error){
+
+    upgradeItems.innerHTML = `
+      <div class="card empty">
+        ${esc(error.message)}
+      </div>
+    `;
+
+
+    showMessage(
+      error.message
+    );
+
+  }
+
+  finally{
+
+    setLoading(
+      false
+    );
+
+  }
+
+}
+
+
+function renderUpgrade(){
+
+  const query =
+    upgradeSearch.value
+      .trim()
+      .toLowerCase();
+
+
+  const filtered =
+    upgradeData.filter(
+      item=>{
+
+        if(
+          !query
+        ){
+
+          return true;
+
+        }
+
+
+        return (
+
+          String(
+            item.name || ""
+          )
+          .toLowerCase()
+          .includes(
+            query
+          )
+
+          ||
+
+          String(
+            item.id || ""
+          )
+          .toLowerCase()
+          .includes(
+            query
+          )
+
+        );
+
+      }
+    );
+
+
+  upgradeCount.textContent =
+
+    query
+
+      ? `Найдено: ${filtered.length} из ${upgradeData.length}`
+
+      : `Всего целей: ${upgradeData.length}`;
+
+
+  if(
+    !filtered.length
+  ){
+
+    upgradeItems.innerHTML = `
+      <div class="card empty">
+        NFT не найдены.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  upgradeItems.innerHTML =
+    filtered.map(
+      item=>{
+
+        const marketPrice =
+          Number(
+            item.market_price_stars ||
+            0
+          );
+
+
+        const price =
+          Number(
+            item.price_stars ||
+            0
+          );
+
+
+        const customPrice =
+          Number(
+            item.custom_price_stars ||
+            0
+          );
+
+
+        return `
+          <div
+            class="upgrade-card"
+            data-target-id="${esc(item.id)}"
+          >
+
+            <div class="upgrade-main">
+
+              <div class="upgrade-thumb">
+
+                ${
+                  item.image_url
+
+                    ? `
+                      <img
+                        src="${esc(item.image_url)}"
+                        alt=""
+                      >
+                    `
+
+                    : "🎁"
+                }
+
+              </div>
+
+
+              <div>
+
+                <div class="upgrade-name">
+
+                  ${esc(
+                    item.name
+                  )}
+
+                </div>
+
+
+                <div class="upgrade-id">
+
+                  ${esc(
+                    item.id
+                  )}
+
+                </div>
+
+
+                ${
+                  item.claimed
+
+                    ? `
+                      <div class="claimed">
+                        Сейчас уже выдан пользователю и не показывается как цель
+                      </div>
+                    `
+
+                    : ""
+                }
+
+              </div>
+
+            </div>
+
+
+            <div class="price-grid">
+
+              <div class="price-box">
+
+                <div class="price-title">
+                  Рыночная цена Telegram
+                </div>
+
+                <div class="price-value">
+
+                  ${marketPrice.toLocaleString(
+                    "ru-RU"
+                  )}
+                  ⭐
+
+                </div>
+
+              </div>
+
+
+              <div class="price-box">
+
+                <div class="price-title">
+                  Цена в Upgrade
+                </div>
+
+                <div
+                  class="
+                    price-value
+                    ${
+                      customPrice > 0
+                        ? "admin-price"
+                        : ""
+                    }
+                  "
+                >
+
+                  ${price.toLocaleString(
+                    "ru-RU"
+                  )}
+                  ⭐
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="upgrade-edit">
+
+              <input
+                class="price-input"
+                data-role="upgrade-price"
+                type="number"
+                min="1"
+                step="1"
+                value="${
+                  customPrice ||
+                  price ||
+                  0
+                }"
+                placeholder="Цена в Stars"
+              >
+
+
+              <button
+                class="btn btn-primary small"
+                data-upgrade-action="save"
+              >
+                Сохранить
+              </button>
+
+
+              <button
+                class="btn btn-secondary small"
+                data-upgrade-action="reset"
+              >
+                Рынок
+              </button>
+
+            </div>
+
+          </div>
+        `;
+
+      }
+    )
+    .join("");
+
+}
+
+
+upgradeSearch.addEventListener(
+  "input",
+  renderUpgrade
+);
+
+
+upgradeRefresh.addEventListener(
+  "click",
+  loadUpgrade
+);
+
+
+upgradeItems.addEventListener(
+  "click",
+  async event=>{
+
+    const button =
+      event.target.closest(
+        "[data-upgrade-action]"
+      );
+
+
+    if(
+      !button
+    ){
+
+      return;
+
+    }
+
+
+    const card =
+      button.closest(
+        ".upgrade-card"
+      );
+
+
+    const targetId =
+      card.dataset.targetId;
+
+
+    const action =
+      button.dataset.upgradeAction;
+
+
+    button.disabled =
+      true;
+
+
+    try{
+
+      if(
+        action === "save"
+      ){
+
+        const input =
+          card.querySelector(
+            '[data-role="upgrade-price"]'
+          );
+
+
+        const price =
+          Number(
+            input.value
+          );
+
+
+        if(
+          !Number.isInteger(price)
+          ||
+          price <= 0
+        ){
+
+          throw new Error(
+            "Цена должна быть целым числом больше 0 Stars"
+          );
+
+        }
+
+
+        await post(
+          "/api/admin/upgrade/price",
+          {
+
+            initData:initData,
+
+            target_id:
+              targetId,
+
+            price_stars:
+              price
+
+          }
+        );
+
+
+        showMessage(
+          `Цена сохранена: ${price.toLocaleString("ru-RU")} ⭐`,
+          "success"
+        );
+
+      }
+
+      else{
+
+        await post(
+          "/api/admin/upgrade/price/reset",
+          {
+
+            initData:initData,
+
+            target_id:
+              targetId
+
+          }
+        );
+
+
+        showMessage(
+          "Вернул рыночную цену Telegram.",
+          "success"
+        );
+
+      }
+
+
+      await loadUpgrade();
+
+    }
+
+    catch(error){
+
+      showMessage(
+        error.message
+      );
+
+    }
+
+    finally{
+
+      button.disabled =
+        false;
 
     }
 
@@ -1669,7 +2485,9 @@ itemsBox.addEventListener(
 
 async function loadUsers(){
 
-  setLoading(true);
+  setLoading(
+    true
+  );
 
 
   try{
@@ -1684,20 +2502,27 @@ async function loadUsers(){
 
 
     usersData =
-      result.users || [];
+      result.users ||
+      [];
 
 
     renderUsers();
 
-  }catch(error){
+  }
+
+  catch(error){
 
     showMessage(
       error.message
     );
 
-  }finally{
+  }
 
-    setLoading(false);
+  finally{
+
+    setLoading(
+      false
+    );
 
   }
 
@@ -1720,7 +2545,9 @@ function renderUsers(){
         if(
           !query
         ){
+
           return true;
+
         }
 
 
@@ -1735,21 +2562,27 @@ function renderUsers(){
           ),
 
           String(
-            user.username || ""
-          ).toLowerCase(),
+            user.username ||
+            ""
+          )
+          .toLowerCase(),
 
           String(
-            user.first_name || ""
-          ).toLowerCase()
+            user.first_name ||
+            ""
+          )
+          .toLowerCase()
 
         ];
 
 
         return values.some(
           value=>
+
             value.includes(
               query
             )
+
         );
 
       }
@@ -1757,6 +2590,7 @@ function renderUsers(){
 
 
   userCount.textContent =
+
     query
 
       ? `Найдено: ${filtered.length} из ${usersData.length}`
@@ -1775,6 +2609,7 @@ function renderUsers(){
     `;
 
     return;
+
   }
 
 
@@ -1783,10 +2618,11 @@ function renderUsers(){
       user=>{
 
         const username =
+
           user.username
 
             ? "@" +
-              escapeHtml(
+              esc(
                 user.username
               )
 
@@ -1794,16 +2630,17 @@ function renderUsers(){
 
 
         const firstName =
+
           user.first_name
 
-            ? escapeHtml(
+            ? esc(
                 user.first_name
               )
 
             : "";
 
 
-        const b =
+        const balances =
           user.balances ||
           {};
 
@@ -1859,9 +2696,12 @@ function renderUsers(){
                 </div>
 
                 <div class="balance-value">
-                  ${escapeHtml(
-                    b.XTR || "0"
+
+                  ${esc(
+                    balances.XTR ||
+                    "0"
                   )}
+
                 </div>
 
               </div>
@@ -1874,9 +2714,12 @@ function renderUsers(){
                 </div>
 
                 <div class="balance-value">
-                  ${escapeHtml(
-                    b.TON || "0"
+
+                  ${esc(
+                    balances.TON ||
+                    "0"
                   )}
+
                 </div>
 
               </div>
@@ -1889,9 +2732,12 @@ function renderUsers(){
                 </div>
 
                 <div class="balance-value">
-                  ${escapeHtml(
-                    b.USDT || "0"
+
+                  ${esc(
+                    balances.USDT ||
+                    "0"
                   )}
+
                 </div>
 
               </div>
@@ -1904,9 +2750,12 @@ function renderUsers(){
                 </div>
 
                 <div class="balance-value">
-                  ${escapeHtml(
-                    b.GRAM || "0"
+
+                  ${esc(
+                    balances.GRAM ||
+                    "0"
                   )}
+
                 </div>
 
               </div>
@@ -1917,7 +2766,7 @@ function renderUsers(){
             <div class="user-date">
 
               Регистрация:
-              ${escapeHtml(
+              ${esc(
                 user.created_at ||
                 "—"
               )}
@@ -1942,7 +2791,6 @@ function renderUsers(){
                   <label class="label">
                     Валюта
                   </label>
-
 
                   <select
                     class="select"
@@ -1975,7 +2823,6 @@ function renderUsers(){
                   <label class="label">
                     Сумма
                   </label>
-
 
                   <input
                     class="input"
@@ -2027,7 +2874,8 @@ function renderUsers(){
         `;
 
       }
-    ).join("");
+    )
+    .join("");
 
 }
 
@@ -2051,7 +2899,9 @@ usersBox.addEventListener(
     if(
       !button
     ){
+
       return;
+
     }
 
 
@@ -2064,7 +2914,9 @@ usersBox.addEventListener(
     if(
       !card
     ){
+
       return;
+
     }
 
 
@@ -2082,25 +2934,27 @@ usersBox.addEventListener(
       action === "toggle"
     ){
 
-      const editor =
-        card.querySelector(
-          ".editor"
-        );
-
-
-      editor.classList.toggle(
+      card
+      .querySelector(
+        ".editor"
+      )
+      .classList
+      .toggle(
         "open"
       );
 
 
       return;
+
     }
 
 
     if(
       action !== "balance"
     ){
+
       return;
+
     }
 
 
@@ -2133,21 +2987,20 @@ usersBox.addEventListener(
       );
 
       return;
+
     }
 
 
-    const amountNumber =
+    const number =
       Number(
         amount
       );
 
 
     if(
-      !Number.isFinite(
-        amountNumber
-      )
+      !Number.isFinite(number)
       ||
-      amountNumber < 0
+      number < 0
     ){
 
       showMessage(
@@ -2155,6 +3008,7 @@ usersBox.addEventListener(
       );
 
       return;
+
     }
 
 
@@ -2165,37 +3019,41 @@ usersBox.addEventListener(
     if(
       operation === "add"
     ){
+
       actionText =
         "начислить";
+
     }
 
 
     if(
       operation === "subtract"
     ){
+
       actionText =
         "списать";
+
     }
 
 
     if(
       operation === "set"
     ){
+
       actionText =
         "установить баланс";
+
     }
 
 
-    const confirmed =
-      confirm(
-        `${actionText} ${amount} ${currency} игроку ${userId}?`
-      );
-
-
     if(
-      !confirmed
+      !confirm(
+        `${actionText} ${amount} ${currency} игроку ${userId}?`
+      )
     ){
+
       return;
+
     }
 
 
@@ -2209,11 +3067,21 @@ usersBox.addEventListener(
         await post(
           "/api/admin/users/balance",
           {
+
             initData:initData,
-            user_id:userId,
-            currency:currency,
-            operation:operation,
-            amount:amount
+
+            user_id:
+              userId,
+
+            currency:
+              currency,
+
+            operation:
+              operation,
+
+            amount:
+              amount
+
           }
         );
 
@@ -2230,13 +3098,17 @@ usersBox.addEventListener(
         "success"
       );
 
-    }catch(error){
+    }
+
+    catch(error){
 
       showMessage(
         error.message
       );
 
-    }finally{
+    }
+
+    finally{
 
       button.disabled =
         false;
@@ -2274,7 +3146,9 @@ backBtn.addEventListener(
 
     await loadItems();
 
-  }catch(error){
+  }
+
+  catch(error){
 
     showMessage(
       error.message
